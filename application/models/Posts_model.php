@@ -1,0 +1,567 @@
+<?php
+
+class Posts_model extends CI_Model{
+
+    public function __construct(){
+
+        $this->load->database();
+        $this->load->helper("security");
+
+        // Set table name
+        $this->table = 'tbl_log';
+        // Set orderable column fields
+        $this->column_order = array(null, null, null, null, null, null, null, null);
+        // Set searchable column fields
+        //$this->column_search = array('usr_name', 'log_usr_ip', '');
+        // Set default order
+        $this->order = array('log_timestamp' => 'desc');
+
+    }
+
+    
+    public function get_vacant_position_open(){
+        $this->db->select('*');
+        $this->db->from('tbl_hr_position');
+        $this->db->join('tbl_ous','tbl_ous.ous_id = tbl_hr_position.pos_ous_id');
+        $this->db->join('tbl_hr_vacant','tbl_hr_vacant.vac_id = tbl_hr_position.vac_id');
+        $this->db->where('tbl_hr_position.pos_status', 'Open');
+        $this->db->order_by('tbl_hr_vacant.vac_deadline', 'Desc');
+        $this->db->order_by('tbl_ous.ous_arrangement', 'Asc');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    public function search_form_applicant(){
+        $this->db->select('*');
+        $this->db->from('tbl_hr_applicant');
+        $this->db->join('tbl_hr_applicant_evaluation','tbl_hr_applicant_evaluation.app_id = tbl_hr_applicant.app_id');
+        $this->db->join('tbl_hr_position','tbl_hr_position.pos_id = tbl_hr_applicant.app_vac_id');
+        $this->db->where('tbl_hr_applicant.app_hash', $this->security->xss_clean($this->input->post('search_form_applicant')));
+        $query = $this->db->get();
+        return $query->row_array();
+    }
+
+    public function save_forme1($intent, $educational_file){
+        
+        $hash = substr(md5($this->input->post('pos_id',true)),0 ,6)."-".substr(md5($this->input->post('lastname',true)),0 ,3)."-".substr(md5($this->input->post('firstname',true)),0 ,6)."-".$this->generateRandomString();
+        
+        $data = array(
+            'app_vac_id'  => $this->input->post('pos_id'),
+            'app_lastname'  => $this->input->post('lastname'),
+            'app_firstname'  => $this->input->post('firstname'),
+            'app_middlename'  => $this->input->post('middlename'),
+            'app_suffix'  => $this->input->post('suffix'),
+            'app_birthdate'  => $this->input->post('birthdate'),
+            'app_age'  => $this->input->post('age'),
+            'app_address'  => $this->input->post('address'),
+            'app_contacts'  => $this->input->post('contactno'),
+            'app_email'  => $this->input->post('email'),
+            'app_nationality'  => $this->input->post('nationality'),
+            'app_civil_status'  => $this->input->post('status'),
+            'app_gender'  => $this->input->post('gender'),
+            'app_educational'  => $this->input->post('education'),
+            'app_course'  => $this->input->post('course'),
+            'app_hash'  => $hash,
+            'app_timestamp'  => date('Y-m-d H:i:s')
+        );
+
+        //clean
+        $data = $this->security->xss_clean($data);
+        if($this->security->xss_clean($data)){
+            $result = $this->db->insert('tbl_hr_applicant', $data);
+
+            //get applicant ID
+            $applicant_id = $this->db->insert_id();
+
+            //save documents
+            $data1 = array(
+                'app_id'  => $applicant_id,
+                'app_intent'  => $intent, // update check
+                'app_educational_doc'  => $educational_file
+            );
+
+            $result1 = $this->db->insert('tbl_hr_applicant_documents', $data1);
+
+            if($result1){
+                $return = array(
+                    'status' => 'True',
+                    'app_id' => $applicant_id,
+                    'app_hash' => $hash
+                );
+            }else{ 
+                
+                $return = array(
+                    'status' => 'False'
+                ); 
+            }
+            return $return;
+        }else{
+            $return = array(
+                'status' => 'False'
+            ); 
+            return $return;
+        }
+    }
+
+    public function generateRandomString($length = 5) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+
+    public function save_forme2($eligibility_file, $national_certificate_file, $nttc_file){
+
+        //eligibility
+        $array_eligibility = $this->input->post('eligibility');
+        $result_eligibility = '';
+
+        foreach($array_eligibility as $row){
+            $result_eligibility = $result_eligibility.';'.$row;
+        }
+
+        //nc
+        $array_nc = $this->input->post('nc');
+        $result_nc = '';
+
+        foreach($array_nc as $row){
+            $result_nc = $result_nc.';'.$row;
+        }
+
+        //nttc
+        $array_nttc = $this->input->post('nttc');
+        $result_nttc = '';
+
+        foreach($array_nttc as $row){
+            $result_nttc = $result_nttc.';'.$row;
+        }
+
+        $data = array(
+            'app_eligibility' => $result_eligibility,
+            'app_nc' => $result_nc,
+            'app_nttc' =>  $result_nttc
+        );
+
+        //clean
+        $data = $this->security->xss_clean($data);
+        if($this->security->xss_clean($data)){  
+            //applicant info
+            $this->db->where('app_id', $this->input->post('forme2_app_id'));
+            $result = $this->db->update('tbl_hr_applicant', $data);  
+
+            //applicant docs
+            $data1 = array(
+                'app_eligibility_doc'  => $eligibility_file,
+                'app_nc_doc'  => $national_certificate_file,
+                'app_nttc_doc'  => $nttc_file
+            );
+
+            $this->db->where('app_id', $this->input->post('forme2_app_id'));
+            $this->db->update('tbl_hr_applicant_documents', $data1); 
+
+            if($result){
+                $return = array(
+                    'status' => 'True'
+                );
+            }else{ 
+                $return = array(
+                    'status' => 'False'
+                ); 
+            }
+            return $return;
+        }
+
+    }
+
+    public function number_of_applicants($param){
+        
+        $this->db->select('*');
+        $this->db->from('tbl_hr_applicant');
+        $this->db->join('tbl_hr_applicant_documents','tbl_hr_applicant_documents.app_id = tbl_hr_applicant.app_id');
+        $this->db->join('tbl_hr_position','tbl_hr_position.pos_id = tbl_hr_applicant.app_vac_id');
+        $this->db->join('tbl_hr_vacant','tbl_hr_vacant.vac_id = tbl_hr_position.vac_id');
+        //$this->db->join('tbl_ous','tbl_ous.ous_id = tbl_hr_position.pos_ous_id');
+        $this->db->where('tbl_hr_applicant.app_vac_id', $param);
+        $this->db->where('tbl_hr_applicant.app_timestamp >= tbl_hr_vacant.vac_date_posted');
+        $this->db->where('tbl_hr_applicant.app_timestamp <= DATE_ADD(tbl_hr_vacant.vac_deadline,INTERVAL 1 DAY)');
+
+        //$this->db->where('app_vac_id', $param);    
+        $query = $this->db->get();
+        if($query){
+            return $query->num_rows();
+        } 
+    }
+
+    public function save_forme3($ipcr_file, $cpa_file, $sr_file, $coe_file){
+
+        //relevant work experience
+        $array_work_experience = $this->input->post('relevant_experience');
+        $result_work_experience = '';
+
+        foreach($array_work_experience as $row){
+            $result_work_experience = $result_work_experience.';'.$row;
+        }
+
+         //relevant work experience years
+         $array_work_experience_years = $this->input->post('relevant_experience_years');
+         $result_work_experience_years = '';
+ 
+         foreach($array_work_experience_years as $row){
+             $result_work_experience_years = $result_work_experience_years.';'.$row;
+         }
+
+         //check date & year of service in TESDA
+         if($this->input->post('tesda_service') == null){
+            $tesda_service = null;
+         }else{
+            $tesda_service = $this->input->post('tesda_service');
+         } 
+         
+         if($this->input->post('date_tesda_service') == null){
+            $date_tesda_service = null;
+         }else{
+            $date_tesda_service = $this->input->post('date_tesda_service');
+         } 
+
+        $data = array(
+            'app_present_position' => $this->input->post('present_position'),
+            'app_present_office' => $this->input->post('present_office'),
+            'app_years' =>  $this->input->post('no_years'),
+            'app_relevant_experience' => $result_work_experience,
+            'app_relevant_years' =>  $result_work_experience_years,
+            'app_tesda_years' => $tesda_service,
+            'app_date_tesda' =>  $date_tesda_service
+        );
+
+        //clean
+        $data = $this->security->xss_clean($data);
+        if($this->security->xss_clean($data)){  
+            //applicant info
+            $this->db->where('app_id', $this->input->post('forme3_app_id'));
+            $result = $this->db->update('tbl_hr_applicant', $data);  
+
+            //applicant docs
+            $data1 = array(
+                'app_coe_doc'  => $coe_file,
+                'app_sr'  => $sr_file,
+                'app_appointment'  => $cpa_file,
+                'app_ipcr'  => $ipcr_file
+            );
+
+            $this->db->where('app_id', $this->input->post('forme3_app_id'));
+            $this->db->update('tbl_hr_applicant_documents', $data1); 
+
+            if($result){
+                $return = array(
+                    'status' => 'True'
+                );
+            }else{ 
+                $return = array(
+                    'status' => 'False'
+                ); 
+            }
+            return $return;
+        }
+
+    }
+
+    public function save_forme4($training_file){
+
+        //relevant Training
+        $array_relevant_training = $this->input->post('relevant_training');
+        $result_relevant_training = '';
+
+        foreach($array_relevant_training as $row){
+            $result_relevant_training = $result_relevant_training.';'.$row;
+        }
+
+         //relevant Training
+         $array_relevant_training_hours = $this->input->post('relevant_training_hours');
+         $result_relevant_training_hours = '';
+ 
+         foreach($array_relevant_training_hours as $row){
+             $result_relevant_training_hours = $result_relevant_training_hours.';'.$row;
+         }
+
+         
+        $data = array(
+            'app_training' => $result_relevant_training,
+            'app_training_hours' => $result_relevant_training_hours  
+        );
+
+        //clean
+        $data = $this->security->xss_clean($data);
+        if($this->security->xss_clean($data)){  
+            //applicant info
+            $this->db->where('app_id', $this->input->post('forme4_app_id'));
+            $result = $this->db->update('tbl_hr_applicant', $data);  
+
+            //applicant docs
+            $data1 = array(
+                'app_training_doc'  => $training_file
+            );
+
+            $this->db->where('app_id', $this->input->post('forme4_app_id'));
+            $this->db->update('tbl_hr_applicant_documents', $data1); 
+
+            if($result){
+                $return = array(
+                    'status' => 'True'
+                );
+            }else{ 
+                $return = array(
+                    'status' => 'False'
+                ); 
+            }
+            return $return;
+        }
+    }
+
+    public function save_forme5(){
+
+        //RA8371
+        $array_RA8371 = $this->input->post('ra8371');
+        $result_RA8371 = '';
+
+        foreach($array_RA8371 as $row){
+            $result_RA8371 = $result_RA8371.';'.$row;
+        }
+
+        //RA727
+        $array_RA727 = $this->input->post('ra727');
+        $result_RA727 = '';
+
+        foreach($array_RA727 as $row){
+            $result_RA727 = $result_RA727.';'.$row;
+        }
+
+        //RA8972
+        $array_RA8972 = $this->input->post('ra8972');
+        $result_RA8972 = '';
+
+        foreach($array_RA8972 as $row){
+            $result_RA8972 = $result_RA8972.';'.$row;
+        }
+         
+         
+        $data = array(
+            'app_ra8371' => $result_RA8371,
+            'app_ra7277' => $result_RA727,
+            'app_ra8972' => $result_RA8972  
+        );
+
+        //clean
+        $data = $this->security->xss_clean($data);
+        if($this->security->xss_clean($data)){  
+            //applicant info
+            $this->db->where('app_id', $this->input->post('forme5_app_id'));
+            $result = $this->db->update('tbl_hr_applicant', $data);  
+
+            if($result){
+                $return = array(
+                    'status' => 'True'
+                );
+            }else{ 
+                $return = array(
+                    'status' => 'False'
+                ); 
+            }
+            return $return;
+        }
+
+    }
+
+    public function save_forme6($pds_file, $wes_file){
+        
+        //applicant docs
+        $data1 = array(
+            'app_pds'  => $pds_file,
+            'app_wes'  => $wes_file
+        );
+
+        $this->db->where('app_id', $this->input->post('forme6_app_id'));
+        $result = $this->db->update('tbl_hr_applicant_documents', $data1); 
+
+        if($result){
+            $return = array(
+                'status' => 'True'
+            );
+        }else{ 
+            $return = array(
+                'status' => 'False'
+            ); 
+        }
+        return $return;
+    }
+
+    public function save_forme7(){
+
+        //immediate_supervisor
+        $array_immediate_supervisor = $this->input->post('immediate_supervisor');
+        $result_immediate_supervisor = '';
+
+        foreach($array_immediate_supervisor as $row){
+            $result_immediate_supervisor = $result_immediate_supervisor.';'.$row;
+        }
+
+        //peer
+        $array_peer = $this->input->post('peer');
+        $result_peer = '';
+
+        foreach($array_peer as $row){
+            $result_peer = $result_peer.';'.$row;
+        }
+
+        //client
+        $array_client = $this->input->post('client');
+        $result_client = '';
+
+        foreach($array_client as $row){
+            $result_client = $result_client.';'.$row;
+        }
+         
+         
+        $data = array(
+            'app_supervisor' => $result_immediate_supervisor,
+            'app_peer' => $result_peer,
+            'app_client' => $result_client  
+        );
+
+        //clean
+        $data = $this->security->xss_clean($data);
+        if($this->security->xss_clean($data)){  
+            //applicant info
+            $this->db->where('app_id', $this->input->post('forme7_app_id'));
+            $result = $this->db->update('tbl_hr_applicant', $data);  
+
+            if($result){
+                $return = array(
+                    'status' => 'True'
+                );
+            }else{ 
+                $return = array(
+                    'status' => 'False'
+                ); 
+            }
+            return $return;
+        }
+
+    }
+
+    public function save_forme8($arp_file){
+    
+        $data = array(
+            'app_performance_international' => $this->input->post('international_arp'),
+            'app_performance_national' => $this->input->post('national_arp'),
+            'app_performance_regional' => $this->input->post('regional_arp'),
+            'app_performance_provincial' => $this->input->post('provincial_arp')
+        );
+
+        //clean
+        $data = $this->security->xss_clean($data);
+        if($this->security->xss_clean($data)){  
+            //applicant info
+            $this->db->where('app_id', $this->input->post('forme8_app_id'));
+            $result = $this->db->update('tbl_hr_applicant', $data);  
+
+            //applicant docs
+            $data1 = array(
+                'app_performance'  => $arp_file
+            );
+
+            $this->db->where('app_id', $this->input->post('forme8_app_id'));
+            $this->db->update('tbl_hr_applicant_documents', $data1); 
+
+            if($result){
+                $return = array(
+                    'status' => 'True'
+                );
+            }else{ 
+                $return = array(
+                    'status' => 'False'
+                ); 
+            }
+            return $return;
+        }
+
+    }
+
+    public function save_forme9($expertise_file){
+    
+        $data = array(
+            'app_expert_international' => $this->input->post('international_expertise'),
+            'app_expertise_national' => $this->input->post('national_expertise'),
+            'app_expertise_regional' => $this->input->post('regional_expertise'),
+            'app_expertise_provincial' => $this->input->post('provincial_expertise')
+        );
+
+        //clean
+        $data = $this->security->xss_clean($data);
+        if($this->security->xss_clean($data)){  
+            //applicant info
+            $this->db->where('app_id', $this->input->post('forme9_app_id'));
+            $result = $this->db->update('tbl_hr_applicant', $data);  
+
+            //applicant docs
+            $data1 = array(
+                'app_service'  => $expertise_file
+            );
+
+            $this->db->where('app_id', $this->input->post('forme9_app_id'));
+            $this->db->update('tbl_hr_applicant_documents', $data1); 
+
+            if($result){
+                $return = array(
+                    'status' => 'True'
+                );
+            }else{ 
+                $return = array(
+                    'status' => 'False'
+                ); 
+            }
+            return $return;
+        }
+
+    }
+
+    public function save_forme10($cmt_file){
+    
+        $data = array(
+            'app_committee_chair' => $this->input->post('cmt_chair'),
+            'app_committee_vchair' => $this->input->post('cmt_vcchair'),
+            'app_committee_member' => $this->input->post('cmt_member'),
+            'app_committee_sec' => $this->input->post('cmt_secretariat')
+        );
+
+        //clean
+        $data = $this->security->xss_clean($data);
+        if($this->security->xss_clean($data)){  
+            //applicant info
+            $this->db->where('app_id', $this->input->post('forme10_app_id'));
+            $result = $this->db->update('tbl_hr_applicant', $data);  
+
+            //applicant docs
+            $data1 = array(
+                'app_committee'  => $cmt_file
+            );
+
+            $this->db->where('app_id', $this->input->post('forme10_app_id'));
+            $this->db->update('tbl_hr_applicant_documents', $data1); 
+
+            if($result){
+                $return = array(
+                    'status' => 'True'
+                );
+            }else{ 
+                $return = array(
+                    'status' => 'False'
+                ); 
+            }
+            return $return;
+        }
+    }
+
+}// ---------------------- Last

@@ -1,0 +1,15 @@
+RewriteEngine on
+
+RewriteCond $1 !^(index\.php|assets|pdf|static|images|js|css|libs|uploads|icons|favicon.png|fonts|admin|icons-reference|img|vendor|evidence|certificate)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ ./index.php?/$1 [PT,L]
+
+php_value upload_max_filesize 512M
+php_value post_max_size 512M
+php_value memory_limit 256M
+
+php_value max_input_time 7200
+php_value max_execution_time 7200
+
+
