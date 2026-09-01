@@ -1,31 +1,33 @@
-.DS_Store
+# CodeIgniter configuration
+application/config/config.php
+application/config/database.php
 
+# User-uploaded files
+uploads/
+application/uploads/
+
+# Cache
 application/cache/*
 !application/cache/index.html
 
+# Logs
 application/logs/*
 !application/logs/index.html
 
-!application/*/.htaccess
+# Sessions
+application/sessions/*
+!application/sessions/index.html
 
-composer.lock
+# Environment files
+.env
 
-user_guide_src/build/*
-user_guide_src/cilexer/build/*
-user_guide_src/cilexer/dist/*
-user_guide_src/cilexer/pycilexer.egg-info/*
-/vendor/
+# XAMPP / local files
+*.log
 
-# IDE Files
-#-------------------------
-/nbproject/
-.idea/*
+# IDE settings
+.vscode/
+.idea/
 
-## Sublime Text cache files
-*.tmlanguage.cache
-*.tmPreferences.cache
-*.stTheme.cache
-*.sublime-workspace
-*.sublime-project
-/tests/tests/
-/tests/results/
+# OS files
+.DS_Store
+Thumbs.db

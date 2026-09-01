@@ -69,6 +69,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             $route['view_applicants/(:any)'] = 'pages/view_applicants/$1';
             $route['get_applicants/(:any)'] = 'pages/get_applicants/$1';
             $route['search_form_applicant'] = 'pages/search_form_applicant';
+            $route['send_email'] = 'pages/send_email';
+            $route['education_eligibility/(:any)'] = 'pages/education_eligibility/$1';
+            $route['work_experience/(:any)'] = 'pages/work_experience/$1';
         //Job Portal
 
 $route['404_override'] = '';

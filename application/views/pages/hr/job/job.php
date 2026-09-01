@@ -28,19 +28,9 @@
     <link href="<?= base_url()?>jobportal/css/font-face.css" rel="stylesheet" media="all">
     <link href="<?= base_url()?>jobportal/vendor/font-awesome-4.7/css/font-awesome.min.css" rel="stylesheet" media="all">
     <link href="<?= base_url()?>jobportal/vendor/font-awesome-5/css/fontawesome-all.min.css" rel="stylesheet" media="all">
-    <link href="<?= base_url()?>jobportal/vendor/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
 
     <!-- Bootstrap CSS-->
     <link href="<?= base_url()?>jobportal/vendor/bootstrap-4.1/bootstrap.min.css" rel="stylesheet" media="all">
-
-    <!-- Vendor CSS-->
-    <link href="<?= base_url()?>jobportal/vendor/animsition/animsition.min.css" rel="stylesheet" media="all">
-    <link href="<?= base_url()?>jobportal/vendor/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet" media="all">
-    <link href="<?= base_url()?>jobportal/vendor/wow/animate.css" rel="stylesheet" media="all">
-    <link href="<?= base_url()?>jobportal/vendor/css-hamburgers/hamburgers.min.css" rel="stylesheet" media="all">
-    <link href="<?= base_url()?>jobportal/vendor/slick/slick.css" rel="stylesheet" media="all">
-    <link href="<?= base_url()?>jobportal/vendor/select2/select2.min.css" rel="stylesheet" media="all">
-    <link href="<?= base_url()?>jobportal/vendor/perfect-scrollbar/perfect-scrollbar.css" rel="stylesheet" media="all">
 
     <!-- Main CSS-->
     <link href="<?= base_url()?>jobportal/css/theme.css" rel="stylesheet" media="all">
@@ -50,14 +40,125 @@
 
    <!-- DataTables-->
    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
-   <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>  
-   
+   <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+
     <!-- Captcha-->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
-    
+    <!-- Typography for the redesign -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
 
-   
+    <style>
+        :root{
+            --ink:#1C2B39;
+            --ink-soft:#2E4157;
+            --paper:#FAF8F4;
+            --brass:#A8762E;
+            --brass-dark:#8C6224;
+            --slate:#5B6B7A;
+            --line:#D9D3C7;
+            --success:#3F7A5C;
+            --closed:#8A5A2E;
+        }
+        body{font-family:'Inter',-apple-system,sans-serif;color:var(--ink);background:var(--paper);}
+
+        /* Header */
+        .header-desktop4{background:#fff;border-bottom:1px solid var(--line);padding:16px 0;}
+        .header4-wrap{display:flex;align-items:center;}
+        .header__logo img{height:44px;}
+
+        /* Hero */
+        .tesda-hero{background:var(--ink);padding:56px 0 64px;position:relative;overflow:hidden;}
+        .tesda-hero::after{
+            content:"";position:absolute;right:-80px;top:-80px;width:320px;height:320px;
+            border-radius:50%;background:radial-gradient(circle,rgba(168,118,46,.18),transparent 70%);
+        }
+        .tesda-hero .eyebrow{
+            color:var(--brass);font-size:14px;font-weight:600;margin-bottom:10px;display:block;
+        }
+        .tesda-hero h1{
+            font-family:'Source Serif 4',Georgia,serif;
+            color:#fff;font-size:38px;font-weight:700;line-height:1.15;margin-bottom:22px;
+        }
+        .tesda-hero h1 span{display:block;color:#C9BFA8;font-size:20px;font-weight:400;margin-top:6px;font-family:'Inter',sans-serif;}
+        .tesda-hero .eo-statement{
+            background:rgba(255,255,255,.05);
+            border-left:3px solid var(--brass);
+            padding:16px 20px;
+            border-radius:0 3px 3px 0;
+            color:#D8D2C4;
+            font-size:14.5px;
+            line-height:1.7;
+            margin-bottom:14px;
+        }
+        .tesda-hero .confidentiality-note{
+            color:#9DA9B6;font-size:13.5px;line-height:1.6;margin-bottom:30px;max-width:640px;
+        }
+
+        .search-card{
+            background:#fff;border-radius:4px;padding:8px;display:flex;gap:8px;
+            max-width:560px;box-shadow:0 8px 24px rgba(0,0,0,.15);
+        }
+        .search-card input{
+            flex:1;border:none;padding:12px 16px;font-size:14.5px;color:var(--ink);
+            background:transparent;
+        }
+        .search-card input:focus{outline:none;}
+        .search-card button{
+            background:var(--brass);border:none;color:#fff;padding:0 20px;border-radius:3px;
+            display:flex;align-items:center;justify-content:center;transition:background .15s ease;
+        }
+        .search-card button:hover{background:var(--brass-dark);}
+
+        /* Listings section */
+        .listings-section{padding:48px 0 20px;}
+        .listings-heading{
+            font-family:'Source Serif 4',Georgia,serif;
+            font-size:24px;font-weight:600;color:var(--ink);margin-bottom:4px;
+        }
+        .listings-sub{color:var(--slate);font-size:14px;margin-bottom:24px;}
+
+        .tesda-table-wrap{
+            background:#fff;border:1px solid var(--line);border-radius:4px;overflow:hidden;
+        }
+        table.table-data3{margin-bottom:0;}
+        table.table-data3 thead tr{background:var(--ink) !important;}
+        table.table-data3 thead th{
+            color:#fff !important;font-weight:600;font-size:13px;
+            padding:14px 16px;border:none;
+        }
+        table.table-data3 tbody td{
+            padding:14px 16px;font-size:14px;color:var(--ink);
+            border-top:1px solid var(--line);vertical-align:middle;
+        }
+        table.table-data3 tbody tr:hover{background:#FCFBF8;}
+
+        .role.member{
+            background:#EAF3EE;color:var(--success);border-radius:20px;
+            padding:4px 12px;font-size:12.5px;font-weight:600;
+        }
+        .role.admin{
+            background:#F5EDE2;color:var(--closed);border-radius:20px;
+            padding:4px 12px;font-size:12.5px;font-weight:600;
+        }
+
+        .table-data-feature{display:flex;gap:6px;}
+        .table-data-feature .item{
+            background:var(--paper);border:1px solid var(--line);border-radius:3px;
+            width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+            padding:0;transition:.15s ease;
+        }
+        .table-data-feature .item:hover{background:var(--ink);}
+        .table-data-feature .item:hover a{color:#fff;}
+        .table-data-feature .item a{color:var(--ink);}
+        .table-data-feature .item span#getnoofapplicants{font-size:13px;}
+
+        /* Footer */
+        .copyright{padding:20px 0;border-top:1px solid var(--line);margin-top:30px;}
+        .copyright p{color:var(--slate);font-size:13px;text-align:center;margin:0;}
+        .copyright a{color:var(--brass-dark);}
+    </style>
 
 </head>
 <body class="animsition">
@@ -76,7 +177,7 @@
                         </a>
                     </div>
                     <div class="header__tool">
-                        
+
                     </div>
                 </div>
             </div>
@@ -84,24 +185,22 @@
         <!-- END HEADER DESKTOP -->
 
         <!-- WELCOME-->
-        <section class="welcome2 p-t-40 p-b-55" style="background-color: #01579b;">
+        <section class="tesda-hero">
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="welcome2-inner m-t-40">
-                            <div class="welcome2-greeting">
-                                <h1 class="title-6">TESDA DOS
-                                    <span>Job Portal</span></h1>
-                                <p align="justify" style="padding-right:50px;color:#bdbdbd">“TESDA, as an Equal Opportunity agency, encourages a more diverse and inclusive workforce. Hence, applicants will not be discriminated on account of gender, sexual orientation, civil status, disability, religion, ethnicity, or political affiliation, provided, however that they meet the minimum requirements of the position to be filled”.</p>
-                                <p align="justify" style="padding-right:50px; padding-top:10px;color:#bdbdbd">The accomplished form shall be treated with outmost confidentiality and shall be used exclusively for the recruitment and selection process.</p>
-                            </div>
-                            <form class="form-header form-header2 m-t-40" method="post" id="search_form_applicant">
-                                <input class="au-input au-input--w435" type="text" name="search_form_applicant" placeholder="Search the status of your application." required>
-                                <button class="au-btn--submit" type="submit">
-                                    <i class="zmdi zmdi-search"></i>
-                                </button>
-                            </form>
+                        <span class="eyebrow">TESDA DOS Integrated System (TDIS) </span>
+                        <h1>Job Portal<span>Find and apply to open positions across TESDA Region II (Cagayan Valley)</span></h1>
+
+                        <div class="eo-statement">
+                            “TESDA, as an Equal Opportunity agency, encourages a more diverse and inclusive workforce. Hence, applicants will not be discriminated on account of gender, sexual orientation, civil status, disability, religion, ethnicity, or political affiliation, provided, however that they meet the minimum requirements of the position to be filled.”
                         </div>
+                        <p class="confidentiality-note">The accomplished form shall be treated with utmost confidentiality and shall be used exclusively for the recruitment and selection process.</p>
+
+                        <form class="search-card" method="post" id="search_form_applicant">
+                            <input type="text" name="search_form_applicant" placeholder="Search the status of your application" required>
+                            <button type="submit"><i class="fa fa-search"></i></button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -110,35 +209,39 @@
 
         <!-- PAGE CONTENT-->
         <div class="page-container3">
-            <section>
-                <div class="container p-t-30">
+            <section class="listings-section">
+                <div class="container">
                     <div class="row">
                         <div class="col-xl-12">
                             <!-- PAGE CONTENT-->
                             <div class="page-content">
+                                <div class="listings-heading">Open Positions</div>
+                                <p class="listings-sub">Review the qualifications for a position, then submit your application before its closing date.</p>
                                 <div class="row">
-                                    
+
                                     <!-- DATA TABLE-->
-                                    <div class="table-responsive m-t-40 m-b-10">
-                                        <table id="vacant_positions_open_landing_table" class="table table-borderless table-data3">
-                                            <thead style="background-color: #01579b;">
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Location</th>
-                                                    <th>Position Title</th>
-                                                    <th>Plantilla Item No.</th>
-                                                    <th>Salary Grade</th>
-                                                    <th>Posting Date</th>
-                                                    <th>Closing Date</th>
-                                                    <th>Status</th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="vacant_positions_open_landing">
-                                                
-                                               
-                                            </tbody>
-                                        </table>
+                                    <div class="tesda-table-wrap m-b-10" style="width:100%;">
+                                        <div class="table-responsive">
+                                            <table id="vacant_positions_open_landing_table" class="table table-borderless table-data3">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Location</th>
+                                                        <th>Position Title</th>
+                                                        <th>Plantilla Item No.</th>
+                                                        <th>Salary Grade</th>
+                                                        <th>Posting Date</th>
+                                                        <th>Closing Date</th>
+                                                        <th>Status</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="vacant_positions_open_landing">
+
+
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                     <!-- END DATA TABLE -->
 
@@ -178,7 +281,7 @@
                 <!-- modal application status false -->
                 <?php include("app_status_false.php");?>
                 <!-- end application status false -->
-               
+
 
             </section>
         </div>
@@ -206,10 +309,10 @@
                             if (data[i].pos_status == 'Open'){
                                 if(Date.parse(data[i].vac_deadline) < Date.parse(data[i].server_time)){
                                     var pos_status = '<span class="role admin">Closed</span>';
-                                    var button = '<a data-toggle="modal" data-target=""><i class="zmdi zmdi-mail-send"></i></a>';
+                                    var button = '<a data-toggle="modal" data-target=""><i class="fa fa-upload" aria-hidden="true"></i></a>';
                                 }else{
                                     var pos_status = '<span class="role member">Open</span>';
-                                    var button = '<a class="apply" data-toggle="modal" data-target="#staticModal" data-pos_id="'+data[i].pos_id+'"><i class="zmdi zmdi-mail-send"></i></a>';
+                                    var button = '<a class="apply" data-toggle="modal" data-target="#staticModal" data-pos_id="'+data[i].pos_id+'"><i class="fa fa-upload" aria-hidden="true"></i></i></a>';
                                 }
                             }
                             //----------------------------------------
@@ -232,7 +335,7 @@
                                         '<td>'+
                                             '<div class="table-data-feature">'+
                                                ' <button class="item" data-toggle="tooltip" data-placement="top" title="View Standard Qualifications">'+
-                                                   ' <a class="qualification" data-toggle="modal" data-target="#qualifications" data-pos_id="'+data[i].pos_id+'" data-pos_competency="'+data[i].pos_competency+'" data-pos_education="'+data[i].pos_education+'" data-pos_eligibility="'+data[i].pos_eligibility+'" data-pos_experience="'+data[i].pos_experience+'" data-pos_training="'+data[i].pos_training+'"><i class="zmdi zmdi-eye"></i></a>'+
+                                                   ' <a class="qualification" data-toggle="modal" data-target="#qualifications" data-pos_id="'+data[i].pos_id+'" data-pos_competency="'+data[i].pos_competency+'" data-pos_education="'+data[i].pos_education+'" data-pos_eligibility="'+data[i].pos_eligibility+'" data-pos_experience="'+data[i].pos_experience+'" data-pos_training="'+data[i].pos_training+'"><i class="fa fa-eye" aria-hidden="true"></i></a>'+
                                                 '</button>'+
                                                 '<button class="item" data-toggle="tooltip" data-placement="top" title="Send Application">'+
                                                     button+
@@ -325,21 +428,6 @@
     <!-- Bootstrap JS-->
     <script src="<?= base_url()?>jobportal/vendor/bootstrap-4.1/popper.min.js"></script>
     <script src="<?= base_url()?>jobportal/vendor/bootstrap-4.1/bootstrap.min.js"></script>
-    <!-- Vendor JS       -->
-    <script src="<?= base_url()?>jobportal/vendor/slick/slick.min.js">
-    </script>
-    <script src="<?= base_url()?>jobportal/vendor/wow/wow.min.js"></script>
-    <script src="<?= base_url()?>jobportal/vendor/animsition/animsition.min.js"></script>
-    <script src="<?= base_url()?>jobportal/vendor/bootstrap-progressbar/bootstrap-progressbar.min.js">
-    </script>
-    <script src="<?= base_url()?>jobportal/vendor/counter-up/jquery.waypoints.min.js"></script>
-    <script src="<?= base_url()?>jobportal/vendor/counter-up/jquery.counterup.min.js">
-    </script>
-    <script src="<?= base_url()?>jobportal/vendor/circle-progress/circle-progress.min.js"></script>
-    <script src="<?= base_url()?>jobportal/vendor/perfect-scrollbar/perfect-scrollbar.js"></script>
-    <script src="<?= base_url()?>jobportal/vendor/chartjs/Chart.bundle.min.js"></script>
-    <script src="<?= base_url()?>jobportal/vendor/select2/select2.min.js">
-    </script>
 
     <!-- Main JS-->
     <script src="<?= base_url()?>jobportal/js/main.js"></script>

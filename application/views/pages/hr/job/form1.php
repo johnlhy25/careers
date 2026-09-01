@@ -1,193 +1,323 @@
 <!-- First Tab-->
 <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
 
+<style>
+.tesda-app{
+  --ink:#1C2B39;
+  --paper:#FAF8F4;
+  --brass:#A8762E;
+  --brass-dark:#8C6224;
+  --slate:#5B6B7A;
+  --line:#D9D3C7;
+  --success:#3F7A5C;
+  --error:#B23A3A;
+  font-family:'Inter',-apple-system,sans-serif;
+  color:var(--ink);
+  background:var(--paper);
+  max-width:680px;
+  margin:0 auto;
+  border:1px solid var(--line);
+  border-radius:4px;
+  overflow:hidden;
+}
+.tesda-app .card{border:none;border-radius:0;background:transparent;}
+.tesda-app .card-header{
+  background:var(--ink);
+  color:var(--paper);
+  border:none;
+  padding:28px 32px 22px;
+}
+.tesda-app .card-header .eyebrow{
+  display:block;
+  font-size:13px;
+  color:#C9BFA8;
+  margin-bottom:6px;
+  letter-spacing:.01em;
+}
+.tesda-app .card-header .title{
+  font-family:'Source Serif 4',Georgia,serif;
+  font-size:26px;
+  font-weight:600;
+}
+.tesda-app .card-body{padding:32px;}
+
+.tesda-app .intent-block{
+  background:#fff;
+  border:1px solid var(--line);
+  border-left:4px solid var(--brass);
+  border-radius:3px;
+  padding:20px 22px;
+  margin-bottom:36px;
+}
+.tesda-app .intent-block label{
+  font-family:'Source Serif 4',Georgia,serif;
+  font-size:16px;
+  font-weight:600;
+  display:block;
+  margin-bottom:4px;
+}
+.tesda-app .intent-block .hint{
+  font-size:13.5px;
+  color:var(--slate);
+  margin-bottom:14px;
+  line-height:1.5;
+}
+.tesda-app .file-picker{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.tesda-app .file-picker input[type=file]{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  cursor:pointer;
+  width:100%;
+  height:100%;
+}
+.tesda-app .file-picker .btn-choose{
+  background:var(--ink);
+  color:#fff;
+  padding:9px 18px;
+  border-radius:3px;
+  font-size:14px;
+  font-weight:500;
+  white-space:nowrap;
+}
+.tesda-app .file-picker .file-name{
+  font-size:13.5px;
+  color:var(--slate);
+}
+.tesda-app .file-picker.has-error .btn-choose{background:var(--error);}
+
+.tesda-app .field{margin-bottom:22px;}
+.tesda-app .field label{
+  display:block;
+  font-size:14px;
+  font-weight:600;
+  margin-bottom:7px;
+}
+.tesda-app .field label .req{color:var(--error);margin-left:3px;}
+.tesda-app .field .note{
+  display:block;
+  font-size:12.5px;
+  color:var(--slate);
+  margin-top:6px;
+}
+.tesda-app input[type=text],
+.tesda-app input[type=date],
+.tesda-app input[type=number],
+.tesda-app input[type=email],
+.tesda-app select{
+  width:100%;
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:3px;
+  padding:11px 13px;
+  font-size:15px;
+  font-family:inherit;
+  color:var(--ink);
+  transition:border-color .15s ease;
+}
+.tesda-app input:focus,
+.tesda-app select:focus{
+  outline:none;
+  border-color:var(--brass);
+  box-shadow:0 0 0 3px rgba(168,118,46,.15);
+}
+.tesda-app select{appearance:auto;}
+
+.tesda-app .row-2{display:flex;gap:16px;}
+.tesda-app .row-2 .field{flex:1;}
+@media(max-width:560px){.tesda-app .row-2{flex-direction:column;gap:0;}}
+
+.tesda-app .segmented{display:flex;flex-wrap:wrap;gap:8px;}
+.tesda-app .segmented input{position:absolute;opacity:0;pointer-events:none;}
+.tesda-app .segmented .seg-label{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:20px;
+  padding:8px 16px;
+  font-size:14px;
+  cursor:pointer;
+  transition:.15s ease;
+}
+.tesda-app .segmented input:checked + .seg-label{
+  background:var(--ink);
+  border-color:var(--ink);
+  color:#fff;
+}
+
+.tesda-app .divider{
+  border:none;
+  border-top:1px solid var(--line);
+  margin:32px 0;
+}
+
+.tesda-app .submit-row{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  margin-top:28px;
+}
+.tesda-app button#btn_forme1{
+  background:var(--brass);
+  border:none;
+  color:#fff;
+  font-weight:600;
+  font-size:15px;
+  padding:12px 26px;
+  border-radius:3px;
+  cursor:pointer;
+  transition:background .15s ease;
+}
+.tesda-app button#btn_forme1:hover{background:var(--brass-dark);}
+.tesda-app button#btn_forme1 i{margin-right:8px;}
+
+.tesda-app .message .alert{
+  border-radius:3px;
+  padding:12px 16px;
+  font-size:14px;
+  margin-bottom:18px;
+}
+.tesda-app .alert-success{background:#EAF3EE;color:var(--success);border:1px solid #C7E0D2;}
+.tesda-app .alert-danger{background:#FBEAEA;color:var(--error);border:1px solid #F0C6C6;}
+
+.tesda-app .checkbox-group{display:flex;flex-wrap:wrap;gap:8px;}
+.tesda-app .checkbox-group input{position:absolute;opacity:0;pointer-events:none;}
+.tesda-app .checkbox-group .chk-label{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:20px;
+  padding:8px 16px;
+  font-size:14px;
+  cursor:pointer;
+  transition:.15s ease;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.tesda-app .checkbox-group .chk-label::before{
+  content:"";
+  width:14px;height:14px;
+  border:1.5px solid var(--line);
+  border-radius:3px;
+  display:inline-block;
+  flex-shrink:0;
+}
+.tesda-app .checkbox-group input:checked + .chk-label{
+  background:var(--ink);
+  border-color:var(--ink);
+  color:#fff;
+}
+.tesda-app .checkbox-group input:checked + .chk-label::before{
+  background:var(--brass);
+  border-color:var(--brass);
+}
+</style>
+
 <!---Form 1-->
-<div class="card">
-    <div class="card-header">
-        <strong>Personal</strong> Information
-    </div>
-    <div id="forme1_card" class="card-body card-block"><!---card-body card-block-->
-        <form action="" method="POST" id="forme1_form" role="form"><!--Form-->
-
-        <input type="hidden" id="pos_id" name="pos_id" class="form-control">  
-        
-        <!--Letter of Intent-->
-        <div class="alert alert-primary" role="alert">
-            <div class="row form-group m-t-20 m-t-0">
-                <div class="col col-md-7">
-                    <label for="intent_file" class=" form-control-label"><b>Intent Letter</b> (indicating the position, office where the vacancy exists and its Item Number)</label>
-                </div>
-                <div class="col-12 col-md-5">
-                    <input type="file" id="intent_file" name="intent_file" class="form-control-file" accept="application/pdf" required>
-                    <small class="help-block form-text" style="color:red"><strong>Please upload pdf file only.</strong></small>
-                </div>
-            </div>
+<div class="tesda-app">
+    <div class="card">
+        <div class="card-header">
+            <span class="eyebrow">Step 1 of your application</span>
+            <div class="title">Personal Information</div>
         </div>
-        <!--Letter of Intent-->
+        <div id="forme1_card" class="card-body"><!---card-body-->
+            <form action="" method="POST" id="forme1_form" role="form"><!--Form-->
 
-        <!--Last Name-->
-        <div class="row form-group">
-            <div class="col col-md-3">
-                <label for="lastname" class=" form-control-label"><span style="color:red"><strong>*</strong></span> Last Name</label>
-            </div>
-            <div class="col-12 col-md-9">
-                <input type="text" id="lastname" name="lastname" placeholder="Dela Cruz" class="form-control" required>
-            </div>
-        </div>
-        <!--Last Name--> 
+            <input type="hidden" id="pos_id" name="pos_id">
 
-        <!--First Name-->
-        <div class="row form-group">
-            <div class="col col-md-3">
-                <label for="firstname" class=" form-control-label"><span style="color:red"><strong>*</strong></span> First Name</label>
-            </div>
-            <div class="col-12 col-md-9">
-                <input type="text" id="firstname" name="firstname" placeholder="Juan" class="form-control" required>
-            </div>
-        </div>
-        <!--First Name-->
-
-        <!--Middle Name-->
-        <div class="row form-group">
-            <div class="col col-md-3">
-                <label for="middlename" class=" form-control-label"><span style="color:red"><strong>*</strong></span> Middle Name</label>
-            </div>
-            <div class="col-12 col-md-9">
-                <input type="text" id="middlename" name="middlename" placeholder="Bassig" class="form-control" required>
-            </div>
-        </div>
-        <!--Middle Name-->
-
-        <!--Suffix-->
-        <div class="row form-group">
-            <div class="col col-md-3">
-                <label for="suffix" class=" form-control-label"> Suffix</label>
-            </div>
-            <div class="col-12 col-md-9">
-                <input type="text" id="suffix" name="suffix" placeholder="Jr." class="form-control" >
-            </div>
-        </div>
-        <!--Suffix-->
-
-        <!--Birth Date-->
-        <div class="row form-group">
-            <div class="col col-md-3">
-                <label for="birthdate" class=" form-control-label"><span style="color:red"><strong>*</strong></span> Birth Date</label>
-            </div>
-            <div class="col-12 col-md-9">
-                <input type="date" id="birthdate" name="birthdate" class="form-control" required>
-            </div>
-        </div>
-        <!--Birth Date-->
-
-        <!--Age-->
-        <div class="row form-group">
-            <div class="col col-md-3">
-                <label for="age" class=" form-control-label"><span style="color:red"><strong>*</strong></span> Age</label>
-            </div>
-            <div class="col-12 col-md-9">
-                <input type="number" id="age" name="age" placeholder="20" class="form-control" required>
-            </div>
-        </div>
-        <!--Age-->
-
-        <!--Address-->
-        <div class="row form-group">
-            <div class="col col-md-3">
-                <label for="address" class=" form-control-label"><span style="color:red"><strong>*</strong></span> Address</label>
-            </div>
-            <div class="col-12 col-md-9">
-                <input type="text" id="address" name="address" class="form-control" placeholder="#123 Zone 1 Barangay, Municiaplity, Province" required>
-            </div>
-        </div>
-        <!--Address-->
-
-        <!--Contact Numbers-->
-        <div class="row form-group">
-            <div class="col col-md-3">
-                <label for="contactno" class=" form-control-label"><span style="color:red"><strong>*</strong></span> Contact Number/s</label>
-            </div>
-            <div class="col-12 col-md-9">
-                <input type="text" id="contactno" name="contactno" placeholder="09123456789/(078) 844-0000" class="form-control" required>
-            </div>
-        </div>
-        <!--Contact Numbers-->
-
-        <!--Email Address-->
-        <div class="row form-group">
-            <div class="col col-md-3">
-                <label for="email" class=" form-control-label"><span style="color:red"><strong>*</strong></span> Email Address</label>
-            </div>
-            <div class="col-12 col-md-9">
-                <input type="email" id="email" name="email" placeholder="juanbdelacruz@gmail.com" class="form-control" required>
-            </div>
-        </div>
-        <!--Email Address-->
-
-        <!--Nationality-->
-        <div class="row form-group">
-            <div class="col col-md-3">
-                <label for="nationality" class=" form-control-label"><span style="color:red"><strong>*</strong></span> Nationality</label>
-            </div>
-            <div class="col-12 col-md-9">
-                <input type="text" id="nationality" name="nationality" placeholder="Filipino" class="form-control" required>
-            </div>
-        </div>
-        <!--Nationality-->
-
-        <!--Civil Status-->
-        <div class="row form-group">
-            <div class="col col-md-3">
-                <label class=" form-control-label"><span style="color:red"><strong>*</strong></span> Civil Status</label>
-            </div>
-            <div class="col col-md-9">
-                <div class="form-check-inline form-check">
-                    <label for="single" class="form-check-label">
-                        <input type="radio" id="single" name="status" value="single" class="form-check-input">Single
-                    </label>
-                    &nbsp&nbsp
-                    <label for="married" class="form-check-label">
-                        <input type="radio" id="married" name="status" value="married" class="form-check-input">Married
-                    </label>
-                    &nbsp&nbsp
-                    <label for="seperated" class="form-check-label">
-                        <input type="radio" id="seperated" name="status" value="seperated" class="form-check-input">Legally Seperated
-                    </label>
-                    &nbsp&nbsp
-                    <label for="widowed" class="form-check-label">
-                        <input type="radio" id="widowed" name="status" value="widowed" class="form-check-input">Widowed
-                    </label>
+            <!--Letter of Intent-->
+            <div class="intent-block">
+                <label for="intent_file">Intent Letter</label>
+                <p class="hint">Indicate the position, the office where the vacancy exists, and its Item Number. PDF only.</p>
+                <div class="file-picker">
+                    <span class="btn-choose">Choose file</span>
+                    <span class="file-name" data-default="No file selected">No file selected</span>
+                    <input type="file" id="intent_file" name="intent_file" accept="application/pdf" required>
                 </div>
             </div>
-        </div>
-        <!--Civil Status-->
+            <!--Letter of Intent-->
 
-        <!--Gender-->
-        <div class="row form-group">
-            <div class="col col-md-3">
-                <label class=" form-control-label"><span style="color:red"><strong>*</strong></span> Gender</label>
-            </div>
-            <div class="col col-md-9">
-                <div class="form-check-inline form-check">
-                    <label for="male" class="form-check-label">
-                        <input type="radio" id="male" name="gender" value="male" class="form-check-input">Male
-                    </label>
-                    &nbsp&nbsp
-                    <label for="female" class="form-check-label">
-                        <input type="radio" id="female" name="gender" value="female" class="form-check-input">Female
-                    </label>
+            <div class="row-2">
+                <div class="field">
+                    <label for="lastname">Last Name<span class="req">*</span></label>
+                    <input type="text" id="lastname" name="lastname" placeholder="Dela Cruz" required>
+                </div>
+                <div class="field">
+                    <label for="firstname">First Name<span class="req">*</span></label>
+                    <input type="text" id="firstname" name="firstname" placeholder="Juan" required>
                 </div>
             </div>
-        </div>
-        <!--Gender-->
 
-        <!--Educational Attainment-->
-        <div class="row form-group">
-            <div class="col col-md-3">
-                <label for="education" class=" form-control-label"><span style="color:red"><strong>*</strong></span> Highest Educational Attainment</label>
+            <div class="row-2">
+                <div class="field">
+                    <label for="middlename">Middle Name<span class="req">*</span></label>
+                    <input type="text" id="middlename" name="middlename" placeholder="Bassig" required>
+                </div>
+                <div class="field">
+                    <label for="suffix">Suffix</label>
+                    <input type="text" id="suffix" name="suffix" placeholder="Jr.">
+                </div>
             </div>
-            <div class="col-12 col-md-9">
-                <select name="education" id="education" class="form-control" required>
+
+            <div class="row-2">
+                <div class="field">
+                    <label for="birthdate">Birth Date<span class="req">*</span></label>
+                    <input type="date" id="birthdate" name="birthdate" required>
+                </div>
+                <div class="field">
+                    <label for="age">Age<span class="req">*</span></label>
+                    <input type="number" id="age" name="age" placeholder="20" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="address">Address<span class="req">*</span></label>
+                <input type="text" id="address" name="address" placeholder="#123 Zone 1 Barangay, Municipality, Province" required>
+            </div>
+
+            <div class="row-2">
+                <div class="field">
+                    <label for="contactno">Contact Number/s<span class="req">*</span></label>
+                    <input type="text" id="contactno" name="contactno" placeholder="09123456789 or +639123456789"
+                        pattern="(09[0-9]{9}|\+639[0-9]{9})"
+                        title="Enter a valid Philippine mobile number (e.g., 09123456789 or +639123456789)" required>
+                </div>
+                <div class="field">
+                    <label for="email">Email Address (Active)<span class="req">*</span></label>
+                    <input type="email" id="email" name="email" placeholder="juanbdelacruz@gmail.com" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="nationality">Nationality<span class="req">*</span></label>
+                <input type="text" id="nationality" name="nationality" placeholder="Filipino" required>
+            </div>
+
+            <div class="field">
+                <label>Civil Status<span class="req">*</span></label>
+                <div class="segmented">
+                    <input type="radio" id="single" name="status" value="single"><label class="seg-label" for="single">Single</label>
+                    <input type="radio" id="married" name="status" value="married"><label class="seg-label" for="married">Married</label>
+                    <input type="radio" id="seperated" name="status" value="seperated"><label class="seg-label" for="seperated">Legally Separated</label>
+                    <input type="radio" id="widowed" name="status" value="widowed"><label class="seg-label" for="widowed">Widowed</label>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Gender<span class="req">*</span></label>
+                <div class="segmented">
+                    <input type="radio" id="male" name="gender" value="male"><label class="seg-label" for="male">Male</label>
+                    <input type="radio" id="female" name="gender" value="female"><label class="seg-label" for="female">Female</label>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="education">Highest Educational Attainment<span class="req">*</span></label>
+                <select name="education" id="education" required>
                     <option value="">Please select</option>
                     <option value="Elementary Under Graduate">Elementary Under Graduate</option>
                     <option value="Elementary Graduate">Elementary Graduate</option>
@@ -200,63 +330,60 @@
                     <option value="Units in Doctorate">Units in Doctorate</option>
                     <option value="Doctorate">Doctorate</option>
                 </select>
-                <input type="text" id="course" name="course" placeholder="Master in Library and Information Science" class="form-control mt-3" required>
-                <small class="help-block form-text" style="color:red"><strong>Write in full/Do not abbreviate.</strong></small>
+                <input type="text" id="course" name="course" placeholder="Master in Library and Information Science" style="margin-top:10px" required>
+                <span class="note">Write in full — do not abbreviate.</span>
             </div>
-        </div>
 
-        <div class="row form-group">
-            <div class="col col-md-3">
-                <label for="education_file" class=" form-control-label"></label>
+           <!---Reference of posting-->
+            <div class="field">
+                <label>Where did you see this vacancy?</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="bulletin" name="reference[]" value="Bulletin Board"><label class="chk-label" for="bulletin">Bulletin Board</label>
+                    <input type="checkbox" id="tesdaWebsite" name="reference[]" value="TESDA Website"><label class="chk-label" for="tesdaWebsite">TESDA Website</label>
+                    <input type="checkbox" id="cscWebsite" name="reference[]" value="CSC Website"><label class="chk-label" for="cscWebsite">CSC Website</label>
+                    <input type="checkbox" id="referrals" name="reference[]" value="Referrals"><label class="chk-label" for="referrals">Referrals</label>
+                    <input type="checkbox" id="facebook" name="reference[]" value="Facebook"><label class="chk-label" for="facebook">Facebook</label>
+                    <input type="checkbox" id="other" name="reference[]" value="Other Recruitment Platform"><label class="chk-label" for="other">Other Recruitment Platform</label>
+                </div>
             </div>
-            <div class="col-12 col-md-9">
-                <input type="file" id="education_file" name="education_file" class="form-control-file" accept="application/pdf">
-                <small class="help-block form-text" style="color:red"><strong>Please upload pdf file only. (Authenticated Photocopy of Transcript of Record, Diploma, Certificate of Grade etc..)</strong></small>
-            </div>
-        </div>
-        <!--Educational Attainment-->
+            <!---Reference of posting-->
 
-        <!--Iam not a robot-->
-        <div class="row form-group">
-            <div class="col col-md-3">
-                <label for="education_file" class=" form-control-label"></label>
-            </div>
-            <div class="col-12 col-md-9">
-                <div class="g-recaptcha"  data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required></div>		
-            </div>
-           
-        </div>
-        <!--Iam not a robot-->
+            <hr class="divider">
 
-        <!--Submit-->
-        <div class="row form-group">
-            <div class="col col-md-3">
-                <button id="btn_forme1" name="forme1" type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Submit</button>
+            <div class="g-recaptcha" data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required></div>
+
+            <div class="submit-row">
+                <button id="btn_forme1" name="forme1" type="submit"><i class="fa fa-save"></i>Submit</button>
+                <div id="forme1_message" class="message"></div>
             </div>
-            <div id="forme1_message" class="col-12 col-md-9">
-                
-            </div>
-        </div>
-        
-        <!--Submit-->
-        
-        </form><!---End of Form-->
-    </div><!---card-body card-block-->
+
+            </form><!---End of Form-->
+        </div><!---card-body-->
+    </div>
 </div>
+<!---End of Form 1-->
+
 </div>
 <!-- First Tab-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:wght@600&display=swap" rel="stylesheet">
 
 <!-- script here -->
 <script type="text/javascript">
     $(document).ready(function() {
         var applicant_id;
 
-
         //-------FORM 1---------  
-        //get data for vacant position
         $('#vacant_positions_open_landing').on('click','.apply',function(){
             var pos_id = $(this).data('pos_id');
             $('#pos_id').val(pos_id);
+        });
+
+        // Cosmetic: show chosen filename next to the custom file button
+        $('#intent_file').on('change', function(){
+            var name = this.files.length ? this.files[0].name : $(this).siblings('.file-name').data('default');
+            $(this).siblings('.file-name').text(name);
         });
 
         $('#forme1_form').submit(function(e){
@@ -272,74 +399,14 @@
                 success: function(data){
                     var json = $.parseJSON(data);
                     if(json.status == 'True'){
-                        //Show Reference No.
-                        html =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> <b>Saved</b> successfully. Please continue to the next tab (Eligibility).</div>';
-                        html2 =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> <b>Saved</b> successfully. Please continue to the next tab (Eligibility).</div>';
-                        html1 = '<div class="alert alert-success" role="alert">'+
-                                '<div class="row form-group m-b-0 p-b-0">'+
-                                        '<div class="col col-md-12">'+
-                                            '<label for="intent_filex" class=" form-control-label"><b>Application Reference No. '+ json.app_hash +' </span></b></label>'+
-                                        '</div>'+
-                                    '</div>'+
-                                '</div>';
-                        //message
-                        $('#forme1_message').prepend(html2);
-                        $('#application_body_card').prepend(html);
-                        $('#application_body_card').prepend(html1);
-
-                        //Set Applicant ID
-                        applicant_id = json.app_id;
-                        $('#forme2_app_id').val(applicant_id);
-                        $('#forme3_app_id').val(applicant_id);
-                        $('#forme4_app_id').val(applicant_id);
-                        $('#forme5_app_id').val(applicant_id);
-                        $('#forme6_app_id').val(applicant_id);
-                        $('#forme7_app_id').val(applicant_id);
-                        $('#forme8_app_id').val(applicant_id);
-                        $('#forme9_app_id').val(applicant_id);
-                        $('#forme10_app_id').val(applicant_id);
-
-                        //Disabled Submit Button
-                        $("#eligibility_tab").removeClass("disabled");
-                    
-                        //Hide
-                        $(".message").delay(4000).slideUp(200, function() {
-                            $(this).alert('close');
-                        });
-                    
-                        //disable button
-                        $("#btn_forme1").hide();
-
-                        //disabled inputs
-                        $("#intent_file").attr("disabled", true);
-                        $("#lastname").attr("disabled", true);
-                        $("#firstname").attr("disabled", true);
-                        $("#middlename").attr("disabled", true);
-                        $("#suffix").attr("disabled", true);
-                        $("#birthdate").attr("disabled", true);
-                        $("#age").attr("disabled", true);
-                        $("#address").attr("disabled", true);
-                        $("#contactno").attr("disabled", true);
-                        $("#email").attr("disabled", true);
-                        $("#nationality").attr("disabled", true);
-                        $("#single").attr("disabled", true);
-                        $("#married").attr("disabled", true);
-                        $("#seperated").attr("disabled", true);
-                        $("#widowed").attr("disabled", true);
-                        $("#male").attr("disabled", true);
-                        $("#female").attr("disabled", true);
-                        $("#education").attr("disabled", true);
-                        $("#education_file").attr("disabled", true);
-                        $("#course").attr("disabled", true);
-                    }else{
-                        html = '<div class="alert alert-danger mt-2 message"> <b>'+ json.error +'</b></div>';
-                        $('#forme1_card').prepend(html);
+                        html =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> '+ json.message +' </div>';
                         $('#forme1_message').prepend(html);
-                        //Hide
-                        $(".message").delay(4000).slideUp(200, function() {
-                            $(this).alert('close');
-                        });
-                    }       
+                        $('#forme1_card').prepend(html);
+                    }else{
+                        html =  '<div class="alert alert-danger mt-2 message"><i class="fa fa-times" aria-hidden="true"></i> '+ json.message +' </div>';
+                        $('#forme1_message').prepend(html);
+                        $('#forme1_card').prepend(html);
+                    }               
                 }
             });
         });
@@ -347,4 +414,3 @@
     //-------FORM 1---------  
 </script>
 <!-- script here -->
-<!---End of Form 1-->

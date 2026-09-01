@@ -31,6 +31,14 @@ class Posts_model extends CI_Model{
         return $query->result_array();
     }
 
+    public function get_vacant_position($pos_id){
+        $this->db->select('*');
+        $this->db->from('tbl_hr_position');
+        $this->db->where('tbl_hr_position.pos_id', $pos_id);
+        $query = $this->db->get();
+        return $query->row_array();
+    }
+
     public function search_form_applicant(){
         $this->db->select('*');
         $this->db->from('tbl_hr_applicant');
@@ -41,69 +49,159 @@ class Posts_model extends CI_Model{
         return $query->row_array();
     }
 
-    public function save_forme1($intent, $educational_file){
-        
-        $hash = substr(md5($this->input->post('pos_id',true)),0 ,6)."-".substr(md5($this->input->post('lastname',true)),0 ,3)."-".substr(md5($this->input->post('firstname',true)),0 ,6)."-".$this->generateRandomString();
-        
-        $data = array(
-            'app_vac_id'  => $this->input->post('pos_id'),
-            'app_lastname'  => $this->input->post('lastname'),
-            'app_firstname'  => $this->input->post('firstname'),
-            'app_middlename'  => $this->input->post('middlename'),
-            'app_suffix'  => $this->input->post('suffix'),
-            'app_birthdate'  => $this->input->post('birthdate'),
-            'app_age'  => $this->input->post('age'),
-            'app_address'  => $this->input->post('address'),
-            'app_contacts'  => $this->input->post('contactno'),
-            'app_email'  => $this->input->post('email'),
-            'app_nationality'  => $this->input->post('nationality'),
-            'app_civil_status'  => $this->input->post('status'),
-            'app_gender'  => $this->input->post('gender'),
-            'app_educational'  => $this->input->post('education'),
-            'app_course'  => $this->input->post('course'),
-            'app_hash'  => $hash,
-            'app_timestamp'  => date('Y-m-d H:i:s')
-        );
-
-        //clean
-        $data = $this->security->xss_clean($data);
-        if($this->security->xss_clean($data)){
-            $result = $this->db->insert('tbl_hr_applicant', $data);
-
-            //get applicant ID
-            $applicant_id = $this->db->insert_id();
-
-            //save documents
-            $data1 = array(
-                'app_id'  => $applicant_id,
-                'app_intent'  => $intent, // update check
-                'app_educational_doc'  => $educational_file
-            );
-
-            $result1 = $this->db->insert('tbl_hr_applicant_documents', $data1);
-
-            if($result1){
-                $return = array(
-                    'status' => 'True',
-                    'app_id' => $applicant_id,
-                    'app_hash' => $hash
-                );
-            }else{ 
-                
-                $return = array(
-                    'status' => 'False'
-                ); 
-            }
-            return $return;
-        }else{
-            $return = array(
-                'status' => 'False'
-            ); 
-            return $return;
-        }
+    public function get_applicant_info(){
+        $this->db->select('*');
+        $this->db->from('tbl_hr_applicant');
+        $this->db->where('tbl_hr_applicant.app_hash1', $this->input->post('form_app_id'));
+        $query = $this->db->get();
+        return $query->row_array();
     }
 
-    public function generateRandomString($length = 5) {
+    public function get_applicant_info1($param){
+        $this->db->select('*');
+        $this->db->from('tbl_hr_applicant');
+        $this->db->join('tbl_hr_position','tbl_hr_position.pos_id = tbl_hr_applicant.app_vac_id');
+        $this->db->join('tbl_hr_vacant','tbl_hr_vacant.vac_id = tbl_hr_position.vac_id');
+        $this->db->where('tbl_hr_applicant.app_hash1', $param);
+        $query = $this->db->get();
+        return $query->row_array();
+    }
+
+    public function get_app_lastID(){
+        //get the lastID
+        $this->db->select_max('app_id'); // Replace 'id' with the name of your primary key column
+        $this->db->from('tbl_hr_applicant');
+        $query = $this->db->get();
+        $result = $query->row();
+        $new_id = $result->app_id + 1;
+        //get the lastID
+        return $new_id;
+    }
+
+    public function save_forme1($intent){
+        // Set preference
+        $year = date('Y');   // Get current year
+        $month = date('m');  // Get current month
+
+        //check duplicate
+        $this->db->select('*');
+        $this->db->from('tbl_hr_applicant');
+        $this->db->join('tbl_hr_position','tbl_hr_position.pos_id = tbl_hr_applicant.app_vac_id');
+        $this->db->join('tbl_hr_vacant','tbl_hr_vacant.vac_id = tbl_hr_position.vac_id');
+        $this->db->where('tbl_hr_applicant.app_vac_id', $this->input->post('pos_id'));
+        $this->db->where('tbl_hr_applicant.app_lastname', $this->input->post('lastname'));
+        $this->db->where('tbl_hr_applicant.app_firstname', $this->input->post('firstname'));
+        $this->db->where('tbl_hr_applicant.app_middlename', $this->input->post('middlename'));
+        $this->db->where('tbl_hr_applicant.app_birthdate', $this->input->post('birthdate'));
+        $this->db->where('tbl_hr_applicant.app_timestamp >= tbl_hr_vacant.vac_date_posted');
+        $this->db->where('tbl_hr_applicant.app_timestamp <= DATE_ADD(tbl_hr_vacant.vac_deadline,INTERVAL 1 DAY)');
+
+        //$this->db->where('app_vac_id', $param);    
+        $query = $this->db->get();  
+        //get applicant details
+       
+
+        if($query->num_rows() == 0) {
+            // Send email for update or perform any action
+
+            //get the lastID
+            $lastID = $this->get_app_lastID();
+
+            $hash = substr(md5($this->input->post('pos_id',true)),0 ,6)."-".substr(md5($this->input->post('lastname',true)),0 ,3)."-".substr(md5($this->input->post('firstname',true)),0 ,6)."-". $this->generateRandomString().$lastID;
+            $hash1 = hash('sha256', $hash);
+            
+            $data = array(
+                'app_vac_id'  => $this->input->post('pos_id'),
+                'app_lastname'  => $this->input->post('lastname'),
+                'app_firstname'  => $this->input->post('firstname'),
+                'app_middlename'  => $this->input->post('middlename'),
+                'app_suffix'  => $this->input->post('suffix'),
+                'app_birthdate'  => $this->input->post('birthdate'),
+                'app_age'  => $this->input->post('age'),
+                'app_address'  => $this->input->post('address'),
+                'app_contacts'  => $this->input->post('contactno'),
+                'app_email'  => $this->input->post('email'),
+                'app_nationality'  => $this->input->post('nationality'),
+                'app_civil_status'  => $this->input->post('status'),
+                'app_gender'  => $this->input->post('gender'),
+                'app_educational'  => $this->input->post('education'),
+                'app_course'  => $this->input->post('course'),
+                'app_hash'  => $hash,
+                'app_hash1'  => $hash1,
+                'app_timestamp'  => date('Y-m-d H:i:s')
+            );
+
+            //clean the data before saving
+            $data = $this->security->xss_clean($data);
+            
+            //check if saved successully
+            $result = $this->db->insert('tbl_hr_applicant', $data);
+
+            if($result){
+
+                //get applicant ID
+                $applicant_id = $this->db->insert_id();
+
+                //save documents
+                $data1 = array(
+                    'app_id'  => $applicant_id,
+                    'app_intent'  => $year . '/' . $month . '/' . $intent, // update check
+                );
+
+                $result1 = $this->db->insert('tbl_hr_applicant_documents', $data1);
+
+                if($result1){
+                    $return = array(
+                        'status' => 'True',
+                        'app_id' => $applicant_id,
+                        'app_hash' => $hash,
+                        'app_hash1' => $hash1,
+                        'app_email'  => $this->input->post('email'),
+                        'app_pos_id'  => $this->input->post('pos_id'),
+                        'message' => 'Your application has been successfully submitted. Please check your email for the next steps. If you do not receive the email, kindly check your spam folder. For support, please contact us at region2.ictu@tesda.gov.ph or call 078 846-1618.'
+                    );
+                    return $return;
+                    exit;
+                }else{ 
+                    //Check Error
+                    $error = $this->db->error();
+                    $return = array(
+                        'status' => 'False',
+                        'app_hash' => $hash,
+                        'message' => 'Document/s: ' . $error['message'],
+                        'app_id' => $applicant_id
+                    ); 
+                    return $return;
+                    exit;
+                }
+            }else{
+                //Check Error
+                $error = $this->db->error();
+                $return = array(
+                    'status' => 'False',  // or use 'true', depending on the actual logic needed
+                    'message' => $error['message']
+                ); 
+                return $return;
+                exit;   
+            }
+            
+
+        }else {
+            $row = $query->row();  // Get the first row of the result as an object
+            $email = $row->app_email;  // Access the 'app_email' field
+            $return = array(
+                'status' => 'False',
+                'message' =>  "You already have an existing record for the position you are applying for. Check your email for additional instructions. If you do not receive the email, kindly check your spam folder. For support, please contact us at region2.ictu@tesda.gov.ph or call 078 846-1618. ",
+                'app_email' => $email
+            );
+            return $return;
+            exit;
+        }
+
+       
+    }
+
+    public function generateRandomString($length = 10) {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
         $randomString = '';
@@ -113,8 +211,13 @@ class Posts_model extends CI_Model{
         return $randomString;
     }
 
-    public function save_forme2($eligibility_file, $national_certificate_file, $nttc_file){
+    public function save_forme2($educational_file, $eligibility_file, $national_certificate_file, $nttc_file){
 
+        $applicant_info = $this->get_applicant_info();
+
+        $year = date('Y');   // Get current year
+        $month = date('m');  // Get current month
+        
         //eligibility
         $array_eligibility = $this->input->post('eligibility');
         $result_eligibility = '';
@@ -149,17 +252,18 @@ class Posts_model extends CI_Model{
         $data = $this->security->xss_clean($data);
         if($this->security->xss_clean($data)){  
             //applicant info
-            $this->db->where('app_id', $this->input->post('forme2_app_id'));
+            $this->db->where('app_id', $applicant_info['app_id']);
             $result = $this->db->update('tbl_hr_applicant', $data);  
 
             //applicant docs
             $data1 = array(
-                'app_eligibility_doc'  => $eligibility_file,
-                'app_nc_doc'  => $national_certificate_file,
-                'app_nttc_doc'  => $nttc_file
+                'app_educational_doc'  => $year . '/' . $month . '/' . $educational_file,
+                'app_eligibility_doc'  => $year . '/' . $month . '/' . $eligibility_file,
+                'app_nc_doc'  => $year . '/' . $month . '/' . $national_certificate_file,
+                'app_nttc_doc'  => $year . '/' . $month . '/' .$nttc_file
             );
 
-            $this->db->where('app_id', $this->input->post('forme2_app_id'));
+            $this->db->where('app_id', $applicant_info['app_id']);
             $this->db->update('tbl_hr_applicant_documents', $data1); 
 
             if($result){
@@ -196,6 +300,11 @@ class Posts_model extends CI_Model{
     }
 
     public function save_forme3($ipcr_file, $cpa_file, $sr_file, $coe_file){
+
+        $applicant_info = $this->get_applicant_info();
+
+        $year = date('Y');   // Get current year
+        $month = date('m');  // Get current month
 
         //relevant work experience
         $array_work_experience = $this->input->post('relevant_experience');
@@ -240,18 +349,18 @@ class Posts_model extends CI_Model{
         $data = $this->security->xss_clean($data);
         if($this->security->xss_clean($data)){  
             //applicant info
-            $this->db->where('app_id', $this->input->post('forme3_app_id'));
+            $this->db->where('app_id', $applicant_info['app_id']);
             $result = $this->db->update('tbl_hr_applicant', $data);  
 
             //applicant docs
             $data1 = array(
-                'app_coe_doc'  => $coe_file,
-                'app_sr'  => $sr_file,
-                'app_appointment'  => $cpa_file,
-                'app_ipcr'  => $ipcr_file
+                'app_coe_doc'  => $year . '/' . $month . '/' . $coe_file,
+                'app_sr'  => $year . '/' . $month . '/' . $sr_file,
+                'app_appointment'  => $year . '/' . $month . '/' . $cpa_file,
+                'app_ipcr'  => $year . '/' . $month . '/' . $ipcr_file
             );
 
-            $this->db->where('app_id', $this->input->post('forme3_app_id'));
+            $this->db->where('app_id', $applicant_info['app_id']);
             $this->db->update('tbl_hr_applicant_documents', $data1); 
 
             if($result){
@@ -269,6 +378,9 @@ class Posts_model extends CI_Model{
     }
 
     public function save_forme4($training_file){
+
+        $year = date('Y');   // Get current year
+        $month = date('m');  // Get current month
 
         //relevant Training
         $array_relevant_training = $this->input->post('relevant_training');
@@ -301,7 +413,7 @@ class Posts_model extends CI_Model{
 
             //applicant docs
             $data1 = array(
-                'app_training_doc'  => $training_file
+                'app_training_doc'  => $year . '/' . $month . '/' . $training_file
             );
 
             $this->db->where('app_id', $this->input->post('forme4_app_id'));
@@ -375,11 +487,14 @@ class Posts_model extends CI_Model{
     }
 
     public function save_forme6($pds_file, $wes_file){
-        
+
+        $year = date('Y');   // Get current year
+        $month = date('m');  // Get current month 
+
         //applicant docs
         $data1 = array(
-            'app_pds'  => $pds_file,
-            'app_wes'  => $wes_file
+            'app_pds'  => $year . '/' . $month . '/' . $pds_file,
+            'app_wes'  => $year . '/' . $month . '/' . $wes_file
         );
 
         $this->db->where('app_id', $this->input->post('forme6_app_id'));
@@ -453,6 +568,9 @@ class Posts_model extends CI_Model{
 
     public function save_forme8($arp_file){
     
+        $year = date('Y');   // Get current year
+        $month = date('m');  // Get current month 
+
         $data = array(
             'app_performance_international' => $this->input->post('international_arp'),
             'app_performance_national' => $this->input->post('national_arp'),
@@ -469,7 +587,7 @@ class Posts_model extends CI_Model{
 
             //applicant docs
             $data1 = array(
-                'app_performance'  => $arp_file
+                'app_performance'  => $year . '/' . $month . '/' . $arp_file
             );
 
             $this->db->where('app_id', $this->input->post('forme8_app_id'));
@@ -490,7 +608,9 @@ class Posts_model extends CI_Model{
     }
 
     public function save_forme9($expertise_file){
-    
+        $year = date('Y');   // Get current year
+        $month = date('m');  // Get current month 
+
         $data = array(
             'app_expert_international' => $this->input->post('international_expertise'),
             'app_expertise_national' => $this->input->post('national_expertise'),
@@ -507,7 +627,7 @@ class Posts_model extends CI_Model{
 
             //applicant docs
             $data1 = array(
-                'app_service'  => $expertise_file
+                'app_service'  => $year . '/' . $month . '/' . $expertise_file
             );
 
             $this->db->where('app_id', $this->input->post('forme9_app_id'));
@@ -528,7 +648,10 @@ class Posts_model extends CI_Model{
     }
 
     public function save_forme10($cmt_file){
-    
+        
+        $year = date('Y');   // Get current year
+        $month = date('m');  // Get current month 
+
         $data = array(
             'app_committee_chair' => $this->input->post('cmt_chair'),
             'app_committee_vchair' => $this->input->post('cmt_vcchair'),
@@ -545,7 +668,7 @@ class Posts_model extends CI_Model{
 
             //applicant docs
             $data1 = array(
-                'app_committee'  => $cmt_file
+                'app_committee'  => $year . '/' . $month . '/' . $cmt_file
             );
 
             $this->db->where('app_id', $this->input->post('forme10_app_id'));

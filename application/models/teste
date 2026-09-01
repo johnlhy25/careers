@@ -1,0 +1,171 @@
+if($query->num_rows()>0){
+            //send email for update  
+            $return = array(
+                'status' => 'False1'
+            ); 
+        }else{
+            // Set preference
+            $year = date('Y');   // Get current year
+            $month = date('m');  // Get current month
+
+            $hash = substr(md5($this->input->post('pos_id',true)),0 ,6)."-".substr(md5($this->input->post('lastname',true)),0 ,3)."-".substr(md5($this->input->post('firstname',true)),0 ,6)."-".$this->generateRandomString();
+        
+            $data = array(
+                'app_vac_id'  => $this->input->post('pos_id'),
+                'app_lastname'  => $this->input->post('lastname'),
+                'app_firstname'  => $this->input->post('firstname'),
+                'app_middlename'  => $this->input->post('middlename'),
+                'app_suffix'  => $this->input->post('suffix'),
+                'app_birthdate'  => $this->input->post('birthdate'),
+                'app_age'  => $this->input->post('age'),
+                'app_address'  => $this->input->post('address'),
+                'app_contacts'  => $this->input->post('contactno'),
+                'app_email'  => $this->input->post('email'),
+                'app_nationality'  => $this->input->post('nationality'),
+                'app_civil_status'  => $this->input->post('status'),
+                'app_gender'  => $this->input->post('gender'),
+                'app_educational'  => $this->input->post('education'),
+                'app_course'  => $this->input->post('course'),
+                'app_hash'  => $hash,
+                'app_timestamp'  => date('Y-m-d H:i:s')
+            );
+
+            //clean
+            $data = $this->security->xss_clean($data);
+            
+            $result = $this->db->insert('tbl_hr_applicant', $data);
+
+            if($result){
+
+             
+
+                //get applicant ID
+                $applicant_id = $this->db->insert_id();
+
+                //save documents
+                $data1 = array(
+
+                    'app_id'  => $applicant_id,
+                    'app_intent'  => $year . '/' . $month . '/' . $intent, // update check
+                    'app_educational_doc'  => $year . '/' . $month . '/' .$educational_file
+                );
+
+                $result1 = $this->db->insert('tbl_hr_applicant_documents', $data1);
+
+                if($result1){
+                    $return = array(
+                        'status' => 'True',
+                        'app_id' => $applicant_id,
+                        'app_hash' => $hash
+                    );
+                }else{ 
+                    $return = array(
+                        'status' => 'False',
+                        'error' => 'Result1'
+                    ); 
+                }
+                return $return;
+            }else{
+
+                $return = array(
+                    'status' => 'False',
+                    'error' => 'Not saved'
+                );
+
+                return $return;
+            }
+        }
+
+        // --------------------$_COOKIE
+                $error= $status['status'];
+                if($status['status'] == 'True'){
+                    $result = array(
+                        'status' => 'True',
+                        'app_id' => $status['app_id'],
+                        'app_hash' => $status['app_hash']
+                    );
+
+                }elseif ($status['status'] == 'False1'){
+                    $result = array(
+                        'status' => 'False',
+                        'error' => 'Duplicate.'
+                    );
+                }else {
+                    $result = array(
+                        'status' => 'False',
+                        'error' => $error
+                    );
+                }
+
+
+//
+if(json.status == 'True'){
+                        //Show Reference No.
+                        html =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> <b>Saved</b> successfully. Please continue to the next tab (Eligibility).</div>';
+                        html2 =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> <b>Saved</b> successfully. Please continue to the next tab (Eligibility).</div>';
+                        html1 = '<div class="alert alert-success" role="alert">'+
+                                '<div class="row form-group m-b-0 p-b-0">'+
+                                        '<div class="col col-md-12">'+
+                                            '<label for="intent_filex" class=" form-control-label"><b>Application Reference No. '+ json.app_hash +' </span></b></label>'+
+                                        '</div>'+
+                                    '</div>'+
+                                '</div>';
+                        //message
+                        $('#forme1_message').prepend(html2);
+                        $('#application_body_card').prepend(html);
+                        $('#application_body_card').prepend(html1);
+
+                        //Set Applicant ID
+                        applicant_id = json.app_id;
+                        $('#forme2_app_id').val(applicant_id);
+                        $('#forme3_app_id').val(applicant_id);
+                        $('#forme4_app_id').val(applicant_id);
+                        $('#forme5_app_id').val(applicant_id);
+                        $('#forme6_app_id').val(applicant_id);
+                        $('#forme7_app_id').val(applicant_id);
+                        $('#forme8_app_id').val(applicant_id);
+                        $('#forme9_app_id').val(applicant_id);
+                        $('#forme10_app_id').val(applicant_id);
+
+                        //Disabled Submit Button
+                        $("#eligibility_tab").removeClass("disabled");
+                    
+                        //Hide
+                        //$(".message").delay(4000).slideUp(200, function() {
+                        //    $(this).alert('close');
+                        //});
+                    
+                        //disable button
+                        $("#btn_forme1").hide();
+
+                        //disabled inputs
+                        $("#intent_file").attr("disabled", true);
+                        $("#lastname").attr("disabled", true);
+                        $("#firstname").attr("disabled", true);
+                        $("#middlename").attr("disabled", true);
+                        $("#suffix").attr("disabled", true);
+                        $("#birthdate").attr("disabled", true);
+                        $("#age").attr("disabled", true);
+                        $("#address").attr("disabled", true);
+                        $("#contactno").attr("disabled", true);
+                        $("#email").attr("disabled", true);
+                        $("#nationality").attr("disabled", true);
+                        $("#single").attr("disabled", true);
+                        $("#married").attr("disabled", true);
+                        $("#seperated").attr("disabled", true);
+                        $("#widowed").attr("disabled", true);
+                        $("#male").attr("disabled", true);
+                        $("#female").attr("disabled", true);
+                        $("#education").attr("disabled", true);
+                        $("#education_file").attr("disabled", true);
+                        $("#course").attr("disabled", true);
+                    }else{
+                        
+                        html = '<div class="alert alert-danger mt-2 message"> <span align="justify">'+ json.error +'</span></div>';
+                        $('#forme1_card').prepend(html);
+                        $('#forme1_message').prepend(html);
+                        //Hide
+                        //$(".message").delay(4000).slideUp(200, function() {
+                        //    $(this).alert('close');
+                        // });
+                    }
