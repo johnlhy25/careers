@@ -225,8 +225,19 @@
 
                     <div class="fb-follow">
                       <span class="follow-label">Follow our Facebook page for updates</span>
-                      <div class="fb-like" data-href="https://www.facebook.com/TESDARegionll/" data-width="720" data-layout="button_count" data-action="" data-size="large" data-share="true"></div>
+                      
+                      <!-- Facebook Like Button -->
+                      <div class="fb-like"
+                          data-href="https://www.facebook.com/TESDAOfficial"
+                          data-width=""
+                          data-layout="button_count"
+                          data-action="like"
+                          data-size="large"
+                          data-share="true">
+                      </div>
+
                     </div>
+
                   </div>
                 </div>
               </div>

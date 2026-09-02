@@ -40,10 +40,17 @@ class Posts_model extends CI_Model{
     }
 
     public function search_form_applicant(){
-        $this->db->select('*');
+        $this->db->select('
+            tbl_hr_applicant.app_id,
+            tbl_hr_applicant.app_lastname,
+            tbl_hr_applicant.app_hash,
+            tbl_hr_position.pos_desc,
+            tbl_hr_applicant_evaluation.eval_id,
+            tbl_hr_applicant_evaluation.eval_result
+        ');
         $this->db->from('tbl_hr_applicant');
-        $this->db->join('tbl_hr_applicant_evaluation','tbl_hr_applicant_evaluation.app_id = tbl_hr_applicant.app_id');
-        $this->db->join('tbl_hr_position','tbl_hr_position.pos_id = tbl_hr_applicant.app_vac_id');
+        $this->db->join('tbl_hr_position', 'tbl_hr_position.pos_id = tbl_hr_applicant.app_vac_id');
+        $this->db->join('tbl_hr_applicant_evaluation', 'tbl_hr_applicant_evaluation.app_id = tbl_hr_applicant.app_id', 'left');
         $this->db->where('tbl_hr_applicant.app_hash', $this->security->xss_clean($this->input->post('search_form_applicant')));
         $query = $this->db->get();
         return $query->row_array();
@@ -61,7 +68,9 @@ class Posts_model extends CI_Model{
         $this->db->select('*');
         $this->db->from('tbl_hr_applicant');
         $this->db->join('tbl_hr_position','tbl_hr_position.pos_id = tbl_hr_applicant.app_vac_id');
+        $this->db->join('tbl_hr_applicant_documents','tbl_hr_applicant_documents.app_id = tbl_hr_applicant.app_id');
         $this->db->join('tbl_hr_vacant','tbl_hr_vacant.vac_id = tbl_hr_position.vac_id');
+        //$this->db->join('tbl_hr_applicant_documents','tbl_hr_applicant_documents.app_id = tbl_hr_applicant.app_vac_id');
         $this->db->where('tbl_hr_applicant.app_hash1', $param);
         $query = $this->db->get();
         return $query->row_array();
@@ -379,6 +388,8 @@ class Posts_model extends CI_Model{
 
     public function save_forme4($training_file){
 
+        $applicant_info = $this->get_applicant_info();
+
         $year = date('Y');   // Get current year
         $month = date('m');  // Get current month
 
@@ -407,8 +418,9 @@ class Posts_model extends CI_Model{
         //clean
         $data = $this->security->xss_clean($data);
         if($this->security->xss_clean($data)){  
+
             //applicant info
-            $this->db->where('app_id', $this->input->post('forme4_app_id'));
+            $this->db->where('app_id', $applicant_info['app_id']);
             $result = $this->db->update('tbl_hr_applicant', $data);  
 
             //applicant docs
@@ -416,7 +428,7 @@ class Posts_model extends CI_Model{
                 'app_training_doc'  => $year . '/' . $month . '/' . $training_file
             );
 
-            $this->db->where('app_id', $this->input->post('forme4_app_id'));
+            $this->db->where('app_id', $applicant_info['app_id']);
             $this->db->update('tbl_hr_applicant_documents', $data1); 
 
             if($result){

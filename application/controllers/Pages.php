@@ -22,6 +22,7 @@ class Pages extends CI_Controller
     
 //-----------------Careers--------------------------   
 
+// --- Security
     function validate_captcha() {
         $captcha = $this->input->post('g-recaptcha-response');
         $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=6Lfsr1AcAAAAAEx_ucaNHBcTLEQ0RmPvDbIGVV7Y=" . $captcha . "&remoteip=" . $_SERVER['REMOTE_ADDR']);
@@ -31,6 +32,53 @@ class Pages extends CI_Controller
             return TRUE;
         }
     }
+// --- Security
+
+// --- Document Viewer
+    public function view_document($type, $hash)
+    {
+        $applicant = $this->Posts_model->get_applicant_info1($hash);
+
+        if (!$applicant) {
+            show_404();
+        }
+
+        $fileColumns = [
+            'educational'  => 'app_educational_doc',
+            'eligibility'  => 'app_eligibility_doc',
+            'nc'           => 'app_nc_doc',
+            'nttc'         => 'app_nttc_doc',
+            'coe'          => 'app_coe_doc',
+            'sr'           => 'app_sr',
+            'cpa'          => 'app_appointment',
+            'ipcr'         => 'app_ipcr',
+            'intent'       => 'app_intent_file',
+            'training'     => 'app_training_doc'
+        ];
+
+        if (!isset($fileColumns[$type]) || empty($applicant[$fileColumns[$type]])) {
+            show_404();
+        }
+        $relative_path = $applicant[$fileColumns[$type]];
+        $filepath = APPPATH . 'uploads/ApplicantDocx/' . $relative_path;
+
+        if (!file_exists($filepath)) {
+            echo 'error';
+        }
+
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="' . basename($filepath) . '"');
+        header('Content-Length: ' . filesize($filepath));
+        readfile($filepath);
+        exit;
+    }
+// --- Document Viewer 
+
+// --- Page Views
     
     public function careers() {
         
@@ -90,6 +138,34 @@ class Pages extends CI_Controller
 
             $data['hash'] = $param;
             $data['applicant'] = $applicant_info;
+            //print_r($data);
+            if(!file_exists(APPPATH.'views/pages/hr/job/' .$page.'.php')){
+                show_404();
+            }else{
+                $this->load->view('pages/hr/job/'.$page, $data);   
+            }
+        }
+        
+    }
+
+    public function relevant_training($param) {
+        
+        $page = 'form4';
+
+        //get applicant info
+        $applicant_info = $this->Posts_model->get_applicant_info1($param);
+
+        if (empty($applicant_info)) {
+            // No rows found
+            show_404();
+        } else {
+            // Rows found
+            $this->session->set_flashdata('success','success');
+            
+            //print_r($applicant_info);
+
+            $data['hash'] = $param;
+            $data['applicant'] = $applicant_info;
             print_r($data);
             if(!file_exists(APPPATH.'views/pages/hr/job/' .$page.'.php')){
                 show_404();
@@ -99,7 +175,11 @@ class Pages extends CI_Controller
         }
         
     }
-    
+
+// --- Page Views
+
+// --- Form 1
+
     public function save_forme1(){
 
         $this->form_validation->set_rules('g-recaptcha-response', 'recaptcha validation', 'required|callback_validate_captcha');
@@ -163,10 +243,10 @@ class Pages extends CI_Controller
                 $uploadData = $this->upload->data();
                 $pdf_path = $uploadData['full_path'];
 
-                $intent = 'encrypted_'.$uploadData['file_name'];
+                $intent = $uploadData['file_name'];
             
                 // Debugging: Output the file path
-                error_log('File path: ' . $pdf_path);
+                // error_log('File path: ' . $pdf_path);
 
                 // Encrypt the PDF and save it as a new file
                 // $this->encrypt_pdf($pdf_path, 'ICTUTESDAR2');
@@ -231,6 +311,115 @@ class Pages extends CI_Controller
         }
     }
 
+// --- Form 1
+
+// --- Form 2
+
+    public function save_forme2(){
+
+        $this->form_validation->set_rules('g-recaptcha-response', 'recaptcha validation', 'required|callback_validate_captcha');
+        
+        if ($this->form_validation->run() == FALSE){
+
+            $result = array(
+                'status' => 'False',
+                'message' => 'Please <strong>confirm</strong> that you are not a robot.'
+            );
+            echo json_encode($result);
+
+        }else{
+
+            $applicant = $this->Posts_model->get_applicant_info1($this->input->post('form_app_id'));
+
+            //check education file // for upload
+            if(!empty($_FILES['education_file']['name'])){
+                $resultx = $this->educational_file();
+                if($resultx['status'] == 'True'){
+                    $educational_file = $resultx['filename'];
+                }else{
+                    $result = array(
+                        'status' => 'False',
+                        'message' => $resultx['message']
+                    );
+                    echo json_encode($result);
+                    exit;
+                }
+            }else{
+                //$educational_file = null;
+            }
+
+            //check eligibility file // for upload
+            if(!empty($_FILES['eligibility_file']['name'])){
+                $resultx = $this->eligibility_file();
+                if($resultx['status'] == 'True'){
+                    $eligibility_file = $resultx['filename'];
+                }else{
+                    $result = array(
+                        'status' => 'False',
+                        'message' => $resultx['message']
+                    );
+                    echo json_encode($result);
+                    exit;
+                }
+            }else{
+                $educational_file = $applicant['app_educational_doc'];
+            }
+
+            //check national_certificate_file // for upload
+            if(!empty($_FILES['national_certificate_file']['name'])){
+                $resultx = $this->national_certificate_file();
+                if($resultx['status'] == 'True'){
+                    $national_certificate_file = $resultx['filename'];
+                }else{
+                    $result = array(
+                        'status' => 'False',
+                        'message' => $resultx['message']
+                    );
+                    echo json_encode($result);
+                    exit;
+                }
+            }else{
+                $national_certificate_file = $applicant['app_nc_doc'];
+            }
+
+            //check national_certificate_file // for upload
+            if(!empty($_FILES['nttc_file']['name'])){
+                $resultx = $this->nttc_file();
+                if($resultx['status'] == 'True'){
+                    $nttc_file = $resultx['filename'];
+                }else{
+                    $result = array(
+                        'status' => 'False',
+                        'message' => $resultx['message']
+                    );
+                    echo json_encode($result);
+                    exit;
+                }
+            }else{
+                $nttc_file = $applicant['app_nttc_doc'];;
+            }
+
+            $status = $this->Posts_model->save_forme2($educational_file, $eligibility_file, $national_certificate_file, $nttc_file);
+
+            if($status['status'] == 'True'){
+                $result = array(
+                    'status' => 'True',
+                    'message' => 'Your Educational Background and Eligibility Information has been successfully saved. Please return to your email and proceed to <b>Step 2: Work Experience. </b>'
+                );
+                echo json_encode($result);
+                exit;
+
+            }else{
+                $result = array(
+                    'status' => 'False',
+                    'message' => 'Server error. Please try again.'
+                );
+                echo json_encode($result);
+                exit;
+            }
+        }
+    }
+
     function educational_file(){
         // Set preference
         
@@ -257,7 +446,7 @@ class Pages extends CI_Controller
         // Create the new file name
         $new_file_name = strtolower($lastname . '_' . $firstname . '_' . $middlename . '_' . $pos_id . '_education' .'.pdf');
 
-        $config['upload_path'] = 'uploads/ApplicantDocx/' . $year . '/' . $month;
+        $config['upload_path'] = APPPATH . 'uploads/ApplicantDocx/' . $year . '/' . $month;
         $config['allowed_types'] = 'pdf';
         $config['max_size']    = '2000';    // max_size in kb
         $config['file_name'] = $new_file_name;
@@ -272,22 +461,22 @@ class Pages extends CI_Controller
             $uploadData1 = $this->upload->data();
             $pdf_path1 = $uploadData1['full_path'];
 
-            $educational_file = 'encrypted_'.$uploadData1['file_name'];
+            $educational_file = $uploadData1['file_name'];
 
             // Debugging: Output the file path
-            error_log('File path: ' . $pdf_path1);
+            // error_log('File path: ' . $pdf_path1);
 
             // Encrypt the PDF and save it as a new file
             //$this->encrypt_pdf($pdf_path1, 'TESDAR2HR');
 
-            // Debugging: Check if the file exists before deletion
-            if (file_exists($pdf_path1)) {
-                error_log('File exists: ' . $pdf_path1); // Log that the file exists
-                unlink($pdf_path1); // Remove the original file using the full path
-                error_log('File deleted: ' . $pdf_path1); // Log that the file was deleted
-            } else {
-                error_log('File does not exist: ' . $pdf_path1); // Log if file does not exist
-            }
+            // // Debugging: Check if the file exists before deletion
+            // if (file_exists($pdf_path1)) {
+            //     error_log('File exists: ' . $pdf_path1); // Log that the file exists
+            //     unlink($pdf_path1); // Remove the original file using the full path
+            //     error_log('File deleted: ' . $pdf_path1); // Log that the file was deleted
+            // } else {
+            //     error_log('File does not exist: ' . $pdf_path1); // Log if file does not exist
+            // }
 
             $result = array(
                 'status' => 'True',
@@ -302,109 +491,6 @@ class Pages extends CI_Controller
             );
 
             return $result;
-        }
-    }
-
-    public function save_forme2(){
-
-        $this->form_validation->set_rules('g-recaptcha-response', 'recaptcha validation', 'required|callback_validate_captcha');
-        
-        if ($this->form_validation->run() == FALSE){
-
-            $result = array(
-                'status' => 'False',
-                'message' => 'Please <strong>confirm</strong> that you are not a robot.'
-            );
-            echo json_encode($result);
-
-        }else{
-
-            //check education file // for upload
-            if(!empty($_FILES['education_file']['name'])){
-                $resultx = $this->educational_file();
-                if($resultx['status'] == 'True'){
-                    $educational_file = $resultx['filename'];
-                }else{
-                    $result = array(
-                        'status' => 'False',
-                        'message' => $resultx['message']
-                    );
-                    echo json_encode($result);
-                    exit;
-                }
-            }else{
-                $educational_file = null;
-            }
-
-            //check eligibility file // for upload
-            if(!empty($_FILES['eligibility_file']['name'])){
-                $resultx = $this->eligibility_file();
-                if($resultx['status'] == 'True'){
-                    $eligibility_file = $resultx['filename'];
-                }else{
-                    $result = array(
-                        'status' => 'False',
-                        'message' => $resultx['message']
-                    );
-                    echo json_encode($result);
-                    exit;
-                }
-            }else{
-                $eligibility_file = null;
-            }
-
-            //check national_certificate_file // for upload
-            if(!empty($_FILES['national_certificate_file']['name'])){
-                $resultx = $this->national_certificate_file();
-                if($resultx['status'] == 'True'){
-                    $national_certificate_file = $resultx['filename'];
-                }else{
-                    $result = array(
-                        'status' => 'False',
-                        'message' => $resultx['message']
-                    );
-                    echo json_encode($result);
-                    exit;
-                }
-            }else{
-                $national_certificate_file = null;
-            }
-
-            //check national_certificate_file // for upload
-            if(!empty($_FILES['nttc_file']['name'])){
-                $resultx = $this->nttc_file();
-                if($resultx['status'] == 'True'){
-                    $nttc_file = $resultx['filename'];
-                }else{
-                    $result = array(
-                        'status' => 'False',
-                        'message' => $resultx['message']
-                    );
-                    echo json_encode($result);
-                    exit;
-                }
-            }else{
-                $nttc_file = null;
-            }
-
-            $status = $this->Posts_model->save_forme2($educational_file, $eligibility_file, $national_certificate_file, $nttc_file);
-
-            if($status['status'] == 'True'){
-                $result = array(
-                    'status' => 'True',
-                    'message' => 'Your Educational Background and Eligibility Information has been successfully saved. Please return to your email and proceed to <b>Step 2: Work Experience. </b>'
-                );
-                echo json_encode($result);
-                exit;
-
-            }else{
-                $result = array(
-                    'status' => 'False',
-                    'message' => 'Server error. Please try again.'
-                );
-                echo json_encode($result);
-                exit;
-            }
         }
     }
 
@@ -433,7 +519,7 @@ class Pages extends CI_Controller
         // Create the new file name
         $new_file_name = strtolower($lastname . '_' . $firstname . '_' . $middlename .'_eligibility_'. $pos_id .'.pdf');
 
-        $config['upload_path'] = 'uploads/ApplicantDocx/' . $year . '/' . $month;
+        $config['upload_path'] = APPPATH . 'uploads/ApplicantDocx/' . $year . '/' . $month;
         $config['allowed_types'] = 'pdf';
         $config['max_size']    = '2000';    // max_size in kb
         $config['file_name'] = $new_file_name;
@@ -453,22 +539,22 @@ class Pages extends CI_Controller
             $uploadData = $this->upload->data();
             $pdf_path = $uploadData['full_path'];
 
-            $eligibility_file = 'encrypted_'.$uploadData['file_name'];
+            $eligibility_file = $uploadData['file_name'];
         
             // Debugging: Output the file path
-            error_log('File path: ' . $pdf_path);
+            // error_log('File path: ' . $pdf_path);
 
             // Encrypt the PDF and save it as a new file
             // $this->encrypt_pdf($pdf_path, 'ICTUTESDAR2');
 
-            // Debugging: Check if the file exists before deletion
-            if (file_exists($pdf_path)) {
-                error_log('File exists: ' . $pdf_path); // Log that the file exists
-                unlink($pdf_path); // Remove the original file using the full path
-                error_log('File deleted: ' . $pdf_path); // Log that the file was deleted
-            } else {
-                error_log('File does not exist: ' . $pdf_path); // Log if file does not exist
-            }
+            // // Debugging: Check if the file exists before deletion
+            // if (file_exists($pdf_path)) {
+            //     error_log('File exists: ' . $pdf_path); // Log that the file exists
+            //     unlink($pdf_path); // Remove the original file using the full path
+            //     error_log('File deleted: ' . $pdf_path); // Log that the file was deleted
+            // } else {
+            //     error_log('File does not exist: ' . $pdf_path); // Log if file does not exist
+            // }
 
             $result = array(
                 'status' => 'True',
@@ -512,7 +598,7 @@ class Pages extends CI_Controller
         // Create the new file name
         $new_file_name = strtolower($lastname . '_' . $firstname . '_' . $middlename .'_nc_'. $pos_id .'.pdf');
 
-        $config['upload_path'] = 'uploads/ApplicantDocx/' . $year . '/' . $month;
+        $config['upload_path'] = APPPATH . 'uploads/ApplicantDocx/' . $year . '/' . $month;
         $config['allowed_types'] = 'pdf';
         $config['max_size']    = '2000';    // max_size in kb
         $config['file_name'] = $new_file_name;
@@ -532,22 +618,22 @@ class Pages extends CI_Controller
             $uploadData = $this->upload->data();
             $pdf_path = $uploadData['full_path'];
 
-            $national_certificate_file = 'encrypted_'.$uploadData['file_name'];
+            $national_certificate_file = $uploadData['file_name'];
         
             // Debugging: Output the file path
-            error_log('File path: ' . $pdf_path);
+            // error_log('File path: ' . $pdf_path);
 
             // Encrypt the PDF and save it as a new file
             //$this->encrypt_pdf($pdf_path, 'ICTUTESDAR2');
 
-            // Debugging: Check if the file exists before deletion
-            if (file_exists($pdf_path)) {
-                error_log('File exists: ' . $pdf_path); // Log that the file exists
-                unlink($pdf_path); // Remove the original file using the full path
-                error_log('File deleted: ' . $pdf_path); // Log that the file was deleted
-            } else {
-                error_log('File does not exist: ' . $pdf_path); // Log if file does not exist
-            }
+            // // Debugging: Check if the file exists before deletion
+            // if (file_exists($pdf_path)) {
+            //     error_log('File exists: ' . $pdf_path); // Log that the file exists
+            //     unlink($pdf_path); // Remove the original file using the full path
+            //     error_log('File deleted: ' . $pdf_path); // Log that the file was deleted
+            // } else {
+            //     error_log('File does not exist: ' . $pdf_path); // Log if file does not exist
+            // }
 
             $result = array(
                 'status' => 'True',
@@ -591,7 +677,7 @@ class Pages extends CI_Controller
         // Create the new file name
         $new_file_name = strtolower($lastname . '_' . $firstname . '_' . $middlename .'_nttc_'. $pos_id .'.pdf');
 
-        $config['upload_path'] = 'uploads/ApplicantDocx/' . $year . '/' . $month;
+        $config['upload_path'] = APPPATH . 'uploads/ApplicantDocx/' . $year . '/' . $month;
         $config['allowed_types'] = 'pdf';
         $config['max_size']    = '2000';    // max_size in kb
         $config['file_name'] = $new_file_name;
@@ -611,22 +697,22 @@ class Pages extends CI_Controller
             $uploadData = $this->upload->data();
             $pdf_path = $uploadData['full_path'];
 
-            $nttc_file = 'encrypted_'.$uploadData['file_name'];
+            $nttc_file = $uploadData['file_name'];
         
             // Debugging: Output the file path
-            error_log('File path: ' . $pdf_path);
+            // error_log('File path: ' . $pdf_path);
 
             // Encrypt the PDF and save it as a new file
             //$this->encrypt_pdf($pdf_path, 'ICTUTESDAR2');
 
-            // Debugging: Check if the file exists before deletion
-            if (file_exists($pdf_path)) {
-                error_log('File exists: ' . $pdf_path); // Log that the file exists
-                unlink($pdf_path); // Remove the original file using the full path
-                error_log('File deleted: ' . $pdf_path); // Log that the file was deleted
-            } else {
-                error_log('File does not exist: ' . $pdf_path); // Log if file does not exist
-            }
+            // // Debugging: Check if the file exists before deletion
+            // if (file_exists($pdf_path)) {
+            //     error_log('File exists: ' . $pdf_path); // Log that the file exists
+            //     unlink($pdf_path); // Remove the original file using the full path
+            //     error_log('File deleted: ' . $pdf_path); // Log that the file was deleted
+            // } else {
+            //     error_log('File does not exist: ' . $pdf_path); // Log if file does not exist
+            // }
 
             $result = array(
                 'status' => 'True',
@@ -645,6 +731,9 @@ class Pages extends CI_Controller
         }
     }
 
+// --- Form 2
+
+// --- Form 3
     public function save_forme3(){
         $this->form_validation->set_rules('g-recaptcha-response', 'recaptcha validation', 'required|callback_validate_captcha');
         
@@ -657,6 +746,8 @@ class Pages extends CI_Controller
             echo json_encode($result);
 
         }else{
+
+        $applicant = $this->Posts_model->get_applicant_info1($this->input->post('form_app_id'));
          
              //Check Certificate of Employment
             if(!empty($_FILES['coe_file']['name'])){
@@ -672,7 +763,7 @@ class Pages extends CI_Controller
                     exit;
                 }
             }else{
-                $coe_file = null;
+                $coe_file = $applicant['app_coe_doc'];
             }
 
             //Check Service Record (if applicable)
@@ -689,7 +780,7 @@ class Pages extends CI_Controller
                     exit;
                 }
             }else{
-                $sr_file = null;
+                $sr_file = $applicant['app_sr'];;
             }
 
             //Check Copy of Previous Appointment (if applicable)
@@ -706,7 +797,7 @@ class Pages extends CI_Controller
                     exit;
                 }
             }else{
-                $cpa_file = null;
+                $cpa_file =  $applicant['app_appointment'];
             }
 
             //Check Performance rating in the present position for last two (2) rating period certified by HRMO (if applicable)
@@ -723,7 +814,7 @@ class Pages extends CI_Controller
                     exit;
                 }
             }else{
-                $ipcr_file = null;
+                $ipcr_file = $applicant['app_appointment'];
             }
 
             $status = $this->Posts_model->save_forme3($ipcr_file, $cpa_file, $sr_file, $coe_file);
@@ -770,7 +861,7 @@ class Pages extends CI_Controller
         // Create the new file name
         $new_file_name = strtolower($lastname . '_' . $firstname . '_' . $middlename . '_' . $pos_id . '_coe' .'.pdf');
 
-        $config['upload_path'] = 'uploads/ApplicantDocx/' . $year . '/' . $month;
+        $config['upload_path'] = APPPATH . 'uploads/ApplicantDocx/' . $year . '/' . $month;
         $config['allowed_types'] = 'pdf';
         $config['max_size']    = '2000';    // max_size in kb
         $config['file_name'] = $new_file_name;
@@ -790,22 +881,22 @@ class Pages extends CI_Controller
             $uploadData1 = $this->upload->data();
             $pdf_path1 = $uploadData1['full_path'];
 
-            $coe_file = 'encrypted_'.$uploadData1['file_name'];
+            $coe_file =$uploadData1['file_name'];
 
             // Debugging: Output the file path
-            error_log('File path: ' . $pdf_path1);
+            //error_log('File path: ' . $pdf_path1);
 
             // Encrypt the PDF and save it as a new file
             //$this->encrypt_pdf($pdf_path1, 'TESDAR2HR');
 
-            // Debugging: Check if the file exists before deletion
-            if (file_exists($pdf_path1)) {
-                error_log('File exists: ' . $pdf_path1); // Log that the file exists
-                unlink($pdf_path1); // Remove the original file using the full path
-                error_log('File deleted: ' . $pdf_path1); // Log that the file was deleted
-            } else {
-                error_log('File does not exist: ' . $pdf_path1); // Log if file does not exist
-            }
+            // // Debugging: Check if the file exists before deletion
+            // if (file_exists($pdf_path1)) {
+            //     error_log('File exists: ' . $pdf_path1); // Log that the file exists
+            //     unlink($pdf_path1); // Remove the original file using the full path
+            //     error_log('File deleted: ' . $pdf_path1); // Log that the file was deleted
+            // } else {
+            //     error_log('File does not exist: ' . $pdf_path1); // Log if file does not exist
+            // }
 
             $result = array(
                 'status' => 'True',
@@ -851,7 +942,7 @@ class Pages extends CI_Controller
         // Create the new file name
         $new_file_name = strtolower($lastname . '_' . $firstname . '_' . $middlename . '_' . $pos_id . '_service' .'.pdf');
 
-        $config['upload_path'] = 'uploads/ApplicantDocx/' . $year . '/' . $month;
+        $config['upload_path'] = APPPATH . 'uploads/ApplicantDocx/' . $year . '/' . $month;
         $config['allowed_types'] = 'pdf';
         $config['max_size']    = '2000';    // max_size in kb
         $config['file_name'] = $new_file_name;
@@ -870,22 +961,22 @@ class Pages extends CI_Controller
             $uploadData1 = $this->upload->data();
             $pdf_path1 = $uploadData1['full_path'];
 
-            $sr_file = 'encrypted_'.$uploadData1['file_name'];
+            $sr_file = $uploadData1['file_name'];
 
-            // Debugging: Output the file path
-            error_log('File path: ' . $pdf_path1);
+            // // Debugging: Output the file path
+            // error_log('File path: ' . $pdf_path1);
 
-            // Encrypt the PDF and save it as a new file
-            //$this->encrypt_pdf($pdf_path1, 'TESDAR2HR');
+            // // Encrypt the PDF and save it as a new file
+            // //$this->encrypt_pdf($pdf_path1, 'TESDAR2HR');
 
-            // Debugging: Check if the file exists before deletion
-            if (file_exists($pdf_path1)) {
-                error_log('File exists: ' . $pdf_path1); // Log that the file exists
-                unlink($pdf_path1); // Remove the original file using the full path
-                error_log('File deleted: ' . $pdf_path1); // Log that the file was deleted
-            } else {
-                error_log('File does not exist: ' . $pdf_path1); // Log if file does not exist
-            }
+            // // Debugging: Check if the file exists before deletion
+            // if (file_exists($pdf_path1)) {
+            //     error_log('File exists: ' . $pdf_path1); // Log that the file exists
+            //     unlink($pdf_path1); // Remove the original file using the full path
+            //     error_log('File deleted: ' . $pdf_path1); // Log that the file was deleted
+            // } else {
+            //     error_log('File does not exist: ' . $pdf_path1); // Log if file does not exist
+            // }
 
             $result = array(
                 'status' => 'True',
@@ -930,7 +1021,7 @@ class Pages extends CI_Controller
         // Create the new file name
         $new_file_name = strtolower($lastname . '_' . $firstname . '_' . $middlename . '_' . $pos_id . '_appointment' .'.pdf');
 
-        $config['upload_path'] = 'uploads/ApplicantDocx/' . $year . '/' . $month;
+        $config['upload_path'] = APPPATH . 'uploads/ApplicantDocx/' . $year . '/' . $month;
         $config['allowed_types'] = 'pdf';
         $config['max_size']    = '2000';    // max_size in kb
         $config['file_name'] = $new_file_name;
@@ -949,22 +1040,22 @@ class Pages extends CI_Controller
             $uploadData1 = $this->upload->data();
             $pdf_path1 = $uploadData1['full_path'];
 
-            $cpa_file = 'encrypted_'.$uploadData1['file_name'];
+            $cpa_file = $uploadData1['file_name'];
 
-            // Debugging: Output the file path
-            error_log('File path: ' . $pdf_path1);
+            // // Debugging: Output the file path
+            // error_log('File path: ' . $pdf_path1);
 
-            // Encrypt the PDF and save it as a new file
-            //$this->encrypt_pdf($pdf_path1, 'TESDAR2HR');
+            // // Encrypt the PDF and save it as a new file
+            // //$this->encrypt_pdf($pdf_path1, 'TESDAR2HR');
 
-            // Debugging: Check if the file exists before deletion
-            if (file_exists($pdf_path1)) {
-                error_log('File exists: ' . $pdf_path1); // Log that the file exists
-                unlink($pdf_path1); // Remove the original file using the full path
-                error_log('File deleted: ' . $pdf_path1); // Log that the file was deleted
-            } else {
-                error_log('File does not exist: ' . $pdf_path1); // Log if file does not exist
-            }
+            // // Debugging: Check if the file exists before deletion
+            // if (file_exists($pdf_path1)) {
+            //     error_log('File exists: ' . $pdf_path1); // Log that the file exists
+            //     unlink($pdf_path1); // Remove the original file using the full path
+            //     error_log('File deleted: ' . $pdf_path1); // Log that the file was deleted
+            // } else {
+            //     error_log('File does not exist: ' . $pdf_path1); // Log if file does not exist
+            // }
 
             $result = array(
                 'status' => 'True',
@@ -1009,7 +1100,7 @@ class Pages extends CI_Controller
         // Create the new file name
         $new_file_name = strtolower($lastname . '_' . $firstname . '_' . $middlename . '_' . $pos_id . '_ipcr' .'.pdf');
 
-        $config['upload_path'] = 'uploads/ApplicantDocx/' . $year . '/' . $month;
+        $config['upload_path'] = APPPATH . 'uploads/ApplicantDocx/' . $year . '/' . $month;
         $config['allowed_types'] = 'pdf';
         $config['max_size']    = '2000';    // max_size in kb
         $config['file_name'] = $new_file_name;
@@ -1029,22 +1120,22 @@ class Pages extends CI_Controller
             $uploadData1 = $this->upload->data();
             $pdf_path1 = $uploadData1['full_path'];
 
-            $ipcr_file = 'encrypted_'.$uploadData1['file_name'];
+            $ipcr_file = $uploadData1['file_name'];
 
             // Debugging: Output the file path
-            error_log('File path: ' . $pdf_path1);
+            //error_log('File path: ' . $pdf_path1);
 
             // Encrypt the PDF and save it as a new file
             //$this->encrypt_pdf($pdf_path1, 'TESDAR2HR');
 
-            // Debugging: Check if the file exists before deletion
-            if (file_exists($pdf_path1)) {
-                error_log('File exists: ' . $pdf_path1); // Log that the file exists
-                unlink($pdf_path1); // Remove the original file using the full path
-                error_log('File deleted: ' . $pdf_path1); // Log that the file was deleted
-            } else {
-                error_log('File does not exist: ' . $pdf_path1); // Log if file does not exist
-            }
+            // // Debugging: Check if the file exists before deletion
+            // if (file_exists($pdf_path1)) {
+            //     error_log('File exists: ' . $pdf_path1); // Log that the file exists
+            //     unlink($pdf_path1); // Remove the original file using the full path
+            //     error_log('File deleted: ' . $pdf_path1); // Log that the file was deleted
+            // } else {
+            //     error_log('File does not exist: ' . $pdf_path1); // Log if file does not exist
+            // }
 
             $result = array(
                 'status' => 'True',
@@ -1063,7 +1154,12 @@ class Pages extends CI_Controller
         }
     }
 
+// --- Form 3
+
+// --- Form 4
     public function save_forme4(){
+
+        $applicant = $this->Posts_model->get_applicant_info1($this->input->post('form_app_id'));
 
         //Check Certificate of Employment
         if(!empty($_FILES['training_file']['name'])){
@@ -1079,7 +1175,7 @@ class Pages extends CI_Controller
                 exit;
             }
         }else{
-            $training_file = null;
+            $training_file = $applicant['app_training_doc'];
         }
 
         $status = $this->Posts_model->save_forme4($training_file);
@@ -1107,37 +1203,80 @@ class Pages extends CI_Controller
         $year = date('Y');   // Get current year
         $month = date('m');  // Get current month
 
-        $config['upload_path'] = 'uploads/ApplicantDocx/' . $year . '/' . $month;
+         //Get applicant info
+        $applicant_info = $this->Posts_model->get_applicant_info();
+
+        // Get user data (example: from form input or database)
+        $lastname = $applicant_info['app_lastname']; // Or fetch from the database
+        $firstname = $applicant_info['app_firstname']; // Or fetch from the database
+        $middlename = $applicant_info['app_middlename']; // Or fetch from the database
+        $pos_id = $applicant_info['app_vac_id'];
+
+        // Clean the user input (remove spaces and special characters)
+        $lastname = preg_replace('/\s+/', '_', $lastname);
+        $firstname = preg_replace('/\s+/', '_', $firstname);
+        $middlename = preg_replace('/\s+/', '_', $middlename);
+        $pos_id = preg_replace('/\s+/', '_', $pos_id);
+
+        // Create the new file name
+        $new_file_name = strtolower($lastname . '_' . $firstname . '_' . $middlename . '_' . $pos_id . '_training' .'.pdf');
+
+        $config['upload_path'] = APPPATH . 'uploads/ApplicantDocx/' . $year . '/' . $month;
         $config['allowed_types'] = 'pdf';
         $config['max_size']    = '2000';    // max_size in kb
-        $config['file_name'] = $_FILES['training_file']['name'];
+        $config['file_name'] = $new_file_name;
             
+        if (!is_dir($config['upload_path'])) {
+            mkdir($config['upload_path'], 0755, true);  // Create the directory if it doesn't exist
+        }
+
         //Load upload library
         $this->load->library('upload', $config);   
 
         $this->upload->initialize($config);
         
-        // File upload
+                // File upload
         if($this->upload->do_upload('training_file')){  
-            $uploadData = $this->upload->data();
-            $training_file = $uploadData['file_name'];
+
+            $uploadData1 = $this->upload->data();
+            $pdf_path1 = $uploadData1['full_path'];
+
+            $training_file = $uploadData1['file_name'];
+
+            // Debugging: Output the file path
+            //error_log('File path: ' . $pdf_path1);
+
+            // Encrypt the PDF and save it as a new file
+            //$this->encrypt_pdf($pdf_path1, 'TESDAR2HR');
+
+            // // Debugging: Check if the file exists before deletion
+            // if (file_exists($pdf_path1)) {
+            //     error_log('File exists: ' . $pdf_path1); // Log that the file exists
+            //     unlink($pdf_path1); // Remove the original file using the full path
+            //     error_log('File deleted: ' . $pdf_path1); // Log that the file was deleted
+            // } else {
+            //     error_log('File does not exist: ' . $pdf_path1); // Log if file does not exist
+            // }
 
             $result = array(
                 'status' => 'True',
                 'filename' => $training_file
             );
+
             return $result;
             
         }else{
 
             $result = array(
                 'status' => 'False',
-                'error' => "Training File Docs: ".$this->upload->display_errors()
+                'message' => "Relevant Trainings: ".$this->upload->display_errors()
             );
 
             return $result;
         }
     }
+
+// --- Form 4
 
     public function save_forme5(){
 
@@ -1571,16 +1710,24 @@ class Pages extends CI_Controller
         }
     }
 
-       public function search_form_applicant(){
-        $data = $this->Posts_model->search_form_applicant();
-        if($data){
-            echo json_encode($data);
-        }else{
-            $data = array(
-                'status' => 'False');
-            echo json_encode($data);
+    public function search_form_applicant(){
+        $result = $this->Posts_model->search_form_applicant();
+
+        if (empty($result)) {
+            // No matching applicant at all
+            echo json_encode(['status' => 'False', 'message' => 'No record found.']);
+            return;
         }
-      
+
+        // Applicant exists — evaluation may or may not exist yet
+        $response = [
+            'status'      => 'True',
+            'app_lastname'=> $result['app_lastname'],
+            'pos_desc'    => $result['pos_desc'],
+            'eval_result' => empty($result['eval_id']) ? null : $result['eval_result']
+        ];
+
+        echo json_encode($response);
     }
 
     public function get_vacant_position_open(){
@@ -1683,7 +1830,7 @@ class Pages extends CI_Controller
     //     }
     // }
 
-    //-------------Email
+//-------------Email
     public function send_email($email, $pos_id, $reference, $hash) {
         
         // Get Position Information
@@ -1724,159 +1871,192 @@ class Pages extends CI_Controller
          
          // Email body content
          $mailContent = "
-                       <!DOCTYPE html>
+                        
+                        <!DOCTYPE html>
                         <html lang='en'>
                         <head>
                             <meta charset='UTF-8'>
                             <meta name='viewport' content='width=device-width, initial-scale=1.0'>
                             <title>Next Steps for Your Application</title>
-                            <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap' rel='stylesheet'>
-                            <style>
-                                body {
-                                    font-family: 'Poppins', sans-serif;
-                                    line-height: 1.6;
-                                    color: #333;
-                                    margin: 0;
-                                    padding: 0;
-                                }
-                                .container {
-                                    max-width: 600px;
-                                    margin: 20px auto;
-                                    padding: 20px;
-                                    background-color: #f9f9f9;
-                                    border: 1px solid #ddd;
-                                    border-radius: 8px;
-                                }
-                                .logo {
-                                    text-align: center;
-                                    margin-bottom: 20px;
-                                }
-                                .logo img {
-                                    max-width: 150px;
-                                }
-                                h1 {
-                                    color: #0056b3;
-                                    text-align: center;
-                                }
-                                a {
-                                    color: #0056b3;
-                                    text-decoration: none;
-                                }
-                                a:hover {
-                                    text-decoration: underline;
-                                }
-                                .step {
-                                    margin-bottom: 15px;
-                                }
-                                /* Card styles for steps */
-                                .step {
-                                    background-color: #fff;
-                                    border: 1px solid #ddd;
-                                    border-radius: 8px;
-                                    padding: 15px;
-                                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                                }
-                                .step strong {
-                                    display: block;
-                                    font-size: 1.1rem;
-                                    color: #0056b3;
-                                    margin-bottom: 10px;
-                                }
-                                .contact {
-                                    margin-top: 20px;
-                                    padding-top: 20px;
-                                    border-top: 1px solid #ddd;
-                                }
-                                .disclaimer {
-                                    margin-top: 30px;
-                                    font-size: 0.85em;
-                                    color: #555;
-                                    border-top: 1px solid #ddd;
-                                    padding-top: 15px;
-                                }
-                            </style>
                         </head>
-                        <body>
-                            <div class='container'>
-                                <div class='logo'>
-                                    <img src='[INSERT_LOGO_URL]' alt='System Logo'>
-                                </div>
-                                <h1>Complete Your Application by Following These Steps</h1>
-                                <p>Dear Applicant,</p>
-                                <p>Your application reference number is: <strong>".$reference."</strong>.</p>
-                                <p>Please follow the instructions below to complete your application for the position of <strong>".$result['pos_desc']."</strong>.</p>
-                                <small>To avoid disqualification, please ensure to upload authenticated documents.</small>
+                        <body style='margin:0;padding:0;background-color:#FAF8F4;font-family:Arial,Helvetica,sans-serif;color:#1C2B39;'>
+                            <table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='background-color:#FAF8F4;padding:30px 0;'>
+                                <tr>
+                                    <td align='center'>
+                                        <table role='presentation' width='600' cellpadding='0' cellspacing='0' style='background-color:#ffffff;border:1px solid #D9D3C7;border-radius:6px;overflow:hidden;'>
 
-                                
-                                <div class='step'>
-                                    <strong>1. Education and Eligibility:</strong>
-                                    <p>Upload and complete the <a href='".base_url().'education_eligibility/'.$hash1."' target='_blank'><b>Education and Eligibility Form</b></a>.</p>
-                                </div>
-                                
-                                <div class='step'>
-                                    <strong>2. Work Experience:</strong>
-                                    <p>Upload and complete the <a href='".base_url().'work_experience/'.$hash1."' target='_blank'><b>Work Experience Form</b></a>.</p>
-                                </div>
-                                
-                                <div class='step'>
-                                    <strong>3. Relevant Training:</strong>
-                                    <p>Upload and complete the <a href='".base_url().'relevant_training/'.$hash1."' target='_blank'><b>Relevant Training Form</b></a>.</p>
-                                </div>
-                                
-                                <div class='step'>
-                                    <strong>4. Special Acts Form:</strong>
-                                    <p>Fill out the form as required through this <a href='".base_url().'special_acts_form/'.$hash1."' target='_blank'><b>Link</b></a></p>
-                                    <ul>
-                                        <li>Indigenous People's Act (RA 8371)</li>
-                                        <li>Magna Carta for Disabled Persons (RA 7277)</li>
-                                        <li>Solo Parents Welfare Act of 2000 (RA 8972)</li>
-                                    </ul>
-                                </div>
-                                
-                                <div class='step'>
-                                    <strong>5. Personal Data and Work Experience Sheets:</strong>
-                                    <p>Upload your <a href='".base_url().'pds_wes/'.$hash1."' target='_blank'><b>Personal Data Sheet and Work Experience Sheet</b></a>.</p>
-                                </div>
-                                
-                                <div class='step'>
-                                    <strong>6. References:</strong>
-                                    <p>Complete the <a href='".base_url().'references/'.$hash1."' target='_blank'><b>References Form</b></a>.</p>
-                                </div>
-                                
-                                <div class='step'>
-                                    <strong>7. Awards Related to Performance:</strong>
-                                    <p>Upload and complete the <a href='".base_url().'awards_related_to_performance/'.$hash1."' target='_blank'><b>Awards Related to Performance Form</b></a>.</p>
-                                </div>
-                                
-                                <div class='step'>
-                                    <strong>8. Expert Services:</strong>
-                                    <p>Upload and complete the form for <a href='".base_url().'expert_services/'.$hash1."' target='_blank'><b>Expert Services in Active Participation in Professional/Technical Activities</b></a>.</p>
-                                </div>
-                                
-                                <div class='step'>
-                                    <strong>9. Committees/TWGs Participation:</strong>
-                                    <p>Upload and complete the form for <a href='".base_url().'committees/'.$hash1."' target='_blank'><b>Participation in Committees/Technical Working Groups (TWGs)</b></a>.</p>
-                                </div>
-                                
-                                <p>Best regards,</p>
-                                <p><strong>TESDA Region II (Cagayan Valley) ICT Unit</strong></p>
+                                            <!-- Header -->
+                                            <tr>
+                                                <td style='background-color:#1C2B39;padding:28px 32px;text-align:center;'>
+                                                    <img src='[INSERT_LOGO_URL]' alt='TESDA' style='max-width:130px;margin-bottom:14px;'><br>
+                                                    <span style='font-family:Georgia,\"Times New Roman\",serif;color:#ffffff;font-size:20px;font-weight:bold;'>Complete Your Application</span>
+                                                </td>
+                                            </tr>
 
-                                <div class='contact'>
-                                    <p><strong>Need Assistance?</strong></p>
-                                    <p>If you encounter any issues or have questions, please contact our Technical Support Team:</p>
-                                    <p>Email: <a href='mailto:region2_ictu@tesda.gov.ph'>region2_ictu@tesda.gov.ph</a></p>
-                                    <p>Phone: (078) 846-1618</p>
-                                </div>
+                                            <!-- Body -->
+                                            <tr>
+                                                <td style='padding:32px;'>
+                                                    <p style='font-size:14.5px;line-height:1.6;margin:0 0 14px;'>Dear Applicant,</p>
+                                                    <p style='font-size:14.5px;line-height:1.6;margin:0 0 14px;'>Your application reference number is: <strong style='color:#A8762E;'>".$reference."</strong>.</p>
+                                                    <p style='font-size:14.5px;line-height:1.6;margin:0 0 8px;'>Please follow the instructions below to complete your application for the position of <strong>".$result['pos_desc']."</strong>.</p>
+                                                    <p style='font-size:13px;line-height:1.5;color:#5B6B7A;margin:0 0 26px;'>To avoid disqualification, please ensure to upload authenticated documents.</p>
 
-                                <div class='disclaimer'>
-                                    <p><strong>Email Disclaimer:</strong></p>
-                                    <p align='justify'>This message is intended only for the use of the person to whom it is expressly addressed and may contain information that is confidential and legally privileged. If you are not the intended recipient, you are hereby notified that any use, reliance on, reference to, review, disclosure, or copying of the message and the information it contains for any purpose is strictly prohibited. If you have received this communication in error, please contact the sender immediately and delete this message from all computers. TESDA accepts no liability for any damage caused by any virus transmitted by this e-mail. Opinions obtained in this e-mail or any of its attachments do not necessarily reflect the opinion of TESDA.</p>
-                                </div>
-                            </div>
+                                                    <!-- Step 1 -->
+                                                    <table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='background-color:#FAF8F4;border:1px solid #D9D3C7;border-radius:6px;margin-bottom:12px;'>
+                                                        <tr>
+                                                            <td style='padding:16px 18px;'>
+                                                                <table role='presentation' cellpadding='0' cellspacing='0'><tr>
+                                                                    <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>1</td>
+                                                                    <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Education and Eligibility</td>
+                                                                </tr></table>
+                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Upload and complete the <a href='".base_url().'step1/education-eligibility/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Education and Eligibility Form</a>.</p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+
+                                                    <!-- Step 2 -->
+                                                    <table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='background-color:#FAF8F4;border:1px solid #D9D3C7;border-radius:6px;margin-bottom:12px;'>
+                                                        <tr>
+                                                            <td style='padding:16px 18px;'>
+                                                                <table role='presentation' cellpadding='0' cellspacing='0'><tr>
+                                                                    <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>2</td>
+                                                                    <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Work Experience</td>
+                                                                </tr></table>
+                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Upload and complete the <a href='".base_url().'step2/work-experience/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Work Experience Form</a>.</p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+
+                                                    <!-- Step 3 -->
+                                                    <table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='background-color:#FAF8F4;border:1px solid #D9D3C7;border-radius:6px;margin-bottom:12px;'>
+                                                        <tr>
+                                                            <td style='padding:16px 18px;'>
+                                                                <table role='presentation' cellpadding='0' cellspacing='0'><tr>
+                                                                    <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>3</td>
+                                                                    <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Relevant Training</td>
+                                                                </tr></table>
+                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Upload and complete the <a href='".base_url().'step3/relevant-training/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Relevant Training Form</a>.</p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+
+                                                    <!-- Step 4 -->
+                                                    <table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='background-color:#FAF8F4;border:1px solid #D9D3C7;border-radius:6px;margin-bottom:12px;'>
+                                                        <tr>
+                                                            <td style='padding:16px 18px;'>
+                                                                <table role='presentation' cellpadding='0' cellspacing='0'><tr>
+                                                                    <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>4</td>
+                                                                    <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Special Acts Form</td>
+                                                                </tr></table>
+                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 6px;'>Fill out the form as required through this <a href='".base_url().'step4/special-acts-form/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Link</a></p>
+                                                                <ul style='font-size:13.5px;line-height:1.6;margin:6px 0 0;padding-left:20px;color:#333333;'>
+                                                                    <li>Indigenous People's Act (RA 8371)</li>
+                                                                    <li>Magna Carta for Disabled Persons (RA 7277)</li>
+                                                                    <li>Solo Parents Welfare Act of 2000 (RA 8972)</li>
+                                                                </ul>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+
+                                                    <!-- Step 5 -->
+                                                    <table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='background-color:#FAF8F4;border:1px solid #D9D3C7;border-radius:6px;margin-bottom:12px;'>
+                                                        <tr>
+                                                            <td style='padding:16px 18px;'>
+                                                                <table role='presentation' cellpadding='0' cellspacing='0'><tr>
+                                                                    <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>5</td>
+                                                                    <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Personal Data and Work Experience Sheets</td>
+                                                                </tr></table>
+                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Upload your <a href='".base_url().'step5/pds-wes/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Personal Data Sheet and Work Experience Sheet</a>.</p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+
+                                                    <!-- Step 6 -->
+                                                    <table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='background-color:#FAF8F4;border:1px solid #D9D3C7;border-radius:6px;margin-bottom:12px;'>
+                                                        <tr>
+                                                            <td style='padding:16px 18px;'>
+                                                                <table role='presentation' cellpadding='0' cellspacing='0'><tr>
+                                                                    <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>6</td>
+                                                                    <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>References</td>
+                                                                </tr></table>
+                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Complete the <a href='".base_url().'step6/references/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>References Form</a>.</p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+
+                                                    <!-- Step 7 -->
+                                                    <table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='background-color:#FAF8F4;border:1px solid #D9D3C7;border-radius:6px;margin-bottom:12px;'>
+                                                        <tr>
+                                                            <td style='padding:16px 18px;'>
+                                                                <table role='presentation' cellpadding='0' cellspacing='0'><tr>
+                                                                    <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>7</td>
+                                                                    <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Awards Related to Performance</td>
+                                                                </tr></table>
+                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Upload and complete the <a href='".base_url().'step7/awards-related-to-performance/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Awards Related to Performance Form</a>.</p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+
+                                                    <!-- Step 8 -->
+                                                    <table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='background-color:#FAF8F4;border:1px solid #D9D3C7;border-radius:6px;margin-bottom:12px;'>
+                                                        <tr>
+                                                            <td style='padding:16px 18px;'>
+                                                                <table role='presentation' cellpadding='0' cellspacing='0'><tr>
+                                                                    <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>8</td>
+                                                                    <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Expert Services</td>
+                                                                </tr></table>
+                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Upload and complete the form for <a href='".base_url().'step8/expert-services/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Expert Services in Active Participation in Professional/Technical Activities</a>.</p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+
+                                                    <!-- Step 9 -->
+                                                    <table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='background-color:#FAF8F4;border:1px solid #D9D3C7;border-radius:6px;margin-bottom:26px;'>
+                                                        <tr>
+                                                            <td style='padding:16px 18px;'>
+                                                                <table role='presentation' cellpadding='0' cellspacing='0'><tr>
+                                                                    <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>9</td>
+                                                                    <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Committees/TWGs Participation</td>
+                                                                </tr></table>
+                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Upload and complete the form for <a href='".base_url().'step9/committees/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Participation in Committees/Technical Working Groups (TWGs)</a>.</p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+
+                                                    <p style='font-size:14.5px;line-height:1.6;margin:0 0 4px;'>Best regards,</p>
+                                                    <p style='font-size:14.5px;line-height:1.6;margin:0 0 24px;'><strong>TESDA Region II (Cagayan Valley)</strong></p>
+
+                                                    <!-- Contact -->
+                                                    <table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='border-top:1px solid #D9D3C7;padding-top:18px;'>
+                                                        <tr>
+                                                            <td>
+                                                                <p style='font-size:14px;font-weight:bold;color:#1C2B39;margin:0 0 6px;'>Need Assistance?</p>
+                                                                <p style='font-size:13.5px;line-height:1.6;color:#5B6B7A;margin:0 0 8px;'>If you encounter any issues or have questions, please contact our Technical Support Team:</p>
+                                                                <p style='font-size:13.5px;line-height:1.6;margin:0 0 4px;'>Email: <a href='mailto:region2.ictu@tesda.gov.ph' style='color:#A8762E;text-decoration:none;'>region2_ictu@tesda.gov.ph</a></p>
+                                                                <p style='font-size:13.5px;line-height:1.6;margin:0;'>Phone: (078) 846-1618</p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+
+                                                </td>
+                                            </tr>
+
+                                            <!-- Disclaimer footer -->
+                                            <tr>
+                                                <td style='background-color:#F5F2EC;padding:20px 32px;border-top:1px solid #D9D3C7;'>
+                                                    <p style='font-size:11.5px;font-weight:bold;color:#5B6B7A;margin:0 0 6px;'>Email Disclaimer:</p>
+                                                    <p style='font-size:11px;line-height:1.6;color:#8A96A3;margin:0;text-align:justify;'>This message is intended only for the use of the person to whom it is expressly addressed and may contain information that is confidential and legally privileged. If you are not the intended recipient, you are hereby notified that any use, reliance on, reference to, review, disclosure, or copying of the message and the information it contains for any purpose is strictly prohibited. If you have received this communication in error, please contact the sender immediately and delete this message from all computers. TESDA accepts no liability for any damage caused by any virus transmitted by this e-mail. Opinions obtained in this e-mail or any of its attachments do not necessarily reflect the opinion of TESDA.</p>
+                                                </td>
+                                            </tr>
+
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
                         </body>
                         </html>
                         ";
-         $mail->Body = $mailContent;
+        $mail->Body = $mailContent;
          
          // Send email
          if(!$mail->send()){
@@ -1895,7 +2075,7 @@ class Pages extends CI_Controller
             exit;
          }
     }
-    //-------------Email
+//-------------Email
     
 //-----------------------------Last
 }

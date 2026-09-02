@@ -158,13 +158,95 @@
         .copyright{padding:20px 0;border-top:1px solid var(--line);margin-top:30px;}
         .copyright p{color:var(--slate);font-size:13px;text-align:center;margin:0;}
         .copyright a{color:var(--brass-dark);}
+
+        .status-box{
+        position:relative;
+        max-width:560px;
+        margin-top:14px;
+        background:var(--paper);
+        border:1px solid var(--line);
+        border-left:4px solid var(--brass);
+        border-radius:6px;
+        padding:20px 24px;
+        }
+        .status-close{
+        position:absolute;
+        top:14px;
+        right:16px;
+        background:none;
+        border:none;
+        color:var(--slate);
+        font-size:20px;
+        line-height:1;
+        cursor:pointer;
+        padding:0;
+        }
+        .status-close:hover{color:var(--ink);}
+
+        /* "No record found" box */
+        .status-box-inner{
+        display:flex;
+        align-items:flex-start;
+        gap:12px;
+        padding-right:20px;
+        }
+        .status-icon-inline{
+        color:var(--brass-dark);
+        font-size:16px;
+        margin-top:2px;
+        }
+        .status-alert-text{
+        flex:1;
+        font-size:14px;
+        line-height:1.55;
+        color:var(--ink);
+        }
+
+        /* "Application status" letter box */
+        .status-box-letter{padding:24px 26px 22px;}
+        .status-box-letter #paragraph4{
+        font-family:'Source Serif 4',Georgia,serif;
+        text-align:center;
+        color:var(--brass-dark);
+        background:#FBF3E7;
+        border:1px solid #EAD8B8;
+        border-radius:4px;
+        padding:12px;
+        margin:6px 0 20px;
+        }
+        .status-box-letter .letter{
+        background:#fff;
+        border:1px solid var(--line);
+        border-radius:4px;
+        padding:22px 24px;
+        }
+        .status-box-letter .letter .salutation{font-size:14.5px;margin-bottom:14px;display:block;}
+        .status-box-letter .letter #lastname123,
+        .status-box-letter .letter #position,
+        .status-box-letter .letter #result{color:var(--brass-dark);}
+        .status-box-letter .letter p{font-size:14px;line-height:1.65;margin-bottom:12px;color:var(--ink);}
+        .status-box-letter .letter p:last-child{margin-bottom:0;}
+
+        .fa-spin{
+        animation:fa-spin 0.9s linear infinite;
+        }
+        @keyframes fa-spin{
+        from{transform:rotate(0deg);}
+        to{transform:rotate(360deg);}
+        }
+        .search-card button:disabled{
+        opacity:.7;
+        cursor:not-allowed;
+        }
     </style>
 
 </head>
 <body class="animsition">
 <!--FB-->
 <div id="fb-root"></div>
-<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v17.0" nonce="wOL3VvKV"></script>
+<script async defer crossorigin="anonymous"
+    src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v20.0">
+</script>
 <!--FB-->
     <div class="page-wrapper">
         <!-- HEADER DESKTOP-->
@@ -199,8 +281,46 @@
 
                         <form class="search-card" method="post" id="search_form_applicant">
                             <input type="text" name="search_form_applicant" placeholder="Search the status of your application" required>
-                            <button type="submit"><i class="fa fa-search"></i></button>
+                            <button type="submit" id="search_btn">
+                                <i class="fa fa-search" id="search_icon"></i>
+                            </button>
                         </form>
+
+                        <div id="app_status_false" class="status-box" style="display:none;">
+                            <button type="button" class="status-close" aria-label="Close" onclick="document.getElementById('app_status_false').style.display='none';">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <div class="status-box-inner">
+                                <i class="fa fa-search status-icon-inline" aria-hidden="true"></i>
+                                <div class="status-alert-text">
+                                    <strong>No record found.</strong> We couldn't find an application matching what you searched for. Please check the details and try again.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="app_status" class="status-box status-box-letter" style="display:none;">
+                            <button type="button" class="status-close" aria-label="Close" onclick="document.getElementById('app_status').style.display='none';">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+
+                            <div class="status-box-inner">
+                                <i class="fa fa-search status-icon-inline" aria-hidden="true"></i>
+                                <div class="status-alert-text">
+                                   <span id="paragraph4">Still in process, please wait.</span>
+                                </div>
+                            </div>
+                            
+                            <div class="status-box-inner">
+                                <div id="paragraphdiv" class="letter">
+                                    <span id="paragraph3" class="salutation">Dear Mr./Ms. <b><span id="lastname123"></span></b></span>
+                                    <p id="paragraph1">This is regarding your application to the vacant <b><span id="position"></span></b> position in the Technical Education and Skills Development Authority (TESDA).</p>
+                                    <p id="paragraph2">Please be informed that you <b><span id="result"></span></b> the required qualifications for the position you applied for. Kindly wait for further notice.</p>
+                                    <p id="paragraph5">Thank you.</p>
+                                </div>
+                            </div>
+                            
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -258,7 +378,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="copyright">
-                                    <p>&copy 2022 <b>TESDA DOS</b>. Site developed and managed with <i class="fa fa-heart"></i> by <strong>TESDA DOS ICTU</strong>. Template by <a href="https://colorlib.com">Colorlib</a>.</p>
+                                    <p>&copy 2022 <b>TESDA DOS</b>. Site developed and managed with <i class="fa fa-heart"></i> by <strong>TESDA DOS ICTU</strong>.</p>
                                 </div>
                             </div>
                         </div>
@@ -273,15 +393,6 @@
                 <!-- modal static qualification standard -->
                      <?php include("qualification_standard.php");?>
                 <!-- end modal static qualification standard -->
-
-                <!-- modal application status -->
-                <?php include("app_status.php");?>
-                <!-- end application status -->
-
-                <!-- modal application status false -->
-                <?php include("app_status_false.php");?>
-                <!-- end application status false -->
-
 
             </section>
         </div>
@@ -373,40 +484,51 @@
 
             //--------------Applicant Status-------
             $('#search_form_applicant').submit(function(e){
-            e.preventDefault(); 
-                $.ajax({
-                    url: "<?php echo base_url().'search_form_applicant'?>",
-                    type: "post",
-                    data: new FormData(this),
-                    processData: false,
-                    contentType: false,
-                    cache: false,
-                    async: false,
-                    success: function(data){
-                        var json = $.parseJSON(data);
-                        if(json.status == "False"){
-                            $('#app_status_false').modal('show');
-                        }else{
-                            $('#lastname123').text(json.app_lastname);
-                            $('#position').text(json.pos_desc);
-                            if(json.eval_result == "Disqualified"){
-                                $('#result').text('failed');  
-                                $('#paragraph4').hide();
-                            }else if(json.eval_result == "Qualified"){
-                                $('#result').text('have met');
-                                $('#paragraph4').hide();
-                            }else if(json.eval_result == null){
-                                $('#paragraph1').hide();
-                                $('#paragraph2').hide();
-                                $('#paragraph3').hide();
-                                $('#paragraph5').hide();
+                e.preventDefault(); 
+
+                    // show loading state
+                    $('#search_btn').prop('disabled', true);
+                    $('#search_icon').removeClass('fa-search').addClass('fa-spinner fa-spin');
+
+                    $.ajax({
+                        url: "<?php echo base_url().'search_form_applicant'?>",
+                        type: "post",
+                        data: new FormData(this),
+                        processData: false,
+                        contentType: false,
+                        cache: false,
+                        async: false,
+                        success: function(data){
+                            var json = $.parseJSON(data);
+                            if(json.status == "False"){
+                                $('#app_status').hide();
+                                $('#app_status_false').fadeIn();
+                            }else{
+                                $('#lastname123').text(json.app_lastname);
+                                $('#position').text(json.pos_desc);
+                                if(json.eval_result == "Disqualified"){
+                                    $('#result').text('failed');
+                                    $('#paragraph4').hide();
+                                }else if(json.eval_result == "Qualified"){
+                                    $('#result').text('have met');
+                                    $('#paragraph4').hide();
+                                }else if(json.eval_result == null){
+                                    $('#paragraph1').hide();
+                                    $('#paragraph2').hide();
+                                    $('#paragraph3').hide();
+                                    $('#paragraph5').hide();
+                                    $('#paragraphdiv').hide();
+                                }
+                                $('#app_status').fadeIn();
                             }
-                            $('#app_status').modal('show');
+                        },
+                        complete: function(){
+                            // restore button regardless of success or failure
+                            $('#search_btn').prop('disabled', false);
+                            $('#search_icon').removeClass('fa-spinner fa-spin').addClass('fa-search');
                         }
-                        
-                    }
+                    });
                 });
-            });
             //--------------Applicant Status-------
 
             //-----------------AJAX-------------------------------

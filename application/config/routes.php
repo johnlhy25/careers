@@ -66,12 +66,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             $route['save_forme8'] = 'pages/save_forme8';
             $route['save_forme9'] = 'pages/save_forme9';
             $route['save_forme10'] = 'pages/save_forme10';
+
+            $route['view-document/(:any)/(:any)']      = 'pages/view_document/$1/$2';
+
             $route['view_applicants/(:any)'] = 'pages/view_applicants/$1';
             $route['get_applicants/(:any)'] = 'pages/get_applicants/$1';
             $route['search_form_applicant'] = 'pages/search_form_applicant';
             $route['send_email'] = 'pages/send_email';
-            $route['education_eligibility/(:any)'] = 'pages/education_eligibility/$1';
-            $route['work_experience/(:any)'] = 'pages/work_experience/$1';
+            $route['step1/education-eligibility/(:any)'] = 'pages/education_eligibility/$1';
+            $route['step2/work-experience/(:any)'] = 'pages/work_experience/$1';
+            $route['step3/relevant-training/(:any)'] = 'pages/relevant_training/$1';
+            
         //Job Portal
 
 $route['404_override'] = '';

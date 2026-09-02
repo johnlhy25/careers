@@ -215,6 +215,119 @@
   background:var(--brass);
   border-color:var(--brass);
 }
+
+.tesda-app button#btn_forme1:disabled{
+  background:var(--slate);
+  cursor:not-allowed;
+  opacity:.75;
+}
+
+/* DataTables wrapper spacing */
+.dataTables_wrapper{padding:18px 20px 20px;background:#fff;}
+
+/* "Show X entries" dropdown */
+.dataTables_length{margin-bottom:16px;}
+.dataTables_length label{
+  font-size:13.5px;
+  color:var(--slate);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.dataTables_length select{
+  border:1px solid var(--line);
+  border-radius:3px;
+  padding:6px 10px;
+  font-size:13.5px;
+  color:var(--ink);
+  background:#fff;
+}
+.dataTables_length select:focus{outline:none;border-color:var(--brass);}
+
+/* Search box */
+.dataTables_filter{margin-bottom:16px;}
+.dataTables_filter label{
+  font-size:13.5px;
+  color:var(--slate);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.dataTables_filter input{
+  border:1px solid var(--line);
+  border-radius:3px;
+  padding:8px 12px;
+  font-size:14px;
+  color:var(--ink);
+  min-width:220px;
+  background:#fff;
+}
+.dataTables_filter input:focus{
+  outline:none;
+  border-color:var(--brass);
+  box-shadow:0 0 0 3px rgba(168,118,46,.15);
+}
+
+/* "Showing X to Y of Z entries" info text */
+.dataTables_info{
+  font-size:13px;
+  color:var(--slate);
+  padding-top:18px;
+}
+
+/* Pagination */
+.dataTables_paginate{
+  padding-top:14px;
+  display:flex;
+  justify-content:flex-end;
+  gap:4px;
+}
+.dataTables_paginate .paginate_button{
+  border:1px solid var(--line) !important;
+  background:#fff !important;
+  color:var(--ink) !important;
+  border-radius:3px !important;
+  padding:6px 12px !important;
+  font-size:13.5px !important;
+  margin-left:0 !important;
+  cursor:pointer;
+  transition:.15s ease;
+}
+.dataTables_paginate .paginate_button:hover{
+  background:var(--ink) !important;
+  border-color:var(--ink) !important;
+  color:#fff !important;
+}
+.dataTables_paginate .paginate_button.current{
+  background:var(--brass) !important;
+  border-color:var(--brass) !important;
+  color:#fff !important;
+}
+.dataTables_paginate .paginate_button.disabled{
+  color:var(--line) !important;
+  cursor:not-allowed;
+  background:#fff !important;
+}
+.dataTables_paginate .paginate_button.disabled:hover{
+  background:#fff !important;
+  color:var(--line) !important;
+  border-color:var(--line) !important;
+}
+
+/* Sortable column header arrows */
+table.dataTable thead th.sorting:after,
+table.dataTable thead th.sorting_asc:after,
+table.dataTable thead th.sorting_desc:after{
+  opacity:.5;
+}
+
+/* Responsive: stack length + filter on small screens */
+@media(max-width:576px){
+  .dataTables_wrapper .row{flex-direction:column;gap:10px;}
+  .dataTables_filter, .dataTables_length{text-align:left !important;}
+  .dataTables_filter input{width:100%;min-width:0;}
+}
+
 </style>
 
 <!---Form 1-->
@@ -282,9 +395,9 @@
             <div class="row-2">
                 <div class="field">
                     <label for="contactno">Contact Number/s<span class="req">*</span></label>
-                    <input type="text" id="contactno" name="contactno" placeholder="09123456789 or +639123456789"
+                    <input type="text" id="contactno" name="contactno" placeholder="09123456789"
                         pattern="(09[0-9]{9}|\+639[0-9]{9})"
-                        title="Enter a valid Philippine mobile number (e.g., 09123456789 or +639123456789)" required>
+                        title="Enter a valid Philippine mobile number (e.g., 09123456789)" required>
                 </div>
                 <div class="field">
                     <label for="email">Email Address (Active)<span class="req">*</span></label>
@@ -353,7 +466,10 @@
             <div class="g-recaptcha" data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required></div>
 
             <div class="submit-row">
-                <button id="btn_forme1" name="forme1" type="submit"><i class="fa fa-save"></i>Submit</button>
+                <button id="btn_forme1" name="forme1" type="submit">
+                    <i class="fa fa-save" id="btn_forme1_icon"></i>
+                    <span id="btn_forme1_label">Submit</span>
+                </button>
                 <div id="forme1_message" class="message"></div>
             </div>
 
@@ -387,29 +503,47 @@
         });
 
         $('#forme1_form').submit(function(e){
-        e.preventDefault(); 
-            $.ajax({
-                url: "<?php echo base_url().'save_forme1'?>",
-                type: "post",
-                data: new FormData(this),
-                processData: false,
-                contentType: false,
-                cache: false,
-                async: false,
-                success: function(data){
-                    var json = $.parseJSON(data);
-                    if(json.status == 'True'){
-                        html =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> '+ json.message +' </div>';
-                        $('#forme1_message').prepend(html);
-                        $('#forme1_card').prepend(html);
-                    }else{
-                        html =  '<div class="alert alert-danger mt-2 message"><i class="fa fa-times" aria-hidden="true"></i> '+ json.message +' </div>';
-                        $('#forme1_message').prepend(html);
-                        $('#forme1_card').prepend(html);
-                    }               
-                }
-            });
+            e.preventDefault(); 
+
+                // show loading state
+                $('#btn_forme1').prop('disabled', true);
+                $('#btn_forme1_icon').removeClass('fa-save').addClass('fa-spinner fa-spin');
+                $('#btn_forme1_label').text('Submitting...');
+
+                $.ajax({
+                    url: "<?php echo base_url().'save_forme1'?>",
+                    type: "post",
+                    data: new FormData(this),
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    async: false,
+                    success: function(data){
+                        var json = $.parseJSON(data);
+                        if(json.status == 'True'){
+                            html =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> '+ json.message +' </div>';
+                            $('#forme1_message').prepend(html);
+                            $('#forme1_card').prepend(html);
+                        }else{
+                            html =  '<div class="alert alert-danger mt-2 message"><i class="fa fa-times" aria-hidden="true"></i> '+ json.message +' </div>';
+                            $('#forme1_message').prepend(html);
+                            $('#forme1_card').prepend(html);
+                        }  
+                        
+                        // auto-hide any message after 5 seconds
+                        setTimeout(function(){
+                            $('.message.alert').fadeOut(400, function(){ $(this).remove(); });
+                        }, 5000);
+                    },
+                    complete: function(){
+                        // restore button regardless of success or failure
+                        $('#btn_forme1').prop('disabled', false);
+                        $('#btn_forme1_icon').removeClass('fa-spinner fa-spin').addClass('fa-save');
+                        $('#btn_forme1_label').text('Submit');
+                    }
+                });
         });
+
     });
     //-------FORM 1---------  
 </script>
