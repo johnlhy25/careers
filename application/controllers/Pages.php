@@ -204,6 +204,34 @@ class Pages extends CI_Controller
         
     }
 
+    public function pds_wes($param) {
+        
+        $page = 'form6';
+
+        //get applicant info
+        $applicant_info = $this->Posts_model->get_applicant_info1($param);
+
+        if (empty($applicant_info)) {
+            // No rows found
+            show_404();
+        } else {
+            // Rows found
+            $this->session->set_flashdata('success','success');
+            
+            //print_r($applicant_info);
+
+            $data['hash'] = $param;
+            $data['applicant'] = $applicant_info;
+            //print_r($data);
+            if(!file_exists(APPPATH.'views/pages/hr/job/' .$page.'.php')){
+                show_404();
+            }else{
+                $this->load->view('pages/hr/job/'.$page, $data);   
+            }
+        }
+        
+    }
+
 // --- Page Views
 
 // --- Form 1 Personal Information
@@ -1341,7 +1369,7 @@ class Pages extends CI_Controller
 
 // --- Form 4
 
-// --- Form 4 Special Act
+// --- Form 5 Special Act
     public function save_forme5(){
 
         $status = $this->Posts_model->save_forme5();
@@ -1354,66 +1382,89 @@ class Pages extends CI_Controller
         }else{
             $result = array(
                 'status' => 'False',
-                'error' => 'Server Error'
+                'error' => 'Server Error. Please try again.'
             );
         }
         echo json_encode($result);
 
     }
-// --- Form 4 Special Act
+// --- Form 5 Special Act
 
+// --- Form 6 PDS and WES
     public function save_forme6(){
 
-        //Check PDS
-        if(!empty($_FILES['pds_file']['name'])){
-            $resultx = $this->pds_file();
-            if($resultx['status'] == 'True'){
-                $pds_file = $resultx['filename'];
-            }else{
-                $result = array(
-                    'status' => 'False',
-                    'error' => $resultx['error']
-                );
-                echo json_encode($result);
-                exit;
-            }
-        }else{
-            $pds_file = null;
-        }
+        $this->form_validation->set_rules('g-recaptcha-response', 'recaptcha validation', 'required|callback_validate_captcha');
+        
+        if ($this->form_validation->run() == FALSE){
 
-        //Check WES
-        if(!empty($_FILES['wes_file']['name'])){
-            $resultx = $this->wes_file();
-            if($resultx['status'] == 'True'){
-                $wes_file = $resultx['filename'];
-            }else{
-                $result = array(
-                    'status' => 'False',
-                    'error' => $resultx['error']
-                );
-                echo json_encode($result);
-                exit;
-            }
-        }else{
-            $wes_file = null;
-        }
-
-
-        $status = $this->Posts_model->save_forme6($pds_file, $wes_file);
-
-        if($status['status'] == 'True'){
-            $result = array(
-                'status' => 'True',
-            );
-
-        }else{
             $result = array(
                 'status' => 'False',
-                'error' => 'Server Error'
+                'message' => 'Please <strong>confirm</strong> that you are not a robot.'
             );
-        }
-        echo json_encode($result);
+            echo json_encode($result);
 
+        }else{
+
+            date_default_timezone_set('Asia/Manila');
+
+            $year = date('Y');   // Get current year
+            $month = date('m');  // Get current month
+
+            $applicant = $this->Posts_model->get_applicant_info1($this->input->post('form_app_id'));
+            
+            //Check PDS
+            if(!empty($_FILES['pds_file']['name'])){
+                $resultx = $this->pds_file();
+                if($resultx['status'] == 'True'){
+                    $pds_file = $year . '/' . $month . '/'. $resultx['filename'];
+                }else{
+                    $result = array(
+                        'status' => 'False',
+                        'error' => $resultx['error']
+                    );
+                    echo json_encode($result);
+                    exit;
+                }
+            }else{
+                $pds_file = !empty($applicant['app_pds'])
+                    ? $applicant['app_pds']
+                    : null;
+            }
+
+            //Check WES
+            if(!empty($_FILES['wes_file']['name'])){
+                $resultx = $this->wes_file();
+                if($resultx['status'] == 'True'){
+                    $wes_file = $year . '/' . $month . '/'. $resultx['filename'];
+                }else{
+                    $result = array(
+                        'status' => 'False',
+                        'error' => $resultx['error']
+                    );
+                    echo json_encode($result);
+                    exit;
+                }
+            }else{
+                $wes_file = !empty($applicant['app_wes'])
+                    ? $applicant['app_wes']
+                    : null;
+            }
+
+            $status = $this->Posts_model->save_forme6($pds_file, $wes_file);
+
+            if($status['status'] == 'True'){
+                $result = array(
+                    'status' => 'True'
+                );
+
+            }else{
+                $result = array(
+                    'status' => 'False',
+                    'error' => 'Server Error. Please try again.'
+                );
+            }
+            echo json_encode($result);
+        }
     }
 
     function pds_file(){
@@ -1496,6 +1547,8 @@ class Pages extends CI_Controller
             return $result;
         }
     }
+
+// --- Form 6 PDS and WES 
 
     public function save_forme7(){
 
