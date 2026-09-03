@@ -227,35 +227,77 @@ class Posts_model extends CI_Model{
         $year = date('Y');   // Get current year
         $month = date('m');  // Get current month
         
-        //eligibility
+        //-- Eligibility
         $array_eligibility = $this->input->post('eligibility');
         $result_eligibility = '';
 
-        foreach($array_eligibility as $row){
-            $result_eligibility = $result_eligibility.';'.$row;
+        if (is_array($array_eligibility)) {
+
+            foreach ($array_eligibility as $row) {
+
+                if (trim($row) !== '') {
+                    $result_eligibility .= ';' . $row;
+                }
+
+            }
         }
 
-        //nc
+        if ($result_eligibility === '') {
+            $result_eligibility = $applicant_info['app_eligibility'];
+        }
+        //-- Eligibility
+
+        //-- NC
         $array_nc = $this->input->post('nc');
         $result_nc = '';
 
-        foreach($array_nc as $row){
-            $result_nc = $result_nc.';'.$row;
+        if (is_array($array_nc)) {
+            foreach ($array_nc as $row) {
+                if (trim($row) !== '') {
+                    $result_nc .= ';' . $row;
+                }
+            }
         }
 
-        //nttc
+        if ($result_nc === '') {
+            $result_nc = $applicant_info['app_nc'];
+        }
+        //-- NC
+
+        //-- NTTC
         $array_nttc = $this->input->post('nttc');
         $result_nttc = '';
 
-        foreach($array_nttc as $row){
-            $result_nttc = $result_nttc.';'.$row;
+        if (is_array($array_nttc)) {
+
+            foreach ($array_nttc as $row) {
+
+                if (trim($row) !== '') {
+                    $result_nttc .= ';' . $row;
+                }
+
+            }
         }
 
-        $data = array(
-            'app_eligibility' => $result_eligibility,
-            'app_nc' => $result_nc,
-            'app_nttc' =>  $result_nttc
-        );
+        if ($result_nttc === '') {
+            $result_nttc = $applicant_info['app_nttc'];
+        }
+        //-- NTTC
+
+        // Data
+        $data = array();
+
+        if (!empty($array_eligibility)) {
+            $data['app_eligibility'] = $result_eligibility;
+        }
+
+        if (!empty($array_nc)) {
+            $data['app_nc'] = $result_nc;
+        }
+
+        if (!empty($array_nttc)) {
+            $data['app_nttc'] = $result_nttc;
+        }
 
         //clean
         $data = $this->security->xss_clean($data);
@@ -264,12 +306,23 @@ class Posts_model extends CI_Model{
             $this->db->where('app_id', $applicant_info['app_id']);
             $result = $this->db->update('tbl_hr_applicant', $data);  
 
-            //applicant docs
+            // Applicant docs
             $data1 = array(
-                'app_educational_doc'  => $year . '/' . $month . '/' . $educational_file,
-                'app_eligibility_doc'  => $year . '/' . $month . '/' . $eligibility_file,
-                'app_nc_doc'  => $year . '/' . $month . '/' . $national_certificate_file,
-                'app_nttc_doc'  => $year . '/' . $month . '/' .$nttc_file
+                'app_educational_doc' => !empty($educational_file)
+                    ? $educational_file
+                    : null,
+
+                'app_eligibility_doc' => !empty($eligibility_file)
+                    ? $eligibility_file
+                    : null,
+
+                'app_nc_doc' => !empty($national_certificate_file)
+                    ? $national_certificate_file
+                    : null,
+
+                'app_nttc_doc' => !empty($nttc_file)
+                    ? $nttc_file
+                    : null
             );
 
             $this->db->where('app_id', $applicant_info['app_id']);
@@ -315,43 +368,74 @@ class Posts_model extends CI_Model{
         $year = date('Y');   // Get current year
         $month = date('m');  // Get current month
 
-        //relevant work experience
+        // Relevant work experience
         $array_work_experience = $this->input->post('relevant_experience');
         $result_work_experience = '';
 
-        foreach($array_work_experience as $row){
-            $result_work_experience = $result_work_experience.';'.$row;
+        if (is_array($array_work_experience)) {
+
+            foreach ($array_work_experience as $row) {
+
+                if (trim($row) !== '') {
+                    $result_work_experience .= ';' . $row;
+                }
+
+            }
         }
 
-         //relevant work experience years
-         $array_work_experience_years = $this->input->post('relevant_experience_years');
-         $result_work_experience_years = '';
- 
-         foreach($array_work_experience_years as $row){
-             $result_work_experience_years = $result_work_experience_years.';'.$row;
-         }
+        if ($result_work_experience === '') {
+            $result_work_experience = $applicant_info['app_relevant_experience'];
+        }
 
-         //check date & year of service in TESDA
-         if($this->input->post('tesda_service') == null){
-            $tesda_service = null;
-         }else{
-            $tesda_service = $this->input->post('tesda_service');
-         } 
-         
-         if($this->input->post('date_tesda_service') == null){
-            $date_tesda_service = null;
-         }else{
-            $date_tesda_service = $this->input->post('date_tesda_service');
-         } 
 
+        // Relevant work experience years
+        $array_work_experience_years = $this->input->post('relevant_experience_years');
+        $result_work_experience_years = '';
+
+        if (is_array($array_work_experience_years)) {
+
+            foreach ($array_work_experience_years as $row) {
+
+                if (trim($row) !== '') {
+                    $result_work_experience_years .= ';' . $row;
+                }
+
+            }
+        }
+
+        if ($result_work_experience_years === '') {
+            $result_work_experience_years = $applicant_info['app_relevant_years'];
+        }
+
+        // Check date & years of service in TESDA
+        $tesda_service = $this->input->post('tesda_service');
+
+        if (trim($tesda_service) === '') {
+            $tesda_service = $applicant_info['app_tesda_years'];
+        }
+
+        // Date of TESDA service
+        $date_tesda_service = $this->input->post('date_tesda_service');
+
+        if (trim($date_tesda_service) === '') {
+            $date_tesda_service = $applicant_info['app_date_tesda'];
+        }
+
+        // Data
         $data = array(
-            'app_present_position' => $this->input->post('present_position'),
-            'app_present_office' => $this->input->post('present_office'),
-            'app_years' =>  $this->input->post('no_years'),
+            'app_present_position' => !empty($this->input->post('present_position'))
+                ? $this->input->post('present_position')
+                : $applicant_info['app_present_position'],
+            'app_present_office' => !empty($this->input->post('present_office'))
+                ? $this->input->post('present_office')
+                : $applicant_info['app_present_office'],
+            'app_years' => !empty($this->input->post('no_years'))
+                ? $this->input->post('no_years')
+                : $applicant_info['app_years'],
             'app_relevant_experience' => $result_work_experience,
-            'app_relevant_years' =>  $result_work_experience_years,
+            'app_relevant_years' => $result_work_experience_years,
             'app_tesda_years' => $tesda_service,
-            'app_date_tesda' =>  $date_tesda_service
+            'app_date_tesda' => $date_tesda_service
         );
 
         //clean
@@ -361,12 +445,23 @@ class Posts_model extends CI_Model{
             $this->db->where('app_id', $applicant_info['app_id']);
             $result = $this->db->update('tbl_hr_applicant', $data);  
 
-            //applicant docs
+            // Applicant docs
             $data1 = array(
-                'app_coe_doc'  => $year . '/' . $month . '/' . $coe_file,
-                'app_sr'  => $year . '/' . $month . '/' . $sr_file,
-                'app_appointment'  => $year . '/' . $month . '/' . $cpa_file,
-                'app_ipcr'  => $year . '/' . $month . '/' . $ipcr_file
+                'app_coe_doc' => !empty($coe_file)
+                    ? $coe_file
+                    : null,
+
+                'app_sr' => !empty($sr_file)
+                    ? $sr_file
+                    : null,
+
+                'app_appointment' => !empty($cpa_file)
+                    ? $cpa_file
+                    : null,
+
+                'app_ipcr' => !empty($ipcr_file)
+                    ? $ipcr_file
+                    : null
             );
 
             $this->db->where('app_id', $applicant_info['app_id']);
@@ -393,26 +488,42 @@ class Posts_model extends CI_Model{
         $year = date('Y');   // Get current year
         $month = date('m');  // Get current month
 
-        //relevant Training
+        // Relevant Training
         $array_relevant_training = $this->input->post('relevant_training');
         $result_relevant_training = '';
 
-        foreach($array_relevant_training as $row){
-            $result_relevant_training = $result_relevant_training.';'.$row;
+        if (is_array($array_relevant_training)) {
+            foreach ($array_relevant_training as $row) {
+                if (trim($row) !== '') {
+                    $result_relevant_training .= ';' . $row;
+                }
+            }
         }
 
-         //relevant Training
-         $array_relevant_training_hours = $this->input->post('relevant_training_hours');
-         $result_relevant_training_hours = '';
- 
-         foreach($array_relevant_training_hours as $row){
-             $result_relevant_training_hours = $result_relevant_training_hours.';'.$row;
-         }
+        if ($result_relevant_training === '') {
+            $result_relevant_training = $applicant_info['app_training'];
+        }
 
-         
+        // Relevant Training Hours
+        $array_relevant_training_hours = $this->input->post('relevant_training_hours');
+        $result_relevant_training_hours = '';
+        if (is_array($array_relevant_training_hours)) {
+            foreach ($array_relevant_training_hours as $row) {
+
+                if (trim($row) !== '') {
+                    $result_relevant_training_hours .= ';' . $row;
+                }
+            }
+        }
+
+        if ($result_relevant_training_hours === '') {
+            $result_relevant_training_hours = $applicant_info['app_training_hours'];
+        }
+
+        // Data
         $data = array(
             'app_training' => $result_relevant_training,
-            'app_training_hours' => $result_relevant_training_hours  
+            'app_training_hours' => $result_relevant_training_hours
         );
 
         //clean
@@ -425,7 +536,10 @@ class Posts_model extends CI_Model{
 
             //applicant docs
             $data1 = array(
-                'app_training_doc'  => $year . '/' . $month . '/' . $training_file
+                'app_training_doc' => !empty($training_file)
+                    ? $training_file
+                    : null
+
             );
 
             $this->db->where('app_id', $applicant_info['app_id']);
@@ -446,42 +560,70 @@ class Posts_model extends CI_Model{
 
     public function save_forme5(){
 
-        //RA8371
+        $applicant_info = $this->get_applicant_info();
+
+        // RA8371
         $array_RA8371 = $this->input->post('ra8371');
         $result_RA8371 = '';
 
-        foreach($array_RA8371 as $row){
-            $result_RA8371 = $result_RA8371.';'.$row;
+        if (is_array($array_RA8371)) {
+            foreach ($array_RA8371 as $row) {
+                if (trim($row) !== '') {
+                    $result_RA8371 .= ';' . $row;
+                }
+            }
         }
 
-        //RA727
+        if ($result_RA8371 === '') {
+            $result_RA8371 = $applicant_info['app_ra8371'];
+        }
+
+
+        // RA7277
         $array_RA727 = $this->input->post('ra727');
         $result_RA727 = '';
 
-        foreach($array_RA727 as $row){
-            $result_RA727 = $result_RA727.';'.$row;
+        if (is_array($array_RA727)) {
+            foreach ($array_RA727 as $row) {
+                if (trim($row) !== '') {
+                    $result_RA727 .= ';' . $row;
+                }
+            }
         }
 
-        //RA8972
+        if ($result_RA727 === '') {
+            $result_RA727 = $applicant_info['app_ra7277'];
+        }
+
+
+        // RA8972
         $array_RA8972 = $this->input->post('ra8972');
         $result_RA8972 = '';
-
-        foreach($array_RA8972 as $row){
-            $result_RA8972 = $result_RA8972.';'.$row;
+        if (is_array($array_RA8972)) {
+            foreach ($array_RA8972 as $row) {
+                if (trim($row) !== '') {
+                    $result_RA8972 .= ';' . $row;
+                }
+            }
         }
-         
-         
+
+        if ($result_RA8972 === '') {
+            $result_RA8972 = $applicant_info['app_ra8972'];
+        }
+
+
+        // Data
         $data = array(
             'app_ra8371' => $result_RA8371,
             'app_ra7277' => $result_RA727,
-            'app_ra8972' => $result_RA8972  
+            'app_ra8972' => $result_RA8972
         );
 
         //clean
         $data = $this->security->xss_clean($data);
         if($this->security->xss_clean($data)){  
             //applicant info
-            $this->db->where('app_id', $this->input->post('forme5_app_id'));
+            $this->db->where('app_id', $applicant_info['app_id']);
             $result = $this->db->update('tbl_hr_applicant', $data);  
 
             if($result){
@@ -495,7 +637,6 @@ class Posts_model extends CI_Model{
             }
             return $return;
         }
-
     }
 
     public function save_forme6($pds_file, $wes_file){

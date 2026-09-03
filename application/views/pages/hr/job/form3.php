@@ -232,6 +232,23 @@
             .btn-view-file{display:block;margin:8px 0 0;width:fit-content;}
         }
 
+        .emphasis-callout{
+            display:flex;
+            align-items:flex-start;
+            gap:10px;
+            background:#fff;
+            border:1px solid var(--brass);
+            border-left:4px solid var(--brass);
+            border-radius:4px;
+            padding:12px 16px;
+            margin-top:14px;
+            font-size:13.5px;
+            font-weight:600;
+            color:var(--brass-dark);
+            line-height:1.55;
+        }
+        .emphasis-callout i{margin-top:2px;flex-shrink:0;color:var(--brass);}
+
     </style>
 
 </head>
@@ -305,7 +322,7 @@
                                     </div>
                                 <?php endif; ?>
 
-                                <?php if ($applicant['app_present_position'] !== ''): ?>
+                                <?php if (trim(!empty($applicant['app_present_position']))): ?>
                                     <div class="summary-row">
                                         <span class="summary-label">Present Position</span>
                                         <span class="summary-value">
@@ -314,7 +331,7 @@
                                     </div>
                                 <?php endif; ?>
 
-                                <?php if ($applicant['app_present_office'] !== ''): ?>
+                                <?php if (trim(!empty($applicant['app_present_office'] ))): ?>
                                     <div class="summary-row">
                                         <span class="summary-label">Present Office</span>
                                         <span class="summary-value">
@@ -323,7 +340,7 @@
                                     </div>
                                 <?php endif; ?>
 
-                                <?php if ($applicant['app_years'] !== ''): ?>
+                                <?php if (trim(!empty($applicant['app_years'] ))): ?>
                                     <div class="summary-row">
                                         <span class="summary-label">No. of Years</span>
                                         <span class="summary-value">
@@ -345,7 +362,7 @@
 
                                 <?php if ($applicant['app_tesda_years'] !== ''): ?>
                                     <div class="summary-row">
-                                        <span class="summary-label">No. of Years</span>
+                                        <span class="summary-label">Length of Service in TESDA</span>
                                         <span class="summary-value">
                                             <?= $applicant['app_tesda_years'] ?>
                                         </span>
@@ -354,7 +371,7 @@
 
                                <?php if (!empty($applicant['app_date_tesda']) && $applicant['app_date_tesda'] !== '0000-00-00'): ?>
                                     <div class="summary-row">
-                                        <span class="summary-label">No. of Years</span>
+                                        <span class="summary-label">Date of Last Promotion <br>in TESDA</span>
                                         <span class="summary-value">
                                             <?= $applicant['app_date_tesda'] ?>
                                         </span>
@@ -421,10 +438,13 @@
                                             <p>1. Present Position: <?= $applicant['app_present_position'] ?></p>
                                             <p>2. Present Office: <?= $applicant['app_present_office'] ?></p>
                                             <p>3. No. of Years: <?= $applicant['app_years'] ?></p>
-                                            <p>4. Relevant Experience: <?= $entry ?></p>
+                                            <p>4. Relevant Experience: <?= !empty($entry) ? $entry : '' ?></p>
                                             <p>5. Length of Service in TESDA: <?= $applicant['app_tesda_years'] ?></p>
                                             <p>6. Date of Last Promotion: <?= $applicant['app_date_tesda'] ?></p>
-                                            <p>Please ensure that you also upload the required documents in this form.</p>
+                                            <div class="emphasis-callout">
+                                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                                <span>Please upload the required documents for this form. If there are no updates to the required fields or documents, you may leave them blank.</span>
+                                            </div>
                                         </div>
                                     </div>
                                 <?php endif; ?>
@@ -439,7 +459,7 @@
                             <!--Present Position-->
                             <div class="field">
                                 <label for="present_position">Present Position<span class="req">*</span></label>
-                                <input type="text" id="present_position" name="present_position" placeholder="Information System Analyst III" required>
+                                <input type="text" id="present_position" name="present_position" placeholder="Information System Analyst III">
                                 <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
                             </div>
                             <!--Present Position-->
@@ -447,7 +467,7 @@
                             <!--Present Office-->
                             <div class="field">
                                 <label for="present_office">Present Office<span class="req">*</span></label>
-                                <input type="text" id="present_office" name="present_office" placeholder="Technical Education And Skills Development Authority" required>
+                                <input type="text" id="present_office" name="present_office" placeholder="Technical Education And Skills Development Authority">
                                 <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
                             </div>
                             <!--Present Office-->
@@ -455,7 +475,7 @@
                             <!--No. of years-->
                             <div class="field">
                                 <label for="no_years">No. of Years<span class="req">*</span></label>
-                                <input type="number" id="no_years" name="no_years" placeholder="5" min="0" max="50" step="0.1" required>
+                                <input type="number" id="no_years" name="no_years" placeholder="5" min="0" max="50" step="0.1">
                                 <span class="note">Put "0" if not applicable.</span>
                             </div>
                             <!--No. of years-->

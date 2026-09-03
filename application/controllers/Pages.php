@@ -166,7 +166,35 @@ class Pages extends CI_Controller
 
             $data['hash'] = $param;
             $data['applicant'] = $applicant_info;
-            print_r($data);
+            //print_r($data);
+            if(!file_exists(APPPATH.'views/pages/hr/job/' .$page.'.php')){
+                show_404();
+            }else{
+                $this->load->view('pages/hr/job/'.$page, $data);   
+            }
+        }
+        
+    }
+
+    public function special_acts_form($param) {
+        
+        $page = 'form5';
+
+        //get applicant info
+        $applicant_info = $this->Posts_model->get_applicant_info1($param);
+
+        if (empty($applicant_info)) {
+            // No rows found
+            show_404();
+        } else {
+            // Rows found
+            $this->session->set_flashdata('success','success');
+            
+            //print_r($applicant_info);
+
+            $data['hash'] = $param;
+            $data['applicant'] = $applicant_info;
+            //print_r($data);
             if(!file_exists(APPPATH.'views/pages/hr/job/' .$page.'.php')){
                 show_404();
             }else{
@@ -178,7 +206,7 @@ class Pages extends CI_Controller
 
 // --- Page Views
 
-// --- Form 1
+// --- Form 1 Personal Information
 
     public function save_forme1(){
 
@@ -313,7 +341,7 @@ class Pages extends CI_Controller
 
 // --- Form 1
 
-// --- Form 2
+// --- Form 2 Educational Background and Eligibility Information
 
     public function save_forme2(){
 
@@ -329,13 +357,18 @@ class Pages extends CI_Controller
 
         }else{
 
+            date_default_timezone_set('Asia/Manila');
+
+            $year = date('Y');   // Get current year
+            $month = date('m');  // Get current month
+
             $applicant = $this->Posts_model->get_applicant_info1($this->input->post('form_app_id'));
 
             //check education file // for upload
             if(!empty($_FILES['education_file']['name'])){
                 $resultx = $this->educational_file();
                 if($resultx['status'] == 'True'){
-                    $educational_file = $resultx['filename'];
+                    $educational_file = $year . '/' . $month . '/'. $resultx['filename'];
                 }else{
                     $result = array(
                         'status' => 'False',
@@ -345,14 +378,16 @@ class Pages extends CI_Controller
                     exit;
                 }
             }else{
-                //$educational_file = null;
+                $educational_file = !empty($applicant['app_educational_doc'])
+                    ? $applicant['app_educational_doc']
+                    : null;
             }
 
             //check eligibility file // for upload
             if(!empty($_FILES['eligibility_file']['name'])){
                 $resultx = $this->eligibility_file();
                 if($resultx['status'] == 'True'){
-                    $eligibility_file = $resultx['filename'];
+                    $eligibility_file = $year . '/' . $month . '/' . $resultx['filename'];
                 }else{
                     $result = array(
                         'status' => 'False',
@@ -362,14 +397,16 @@ class Pages extends CI_Controller
                     exit;
                 }
             }else{
-                $educational_file = $applicant['app_educational_doc'];
+                $eligibility_file = !empty($applicant['app_eligibility_doc'])
+                    ? $applicant['app_eligibility_doc']
+                    : null;
             }
 
             //check national_certificate_file // for upload
             if(!empty($_FILES['national_certificate_file']['name'])){
                 $resultx = $this->national_certificate_file();
                 if($resultx['status'] == 'True'){
-                    $national_certificate_file = $resultx['filename'];
+                    $national_certificate_file = $year . '/' . $month . '/' . $resultx['filename'];
                 }else{
                     $result = array(
                         'status' => 'False',
@@ -379,14 +416,16 @@ class Pages extends CI_Controller
                     exit;
                 }
             }else{
-                $national_certificate_file = $applicant['app_nc_doc'];
+                $national_certificate_file = !empty($applicant['app_nc_doc'])
+                    ? $applicant['app_nc_doc']
+                    : null;
             }
 
             //check national_certificate_file // for upload
             if(!empty($_FILES['nttc_file']['name'])){
                 $resultx = $this->nttc_file();
                 if($resultx['status'] == 'True'){
-                    $nttc_file = $resultx['filename'];
+                    $nttc_file = $year . '/' . $month . '/' . $resultx['filename'];
                 }else{
                     $result = array(
                         'status' => 'False',
@@ -396,7 +435,9 @@ class Pages extends CI_Controller
                     exit;
                 }
             }else{
-                $nttc_file = $applicant['app_nttc_doc'];;
+                $nttc_file = !empty($applicant['app_nttc_doc'])
+                    ? $applicant['app_nttc_doc']
+                    : null;
             }
 
             $status = $this->Posts_model->save_forme2($educational_file, $eligibility_file, $national_certificate_file, $nttc_file);
@@ -733,7 +774,7 @@ class Pages extends CI_Controller
 
 // --- Form 2
 
-// --- Form 3
+// --- Form 3 Work Experience 
     public function save_forme3(){
         $this->form_validation->set_rules('g-recaptcha-response', 'recaptcha validation', 'required|callback_validate_captcha');
         
@@ -746,14 +787,19 @@ class Pages extends CI_Controller
             echo json_encode($result);
 
         }else{
+          
+            date_default_timezone_set('Asia/Manila');
 
-        $applicant = $this->Posts_model->get_applicant_info1($this->input->post('form_app_id'));
+            $year = date('Y');   // Get current year
+            $month = date('m');  // Get current month
+
+            $applicant = $this->Posts_model->get_applicant_info1($this->input->post('form_app_id'));
          
              //Check Certificate of Employment
             if(!empty($_FILES['coe_file']['name'])){
                 $resultx = $this->coe_file();
                 if($resultx['status'] == 'True'){
-                    $coe_file = $resultx['filename'];
+                    $coe_file = $year . '/' . $month . '/'. $resultx['filename'];
                 }else{
                     $result = array(
                         'status' => 'False',
@@ -770,7 +816,7 @@ class Pages extends CI_Controller
             if(!empty($_FILES['sr_file']['name'])){
                 $resultx = $this->sr_file();
                 if($resultx['status'] == 'True'){
-                    $sr_file = $resultx['filename'];
+                    $sr_file = $year . '/' . $month . '/'. $resultx['filename'];
                 }else{
                     $result = array(
                         'status' => 'False',
@@ -787,7 +833,7 @@ class Pages extends CI_Controller
             if(!empty($_FILES['cpa_file']['name'])){
                 $resultx = $this->cpa_file();
                 if($resultx['status'] == 'True'){
-                    $cpa_file = $resultx['filename'];
+                    $cpa_file = $year . '/' . $month . '/'. $resultx['filename'];
                 }else{
                     $result = array(
                         'status' => 'False',
@@ -804,7 +850,7 @@ class Pages extends CI_Controller
             if(!empty($_FILES['ipcr_file']['name'])){
                 $resultx = $this->ipcr_file();
                 if($resultx['status'] == 'True'){
-                    $ipcr_file = $resultx['filename'];
+                    $ipcr_file = $year . '/' . $month . '/'. $resultx['filename'];
                 }else{
                     $result = array(
                         'status' => 'False',
@@ -1156,42 +1202,59 @@ class Pages extends CI_Controller
 
 // --- Form 3
 
-// --- Form 4
+// --- Form 4 Relevant Training
     public function save_forme4(){
+        $this->form_validation->set_rules('g-recaptcha-response', 'recaptcha validation', 'required|callback_validate_captcha');
+        
+        if ($this->form_validation->run() == FALSE){
 
-        $applicant = $this->Posts_model->get_applicant_info1($this->input->post('form_app_id'));
+            $result = array(
+                'status' => 'False',
+                'message' => 'Please <strong>confirm</strong> that you are not a robot.'
+            );
+            echo json_encode($result);
 
-        //Check Certificate of Employment
-        if(!empty($_FILES['training_file']['name'])){
-            $resultx = $this->training_file();
-            if($resultx['status'] == 'True'){
-                $training_file = $resultx['filename'];
+        }else{
+
+            date_default_timezone_set('Asia/Manila');
+
+            $year = date('Y');   // Get current year
+            $month = date('m');  // Get current month
+
+            $applicant = $this->Posts_model->get_applicant_info1($this->input->post('form_app_id'));
+
+            //Check Certificate of Employment
+            if(!empty($_FILES['training_file']['name'])){
+                $resultx = $this->training_file();
+                if($resultx['status'] == 'True'){
+                    $training_file = $year . '/' . $month . '/'. $resultx['filename'];
+                }else{
+                    $result = array(
+                        'status' => 'False',
+                        'error' => $resultx['error']
+                    );
+                    echo json_encode($result);
+                    exit;
+                }
+            }else{
+                $training_file = $applicant['app_training_doc'];
+            }
+
+            $status = $this->Posts_model->save_forme4($training_file);
+
+            if($status['status'] == 'True'){
+                $result = array(
+                    'status' => 'True',
+                );
+
             }else{
                 $result = array(
                     'status' => 'False',
-                    'error' => $resultx['error']
+                    'error' => 'Server Error'
                 );
-                echo json_encode($result);
-                exit;
             }
-        }else{
-            $training_file = $applicant['app_training_doc'];
+            echo json_encode($result);
         }
-
-        $status = $this->Posts_model->save_forme4($training_file);
-
-        if($status['status'] == 'True'){
-            $result = array(
-                'status' => 'True',
-            );
-
-        }else{
-            $result = array(
-                'status' => 'False',
-                'error' => 'Server Error'
-            );
-        }
-        echo json_encode($result);
 
     }
 
@@ -1278,6 +1341,7 @@ class Pages extends CI_Controller
 
 // --- Form 4
 
+// --- Form 4 Special Act
     public function save_forme5(){
 
         $status = $this->Posts_model->save_forme5();
@@ -1296,6 +1360,7 @@ class Pages extends CI_Controller
         echo json_encode($result);
 
     }
+// --- Form 4 Special Act
 
     public function save_forme6(){
 

@@ -248,6 +248,23 @@
             position:absolute;width:100%;height:100%;top:0;left:0;opacity:0;cursor:pointer;
         }
 
+        .emphasis-callout{
+            display:flex;
+            align-items:flex-start;
+            gap:10px;
+            background:#fff;
+            border:1px solid var(--brass);
+            border-left:4px solid var(--brass);
+            border-radius:4px;
+            padding:12px 16px;
+            margin-top:14px;
+            font-size:13.5px;
+            font-weight:600;
+            color:var(--brass-dark);
+            line-height:1.55;
+        }
+        .emphasis-callout i{margin-top:2px;flex-shrink:0;color:var(--brass);}
+
     </style>
 
 </head>
@@ -378,6 +395,11 @@
                                             <p><strong>Reminder:</strong> Any changes you make to this form will update the following information accordingly:</p>
                                             <p>1. Relevant Trainings: <?= $applicant['app_training'] ?></p>
                                             
+                                            <div class="emphasis-callout">
+                                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                                <span>Please upload the required documents for this form. If there are no updates to the required fields or documents, you may leave them blank.</span>
+                                            </div>
+
                                         </div>
                                     </div>
                                 <?php endif; ?>
@@ -401,11 +423,11 @@
                                 </label>
                                 <div class="row-2">
                                     <div>
-                                        <input type="text" id="relevant_training" name="relevant_training[]" placeholder="Programming 101" required>
+                                        <input type="text" id="relevant_training" name="relevant_training[]" placeholder="Programming 101">
                                         <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
                                     </div>
                                     <div class="hours-col">
-                                        <input type="number" id="relevant_training_hours" name="relevant_training_hours[]" placeholder="1" step="0.1" required>
+                                        <input type="number" id="relevant_training_hours" name="relevant_training_hours[]" placeholder="1" step="0.1">
                                         <span class="note">Hours</span>
                                     </div>
                                 </div>
@@ -421,6 +443,12 @@
                                 <span class="note">Please upload PDF file only.</span>
                             </div>
                             <!--Relevant Training-->
+
+                            <!-- I am not a robot -->
+                            <div class="field" style="margin-bottom:22px;">
+                                <div class="g-recaptcha" data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required></div>
+                            </div>
+                            <!-- I am not a robot -->
 
                             <hr class="divider">
 

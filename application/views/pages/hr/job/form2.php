@@ -263,6 +263,23 @@
             .btn-view-file{display:block;margin:8px 0 0;width:fit-content;}
         }
 
+        .emphasis-callout{
+            display:flex;
+            align-items:flex-start;
+            gap:10px;
+            background:#fff;
+            border:1px solid var(--brass);
+            border-left:4px solid var(--brass);
+            border-radius:4px;
+            padding:12px 16px;
+            margin-top:14px;
+            font-size:13.5px;
+            font-weight:600;
+            color:var(--brass-dark);
+            line-height:1.55;
+        }
+        .emphasis-callout i{margin-top:2px;flex-shrink:0;color:var(--brass);}
+
     </style>
 
 </head>
@@ -340,7 +357,7 @@
                                     </div>
                                 <?php endif; ?>
 
-                                <?php if ($eligibility_display !== ''): ?>
+                                <?php if (!empty($eligibility_display)): ?>
                                     <div class="summary-row">
                                         <span class="summary-label">Eligibility</span>
                                         <span class="summary-value">
@@ -349,7 +366,7 @@
                                     </div>
                                 <?php endif; ?>
 
-                                <?php if ($nc_display !== ''): ?>
+                                <?php if (!empty($nc_display)): ?>
                                     <div class="summary-row">
                                         <span class="summary-label">National Certificate</span>
                                         <span class="summary-value">
@@ -358,7 +375,7 @@
                                     </div>
                                 <?php endif; ?>
 
-                                <?php if ($nttc_display !== ''): ?>
+                                <?php if (!empty($nttc_display)): ?>
                                     <div class="summary-row">
                                         <span class="summary-label">National TVET Trainers Certificate</span>
                                         <span class="summary-value">
@@ -445,7 +462,10 @@
                                                 <p>1. Eligibility: <?= $applicant['app_eligibility'] ?></p>
                                                 <p>2. National Certificate: <?= $applicant['app_nc'] ?></p>
                                                 <p>3. National TVET Trainers Certificate: <?= $applicant['app_nttc'] ?></p>
-                                                <p>Please ensure that you also upload the required documents in this form.</p>
+                                                <div class="emphasis-callout">
+                                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                                    <span>Please upload the required documents for this form. If there are no updates to the required fields or documents, you may leave them blank.</span>
+                                                </div>
                                             </div>
                                         </div>
                                     <?php endif; ?>
@@ -519,7 +539,7 @@
                                             </a>
                                         </div>
                                         <div class="field_wrappernc">
-                                            <input type="text" id="nc" name="nc[]" placeholder="Computer System Servicing NC II" required>
+                                            <input type="text" id="nc" name="nc[]" placeholder="Computer System Servicing NC II">
                                             <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
                                         </div>
 
@@ -543,7 +563,7 @@
                                             </a>
                                         </div>
                                         <div class="field_wrapper">
-                                            <input type="text" id="nttc" name="nttc[]" placeholder="Computer System Servicing NC II" required>
+                                            <input type="text" id="nttc" name="nttc[]" placeholder="Computer System Servicing NC II">
                                             <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
                                         </div>
 
