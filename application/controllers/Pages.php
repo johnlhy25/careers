@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-require_once(APPPATH.'third_party/tcpdf/tcpdf.php');
+//require_once(APPPATH.'third_party/tcpdf/tcpdf.php');
 
 class Pages extends CI_Controller
 {
@@ -53,7 +53,10 @@ class Pages extends CI_Controller
             'cpa'          => 'app_appointment',
             'ipcr'         => 'app_ipcr',
             'intent'       => 'app_intent_file',
-            'training'     => 'app_training_doc'
+            'training'     => 'app_training_doc',
+            'pds'          => 'app_pds',
+            'wes'          => 'app_wes',
+            'awards'        => 'app_performance'
         ];
 
         if (!isset($fileColumns[$type]) || empty($applicant[$fileColumns[$type]])) {
@@ -231,6 +234,62 @@ class Pages extends CI_Controller
         }
         
     }
+
+        public function references($param) {
+        
+        $page = 'form7';
+
+        //get applicant info
+        $applicant_info = $this->Posts_model->get_applicant_info1($param);
+
+        if (empty($applicant_info)) {
+            // No rows found
+            show_404();
+        } else {
+            // Rows found
+            $this->session->set_flashdata('success','success');
+            
+            //print_r($applicant_info);
+
+            $data['hash'] = $param;
+            $data['applicant'] = $applicant_info;
+            //print_r($data);
+            if(!file_exists(APPPATH.'views/pages/hr/job/' .$page.'.php')){
+                show_404();
+            }else{
+                $this->load->view('pages/hr/job/'.$page, $data);   
+            }
+        }
+    }
+
+    public function awards($param) {
+        
+        $page = 'form8';
+
+        //get applicant info
+        $applicant_info = $this->Posts_model->get_applicant_info1($param);
+
+        if (empty($applicant_info)) {
+            // No rows found
+            show_404();
+        } else {
+            // Rows found
+            $this->session->set_flashdata('success','success');
+            
+            //print_r($applicant_info);
+
+            $data['hash'] = $param;
+            $data['applicant'] = $applicant_info;
+            //print_r($data);
+            if(!file_exists(APPPATH.'views/pages/hr/job/' .$page.'.php')){
+                show_404();
+            }else{
+                $this->load->view('pages/hr/job/'.$page, $data);   
+            }
+        }
+    }
+
+    
 
 // --- Page Views
 
@@ -520,6 +579,10 @@ class Pages extends CI_Controller
         $config['max_size']    = '2000';    // max_size in kb
         $config['file_name'] = $new_file_name;
             
+        if (!is_dir($config['upload_path'])) {
+            mkdir($config['upload_path'], 0755, true);  // Create the directory if it doesn't exist
+        }
+
         //Load upload library
         $this->load->library('upload', $config);   
 
@@ -593,6 +656,10 @@ class Pages extends CI_Controller
         $config['max_size']    = '2000';    // max_size in kb
         $config['file_name'] = $new_file_name;
           
+        if (!is_dir($config['upload_path'])) {
+            mkdir($config['upload_path'], 0755, true);  // Create the directory if it doesn't exist
+        }
+
         if (!is_dir($config['upload_path'])) {
             mkdir($config['upload_path'], 0755, true);  // Create the directory if it doesn't exist
         }
@@ -1372,21 +1439,33 @@ class Pages extends CI_Controller
 // --- Form 5 Special Act
     public function save_forme5(){
 
-        $status = $this->Posts_model->save_forme5();
+     $this->form_validation->set_rules('g-recaptcha-response', 'recaptcha validation', 'required|callback_validate_captcha');
+        
+        if ($this->form_validation->run() == FALSE){
 
-        if($status['status'] == 'True'){
-            $result = array(
-                'status' => 'True',
-            );
-
-        }else{
             $result = array(
                 'status' => 'False',
-                'error' => 'Server Error. Please try again.'
+                'message' => 'Please <strong>confirm</strong> that you are not a robot.'
             );
-        }
-        echo json_encode($result);
+            echo json_encode($result);
 
+        }else{
+
+            $status = $this->Posts_model->save_forme5();
+
+            if($status['status'] == 'True'){
+                $result = array(
+                    'status' => 'True',
+                );
+
+            }else{
+                $result = array(
+                    'status' => 'False',
+                    'error' => 'Server Error. Please try again.'
+                );
+            }
+            echo json_encode($result);
+        }
     }
 // --- Form 5 Special Act
 
@@ -1470,16 +1549,37 @@ class Pages extends CI_Controller
     function pds_file(){
         
         // Set preference
-
         date_default_timezone_set('Asia/Manila');
 
         $year = date('Y');   // Get current year
         $month = date('m');  // Get current month
 
-        $config['upload_path'] = 'uploads/ApplicantDocx/' . $year . '/' . $month;
+         //Get applicant info
+        $applicant_info = $this->Posts_model->get_applicant_info();
+
+        // Get user data (example: from form input or database)
+        $lastname = $applicant_info['app_lastname']; // Or fetch from the database
+        $firstname = $applicant_info['app_firstname']; // Or fetch from the database
+        $middlename = $applicant_info['app_middlename']; // Or fetch from the database
+        $pos_id = $applicant_info['app_vac_id'];
+
+        // Clean the user input (remove spaces and special characters)
+        $lastname = preg_replace('/\s+/', '_', $lastname);
+        $firstname = preg_replace('/\s+/', '_', $firstname);
+        $middlename = preg_replace('/\s+/', '_', $middlename);
+        $pos_id = preg_replace('/\s+/', '_', $pos_id);
+
+        // Create the new file name
+        $new_file_name = strtolower($lastname . '_' . $firstname . '_' . $middlename . '_' . $pos_id . '_training' .'.pdf');
+
+        $config['upload_path'] = APPPATH . 'uploads/ApplicantDocx/' . $year . '/' . $month;
         $config['allowed_types'] = 'pdf';
         $config['max_size']    = '2000';    // max_size in kb
-        $config['file_name'] = $_FILES['pds_file']['name'];
+        $config['file_name'] = $new_file_name;
+            
+        if (!is_dir($config['upload_path'])) {
+            mkdir($config['upload_path'], 0755, true);  // Create the directory if it doesn't exist
+        }
             
         //Load upload library
         $this->load->library('upload', $config);   
@@ -1509,6 +1609,7 @@ class Pages extends CI_Controller
     }
 
     function wes_file(){
+
         // Set preference
 
         date_default_timezone_set('Asia/Manila');
@@ -1516,10 +1617,32 @@ class Pages extends CI_Controller
         $year = date('Y');   // Get current year
         $month = date('m');  // Get current month
 
-        $config['upload_path'] = 'uploads/ApplicantDocx/' . $year . '/' . $month;
+         //Get applicant info
+        $applicant_info = $this->Posts_model->get_applicant_info();
+
+        // Get user data (example: from form input or database)
+        $lastname = $applicant_info['app_lastname']; // Or fetch from the database
+        $firstname = $applicant_info['app_firstname']; // Or fetch from the database
+        $middlename = $applicant_info['app_middlename']; // Or fetch from the database
+        $pos_id = $applicant_info['app_vac_id'];
+
+        // Clean the user input (remove spaces and special characters)
+        $lastname = preg_replace('/\s+/', '_', $lastname);
+        $firstname = preg_replace('/\s+/', '_', $firstname);
+        $middlename = preg_replace('/\s+/', '_', $middlename);
+        $pos_id = preg_replace('/\s+/', '_', $pos_id);
+
+        // Create the new file name
+        $new_file_name = strtolower($lastname . '_' . $firstname . '_' . $middlename . '_' . $pos_id . '_training' .'.pdf');
+
+        $config['upload_path'] = APPPATH . 'uploads/ApplicantDocx/' . $year . '/' . $month;
         $config['allowed_types'] = 'pdf';
         $config['max_size']    = '2000';    // max_size in kb
-        $config['file_name'] = $_FILES['wes_file']['name'];
+        $config['file_name'] = $new_file_name;
+            
+        if (!is_dir($config['upload_path'])) {
+            mkdir($config['upload_path'], 0755, true);  // Create the directory if it doesn't exist
+        }
             
         //Load upload library
         $this->load->library('upload', $config);   
@@ -1550,73 +1673,129 @@ class Pages extends CI_Controller
 
 // --- Form 6 PDS and WES 
 
+// --- Form 7 References
     public function save_forme7(){
+        
+    $this->form_validation->set_rules('g-recaptcha-response', 'recaptcha validation', 'required|callback_validate_captcha');
+        
+        if ($this->form_validation->run() == FALSE){
 
-        $status = $this->Posts_model->save_forme7();
-
-        if($status['status'] == 'True'){
-            $result = array(
-                'status' => 'True',
-            );
-
-        }else{
             $result = array(
                 'status' => 'False',
-                'error' => 'Server Error'
+                'message' => 'Please <strong>confirm</strong> that you are not a robot.'
             );
-        }
-        echo json_encode($result);
+            echo json_encode($result);
 
-    }
+        }else{
 
-    public function save_forme8(){
+            $status = $this->Posts_model->save_forme7();
 
-        //Check ARP File
-        if(!empty($_FILES['arp_file']['name'])){
-            $resultx = $this->arp_file();
-            if($resultx['status'] == 'True'){
-                $arp_file = $resultx['filename'];
+            if($status['status'] == 'True'){
+                $result = array(
+                    'status' => 'True',
+                );
+
             }else{
                 $result = array(
                     'status' => 'False',
-                    'error' => $resultx['error']
+                    'error' => 'Server Error'
                 );
-                echo json_encode($result);
-                exit;
             }
-        }else{
-            $arp_file = null;
+            echo json_encode($result);
         }
-      
-        $status = $this->Posts_model->save_forme8($arp_file);
+    }
+// --- Form 7 References
 
-        if($status['status'] == 'True'){
-            $result = array(
-                'status' => 'True',
-            );
+// --- Form 8 Awards
+    public function save_forme8(){
 
-        }else{
+        $this->form_validation->set_rules('g-recaptcha-response', 'recaptcha validation', 'required|callback_validate_captcha');
+        
+        if ($this->form_validation->run() == FALSE){
+
             $result = array(
                 'status' => 'False',
-                'error' => 'Server Error'
+                'message' => 'Please <strong>confirm</strong> that you are not a robot.'
             );
-        }
-        echo json_encode($result);
+            echo json_encode($result);
 
+        }else{
+
+            date_default_timezone_set('Asia/Manila');
+
+            $year = date('Y');   // Get current year
+            $month = date('m');  // Get current month
+
+            $applicant = $this->Posts_model->get_applicant_info1($this->input->post('form_app_id'));
+
+            //Check ARP File
+            if(!empty($_FILES['arp_file']['name'])){
+                $resultx = $this->arp_file();
+                if($resultx['status'] == 'True'){
+                    $arp_file = $year . '/' . $month . '/' . $resultx['filename'];
+                }else{
+                    $result = array(
+                        'status' => 'False',
+                        'error' => $resultx['error']
+                    );
+                    echo json_encode($result);
+                    exit;
+                }
+            }else{
+                $arp_file = null;
+            }
+        
+            $status = $this->Posts_model->save_forme8($arp_file);
+
+            if($status['status'] == 'True'){
+                $result = array(
+                    'status' => 'True',
+                );
+
+            }else{
+                $result = array(
+                    'status' => 'False',
+                    'error' => 'Server Error'
+                );
+            }
+            echo json_encode($result);
+        }
     }
 
     function arp_file(){
         
+        // Set preference
         date_default_timezone_set('Asia/Manila');
 
-        // Set preference
         $year = date('Y');   // Get current year
         $month = date('m');  // Get current month
 
-        $config['upload_path'] = 'uploads/ApplicantDocx/' . $year . '/' . $month;
+         //Get applicant info
+        $applicant_info = $this->Posts_model->get_applicant_info();
+
+        // Get user data (example: from form input or database)
+        $lastname = $applicant_info['app_lastname']; // Or fetch from the database
+        $firstname = $applicant_info['app_firstname']; // Or fetch from the database
+        $middlename = $applicant_info['app_middlename']; // Or fetch from the database
+        $pos_id = $applicant_info['app_vac_id'];
+
+        // Clean the user input (remove spaces and special characters)
+        $lastname = preg_replace('/\s+/', '_', $lastname);
+        $firstname = preg_replace('/\s+/', '_', $firstname);
+        $middlename = preg_replace('/\s+/', '_', $middlename);
+        $pos_id = preg_replace('/\s+/', '_', $pos_id);
+
+        // Create the new file name
+        $new_file_name = strtolower($lastname . '_' . $firstname . '_' . $middlename . '_' . $pos_id . '_training' .'.pdf');
+
+        $config['upload_path'] = APPPATH . 'uploads/ApplicantDocx/' . $year . '/' . $month;
         $config['allowed_types'] = 'pdf';
         $config['max_size']    = '2000';    // max_size in kb
-        $config['file_name'] = $_FILES['arp_file']['name'];
+        $config['file_name'] = $new_file_name;
+            
+        if (!is_dir($config['upload_path'])) {
+            mkdir($config['upload_path'], 0755, true);  // Create the directory if it doesn't exist
+        }
             
         //Load upload library
         $this->load->library('upload', $config);   

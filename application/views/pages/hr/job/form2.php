@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <!-- Header Tab-->
     <?php include("include/header.php");?> 
     
@@ -281,17 +280,15 @@
         .emphasis-callout i{margin-top:2px;flex-shrink:0;color:var(--brass);}
 
     </style>
-
 </head>
+
 <body class="animsition">
-<!--FB-->
-<div id="fb-root"></div>
-<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v17.0" nonce="wOL3VvKV"></script>
-<!--FB-->
+
     <div class="page-wrapper">
        
         <!-- Header Tab-->
-        <?php include("include/sticky.php");?> 
+            <?php include("include/sticky.php");?> 
+        <!-- Header Tab-->
 
         <!-- PAGE CONTENT-->
                 <div class="container">
@@ -300,161 +297,168 @@
                             <div class="card-header">
                                 <strong>Educational Background and Eligibility Information</strong>
                             </div>
+
                             <div id="forme2_card" class="card-body"><!---card-body-->
-
-                            <?php
-                                // Helper: clean a semicolon-separated string into a comma-separated one, or return empty if nothing valid
-                                function tesda_format_list($value) {
-                                    if (empty($value)) return '';
-                                    $parts = array_filter(array_map('trim', explode(';', $value)), function($v){ return $v !== ''; });
-                                    return implode(', ', $parts);
-                                }
-
-                                // Helper: map eligibility codes to their full labels, passing through anything not in the map (e.g. free-text "Others" entries)
-                                function tesda_format_eligibility($value) {
-                                    if (empty($value)) return '';
-
-                                    $labels = [
-                                        'cese'   => 'Career Executive Service Eligibility',
-                                        'csp'    => 'Career Service Professional',
-                                        'cssp'   => 'Career Service Sub Professional',
-                                        'ra1080' => 'R.A. 1080',
-                                        'pd907'  => 'PD 907',
-                                        'mc11'   => 'MC 11 series of 1996',
-                                    ];
-
-                                    $parts = array_filter(array_map('trim', explode(';', $value)), function($v){ return $v !== ''; });
-
-                                    $mapped = array_map(function($code) use ($labels){
-                                        return $labels[strtolower($code)] ?? $code; // fall back to raw value for "Others" free-text entries
-                                    }, $parts);
-
-                                    return implode(', ', $mapped);
-                                }
-
-                                $fullname_parts = array_filter([
-                                    $applicant['app_lastname']   ?? '',
-                                    $applicant['app_firstname']  ?? '',
-                                    $applicant['app_middlename'] ?? '',
-                                    $applicant['app_suffix']     ?? '',
-                                ]);
-
-                                $eligibility_display = tesda_format_eligibility($applicant['app_eligibility'] ?? '');
-                                $nc_display          = tesda_format_list($applicant['app_nc'] ?? '');
-                                $nttc_display        = tesda_format_list($applicant['app_nttc'] ?? '');
-                            ?>
-
-                            <div class="applicant-summary">
-                                <div class="summary-header">
-                                    <i class="fa fa-folder-open" aria-hidden="true"></i>
-                                    Your Saved Information
-                                </div>
-
-                                <?php if (!empty($fullname_parts)): ?>
-                                    <div class="summary-row">
-                                        <span class="summary-label">Full Name</span>
-                                        <span class="summary-value"><?= implode(' ', $fullname_parts) ?></span>
-                                    </div>
-                                <?php endif; ?>
-
-                                <?php if (!empty($eligibility_display)): ?>
-                                    <div class="summary-row">
-                                        <span class="summary-label">Eligibility</span>
-                                        <span class="summary-value">
-                                            <?= $eligibility_display ?>
-                                        </span>
-                                    </div>
-                                <?php endif; ?>
-
-                                <?php if (!empty($nc_display)): ?>
-                                    <div class="summary-row">
-                                        <span class="summary-label">National Certificate</span>
-                                        <span class="summary-value">
-                                            <?= $nc_display ?>
-                                        </span>
-                                    </div>
-                                <?php endif; ?>
-
-                                <?php if (!empty($nttc_display)): ?>
-                                    <div class="summary-row">
-                                        <span class="summary-label">National TVET Trainers Certificate</span>
-                                        <span class="summary-value">
-                                            <?= $nttc_display ?>
-                                        </span>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-
-                                <?php
-                                // Map document type => [DB column, display label]
-                                $documents = [
-                                    'intent'      => ['app_intent_file',       'Intent Letter'],
-                                    'educational' => ['app_educational_doc',   'Educational Documents'],
-                                    'eligibility' => ['app_eligibility_doc',  'Eligibility'],
-                                    'nc'          => ['app_nc_doc',           'National Certificate'],
-                                    'nttc'        => ['app_nttc_doc',         'National TVET Trainers Certificate']
-                                ];
-
-                                // Only keep entries that actually have a file
-                                $attached_documents = array_filter($documents, function($doc) use ($applicant) {
-                                    return !empty($applicant[$doc[0]]);
-                                });
-                                ?>
-
-                                <?php if (!empty($attached_documents)): ?>
-                                <div class="applicant-summary">
-                                    <div class="summary-header">
-                                        <i class="fa fa-paperclip" aria-hidden="true"></i>
-                                        Your Saved Documents
-                                    </div>
-
-                                    <?php foreach ($attached_documents as $type => $doc): ?>
-                                        <div class="summary-row">
-                                            <span class="summary-label"><?= $doc[1] ?></span>
-                                            <span class="summary-value">
-                                                <a href="<?= base_url() . 'view-document/' . $type . '/' . $hash ?>" target="_blank" class="btn-view-file">
-                                                    <i class="fa fa-eye" aria-hidden="true"></i> View File
-                                                </a>
-                                            </span>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
-                                <?php endif; ?>
-
-                                <?php if($applicant['vac_deadline'] >= date('Y-m-d H:i:s')){ ?>
-                                    <div class="notice notice-warning" role="alert">
-                                        <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                                        <span>Merge multiple files into a single PDF if applicable. Each file or upload must not exceed 2 MB.</span>
-                                    </div>
-
+                                
+                                <!--- Your Saved Information--->
                                     <?php
-                                    //--------------Eligibility
-                                    $applicant['app_eligibility'] = trim($applicant['app_eligibility'], ';');
+                                        // Helper: clean a semicolon-separated string into a comma-separated one, or return empty if nothing valid
+                                        function tesda_format_list($value) {
+                                            if (empty($value)) return '';
+                                            $parts = array_filter(array_map('trim', explode(';', $value)), function($v){ return $v !== ''; });
+                                            return implode(', ', $parts);
+                                        }
 
-                                    // Replace eligibility codes with their full names
-                                    $applicant['app_eligibility'] = str_replace(
-                                        ['cese', 'csp', 'cssp', 'ra1080', 'pd907', 'mc11'],
-                                        ['Career Executive Service Eligibility', 'Career Service Professional', 'Career Service Sub Professional', 'R.A. 1080', 'PD 907', 'MC 11 series of 1996'],
-                                        $applicant['app_eligibility']
-                                    );
+                                        // Helper: map eligibility codes to their full labels, passing through anything not in the map (e.g. free-text "Others" entries)
+                                        function tesda_format_eligibility($value) {
+                                            if (empty($value)) return '';
 
-                                    // Replace remaining semicolons with commas
-                                    $applicant['app_eligibility'] = str_replace(';', ', ', $applicant['app_eligibility']);
-                                    //--------------Eligibility
+                                            $labels = [
+                                                'cese'   => 'Career Executive Service Eligibility',
+                                                'csp'    => 'Career Service Professional',
+                                                'cssp'   => 'Career Service Sub Professional',
+                                                'ra1080' => 'R.A. 1080',
+                                                'pd907'  => 'PD 907',
+                                                'mc11'   => 'MC 11 series of 1996',
+                                            ];
 
-                                    //--------------National Certificate
-                                    $applicant['app_nc'] = trim($applicant['app_nc'], ';');
-                                    $applicant['app_nc'] = str_replace(';', ', ', $applicant['app_nc']);
-                                    //--------------National Certificate
+                                            $parts = array_filter(array_map('trim', explode(';', $value)), function($v){ return $v !== ''; });
 
-                                    //--------------NTTC
-                                    $applicant['app_nttc'] = trim($applicant['app_nttc'], ';');
-                                    $applicant['app_nttc'] = str_replace(';', ', ', $applicant['app_nttc']);
-                                    //--------------NTTC
+                                            $mapped = array_map(function($code) use ($labels){
+                                                return $labels[strtolower($code)] ?? $code; // fall back to raw value for "Others" free-text entries
+                                            }, $parts);
 
+                                            return implode(', ', $mapped);
+                                        }
+
+                                        $fullname_parts = array_filter([
+                                            $applicant['app_lastname']   ?? '',
+                                            $applicant['app_firstname']  ?? '',
+                                            $applicant['app_middlename'] ?? '',
+                                            $applicant['app_suffix']     ?? '',
+                                        ]);
+
+                                        $eligibility_display = tesda_format_eligibility($applicant['app_eligibility'] ?? '');
+                                        $nc_display          = tesda_format_list($applicant['app_nc'] ?? '');
+                                        $nttc_display        = tesda_format_list($applicant['app_nttc'] ?? '');
                                     ?>
 
+                                    <div class="applicant-summary">
+                                        <div class="summary-header">
+                                            <i class="fa fa-folder-open" aria-hidden="true"></i>
+                                            Your Saved Information
+                                        </div>
+
+                                        <?php if (!empty($fullname_parts)): ?>
+                                            <div class="summary-row">
+                                                <span class="summary-label">Full Name</span>
+                                                <span class="summary-value"><?= implode(' ', $fullname_parts) ?></span>
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <?php if (!empty($eligibility_display)): ?>
+                                            <div class="summary-row">
+                                                <span class="summary-label">Eligibility</span>
+                                                <span class="summary-value">
+                                                    <?= $eligibility_display ?>
+                                                </span>
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <?php if (!empty($nc_display)): ?>
+                                            <div class="summary-row">
+                                                <span class="summary-label">National Certificate</span>
+                                                <span class="summary-value">
+                                                    <?= $nc_display ?>
+                                                </span>
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <?php if (!empty($nttc_display)): ?>
+                                            <div class="summary-row">
+                                                <span class="summary-label">National TVET Trainers Certificate</span>
+                                                <span class="summary-value">
+                                                    <?= $nttc_display ?>
+                                                </span>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                <!--- Your Saved Information--->
+                                
+                                <!--- Your Saved Documents--->
+                                    <?php
+                                        // Map document type => [DB column, display label]
+                                        $documents = [
+                                            'intent'      => ['app_intent_file',       'Intent Letter'],
+                                            'educational' => ['app_educational_doc',   'Educational Documents'],
+                                            'eligibility' => ['app_eligibility_doc',  'Eligibility'],
+                                            'nc'          => ['app_nc_doc',           'National Certificate'],
+                                            'nttc'        => ['app_nttc_doc',         'National TVET Trainers Certificate']
+                                        ];
+
+                                        // Only keep entries that actually have a file
+                                        $attached_documents = array_filter($documents, function($doc) use ($applicant) {
+                                            return !empty($applicant[$doc[0]]);
+                                        });
+                                    ?>
+
+                                    <?php if (!empty($attached_documents)): ?>
+                                        <div class="applicant-summary">
+                                            <div class="summary-header">
+                                                <i class="fa fa-paperclip" aria-hidden="true"></i>
+                                                Your Saved Documents
+                                            </div>
+
+                                            <?php foreach ($attached_documents as $type => $doc): ?>
+                                                <div class="summary-row">
+                                                    <span class="summary-label"><?= $doc[1] ?></span>
+                                                    <span class="summary-value">
+                                                        <a href="<?= base_url() . 'view-document/' . $type . '/' . $hash ?>" target="_blank" class="btn-view-file">
+                                                            <i class="fa fa-eye" aria-hidden="true"></i> View File
+                                                        </a>
+                                                    </span>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                <!--- Your Saved Documents--->
+
+                                <?php if($applicant['vac_deadline'] >= date('Y-m-d H:i:s')){ ?>
+                            
                                     <?php if ($this->session->flashdata('success')): ?>
+                                    <?php endif; ?>  
+
+                                    <!---Reminder--->
+                                        <?php
+                                            //--------------Eligibility
+                                            $applicant['app_eligibility'] = trim($applicant['app_eligibility'], ';');
+
+                                            // Replace eligibility codes with their full names
+                                            $applicant['app_eligibility'] = str_replace(
+                                                ['cese', 'csp', 'cssp', 'ra1080', 'pd907', 'mc11'],
+                                                ['Career Executive Service Eligibility', 'Career Service Professional', 'Career Service Sub Professional', 'R.A. 1080', 'PD 907', 'MC 11 series of 1996'],
+                                                $applicant['app_eligibility']
+                                            );
+
+                                            // Replace remaining semicolons with commas
+                                            $applicant['app_eligibility'] = str_replace(';', ', ', $applicant['app_eligibility']);
+                                            //--------------Eligibility
+
+                                            //--------------National Certificate
+                                            $applicant['app_nc'] = trim($applicant['app_nc'], ';');
+                                            $applicant['app_nc'] = str_replace(';', ', ', $applicant['app_nc']);
+                                            //--------------National Certificate
+
+                                            //--------------NTTC
+                                            $applicant['app_nttc'] = trim($applicant['app_nttc'], ';');
+                                            $applicant['app_nttc'] = str_replace(';', ', ', $applicant['app_nttc']);
+                                            //--------------NTTC
+                                        ?>
+                                        <div class="notice notice-warning" role="alert">
+                                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                            <span>Merge multiple files into a single PDF if applicable. Each file or upload must not exceed 2 MB.</span>
+                                        </div>
+
                                         <div class="notice notice-success" role="alert">
                                             <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                                             <div>
@@ -467,8 +471,133 @@
                                                     <span>Please upload the required documents for this form. If there are no updates to the required fields or documents, you may leave them blank.</span>
                                                 </div>
                                             </div>
-                                        </div>
-                                    <?php endif; ?>
+                                        </div> 
+                                    <!---Reminder---> 
+
+                                    <!---Form Here--->
+                                        <form action="" method="POST" id="forme2_form" role="form"><!--Form-->
+                                            <input type="hidden" id="form_app_id" name="form_app_id" value="<?= $hash ?>">
+
+                                            <!--educational-->
+                                            <div class="section">
+                                                <div class="section-label">Educational</div>
+                                                <div class="file-drop-area" id="education-drop-area">
+                                                    <span class="fake-btn">Choose File</span>
+                                                    <span class="file-msg">or drag and drop an education file here</span>
+                                                    <input type="file" id="education_file" name="education_file" class="file-input" accept="application/pdf">
+                                                </div>
+                                                <span class="note">Please upload PDF file only. (Authenticated Photocopy of Transcript of Record, Diploma, Certificate of Grade etc.)</span>
+                                            </div>
+                                            <!--educational-->
+
+                                            <hr class="divider">
+
+                                            <!--Eligibility/ies-->
+                                            <div class="section">
+                                                <div class="section-label">Eligibility</div>
+                                                <div class="checkbox-group">
+                                                    <div class="chk-item">
+                                                        <input type="checkbox" id="cese" name="eligibility[]" value="cese"><label class="chk-label" for="cese">Career Executive Service Eligibility</label>
+                                                    </div>
+                                                    <div class="chk-item">
+                                                        <input type="checkbox" id="csp" name="eligibility[]" value="csp"><label class="chk-label" for="csp">Career Service Professional</label>
+                                                    </div>
+                                                    <div class="chk-item">
+                                                        <input type="checkbox" id="cssp" name="eligibility[]" value="cssp"><label class="chk-label" for="cssp">Career Service Sub Professional</label>
+                                                    </div>
+                                                    <div class="chk-item">
+                                                        <input type="checkbox" id="ra1080" name="eligibility[]" value="ra1080"><label class="chk-label" for="ra1080">R.A. 1080</label>
+                                                    </div>
+                                                    <div class="chk-item">
+                                                        <input type="checkbox" id="pd907" name="eligibility[]" value="pd907"><label class="chk-label" for="pd907">PD 907</label>
+                                                    </div>
+                                                    <div class="chk-item">
+                                                        <input type="checkbox" id="mc11" name="eligibility[]" value="mc11"><label class="chk-label" for="mc11">MC 11 series of 1996</label>
+                                                    </div>
+                                                    <input type="text" id="others" name="eligibility[]" placeholder="Others" class="others-input">
+                                                </div>
+
+                                                <div class="file-drop-area" id="eligibility-drop-area">
+                                                    <span class="fake-btn">Choose File</span>
+                                                    <span class="file-msg">or drag and drop an eligibility file here</span>
+                                                    <input type="file" id="eligibility_file" name="eligibility_file" class="file-input" accept="application/pdf">
+                                                </div>
+                                                <span class="note">Please upload PDF file only. (Authenticated by CSC/PRC)</span>
+                                            </div>
+                                            <!--Eligibility/ies-->
+
+                                            <hr class="divider">
+
+                                            <!--National Certificate-->
+                                            <div class="section">
+                                                <div class="section-label">
+                                                    National Certificate
+                                                    <a id="btn_add_buttonnc" class="btn-add add_buttonnc">
+                                                        <i class="fa fa-plus"></i> Add
+                                                    </a>
+                                                </div>
+                                                <div class="field_wrappernc">
+                                                    <input type="text" id="nc" name="nc[]" placeholder="Computer System Servicing NC II">
+                                                    <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
+                                                </div>
+
+                                                <div class="file-drop-area" id="national-certificate-drop-area">
+                                                    <span class="fake-btn">Choose File</span>
+                                                    <span class="file-msg">or drag and drop a national certificate here</span>
+                                                    <input type="file" id="national_certificate_file" name="national_certificate_file" class="file-input" accept="application/pdf">
+                                                </div>
+                                                <span class="note">Please upload PDF file only. (Computer System Servicing NC II, Web Development NC III etc.)</span>
+                                            </div>
+                                            <!--National Certificate-->
+
+                                            <hr class="divider">
+
+                                            <!--National TVET Trainers Certificate-->
+                                            <div class="section">
+                                                <div class="section-label">
+                                                    National TVET Trainers Certificate
+                                                    <a id="btn_add_button" class="btn-add add_button">
+                                                        <i class="fa fa-plus"></i> Add
+                                                    </a>
+                                                </div>
+                                                <div class="field_wrapper">
+                                                    <input type="text" id="nttc" name="nttc[]" placeholder="Computer System Servicing NC II">
+                                                    <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
+                                                </div>
+
+                                                <div class="file-drop-area" id="nttc-drop-area">
+                                                    <span class="fake-btn">Choose File</span>
+                                                    <span class="file-msg">or drag and drop an NTTC file here</span>
+                                                    <input type="file" id="nttc_file" name="nttc_file" class="file-input" accept="application/pdf">
+                                                </div>
+                                                <span class="note">Please upload PDF file only. (Computer System Servicing NC II, Web Development NC III etc.)</span>
+                                            </div>
+                                            <!--National TVET Trainers Certificate-->
+
+                                            <hr class="divider">
+
+                                            <?php if($applicant['app_lock'] != 1){ ?>
+                                                <!--Iam not a robot-->
+                                                <div class="section">
+                                                    <div class="g-recaptcha" data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required></div>
+                                                </div>
+                                                <!--Iam not a robot-->
+
+                                                <!--Submit-->
+                                                <button id="btn_forme2" name="forme2" type="submit">
+                                                    <i class="fa fa-save" id="btn_forme2_icon"></i><span id="btn_forme2_label">Submit</span>
+                                                </button>
+                                            <?php } else{?>
+                                                <div class="emphasis-callout">
+                                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                                    <span>Your application has been evaluated and is now locked.</span>
+                                                </div>
+                                            <?php }?>
+                                            <div id="forme2_message" class="message"></div>
+                                            <!--Submit-->
+
+                                        </form><!---End of Form-->   
+                                    <!---Form Here--->
 
                                 <?php }else { ?>
                                     <div class="notice notice-danger" role="alert">
@@ -476,125 +605,6 @@
                                         <span>The vacant position has been closed for applications.</span>
                                     </div>
                                 <?php } ?>
-
-                                <form action="" method="POST" id="forme2_form" role="form"><!--Form-->
-                                    <input type="hidden" id="form_app_id" name="form_app_id" value="<?= $hash ?>">
-
-                                    <!--educational-->
-                                    <div class="section">
-                                        <div class="section-label">Educational</div>
-                                        <div class="file-drop-area" id="education-drop-area">
-                                            <span class="fake-btn">Choose File</span>
-                                            <span class="file-msg">or drag and drop an education file here</span>
-                                            <input type="file" id="education_file" name="education_file" class="file-input" accept="application/pdf">
-                                        </div>
-                                        <span class="note">Please upload PDF file only. (Authenticated Photocopy of Transcript of Record, Diploma, Certificate of Grade etc.)</span>
-                                    </div>
-                                    <!--educational-->
-
-                                    <hr class="divider">
-
-                                    <!--Eligibility/ies-->
-                                    <div class="section">
-                                        <div class="section-label">Eligibility</div>
-                                        <div class="checkbox-group">
-                                            <div class="chk-item">
-                                                <input type="checkbox" id="cese" name="eligibility[]" value="cese"><label class="chk-label" for="cese">Career Executive Service Eligibility</label>
-                                            </div>
-                                            <div class="chk-item">
-                                                <input type="checkbox" id="csp" name="eligibility[]" value="csp"><label class="chk-label" for="csp">Career Service Professional</label>
-                                            </div>
-                                            <div class="chk-item">
-                                                <input type="checkbox" id="cssp" name="eligibility[]" value="cssp"><label class="chk-label" for="cssp">Career Service Sub Professional</label>
-                                            </div>
-                                            <div class="chk-item">
-                                                <input type="checkbox" id="ra1080" name="eligibility[]" value="ra1080"><label class="chk-label" for="ra1080">R.A. 1080</label>
-                                            </div>
-                                            <div class="chk-item">
-                                                <input type="checkbox" id="pd907" name="eligibility[]" value="pd907"><label class="chk-label" for="pd907">PD 907</label>
-                                            </div>
-                                            <div class="chk-item">
-                                                <input type="checkbox" id="mc11" name="eligibility[]" value="mc11"><label class="chk-label" for="mc11">MC 11 series of 1996</label>
-                                            </div>
-                                            <input type="text" id="others" name="eligibility[]" placeholder="Others" class="others-input">
-                                        </div>
-
-                                        <div class="file-drop-area" id="eligibility-drop-area">
-                                            <span class="fake-btn">Choose File</span>
-                                            <span class="file-msg">or drag and drop an eligibility file here</span>
-                                            <input type="file" id="eligibility_file" name="eligibility_file" class="file-input" accept="application/pdf">
-                                        </div>
-                                        <span class="note">Please upload PDF file only. (Authenticated by CSC/PRC)</span>
-                                    </div>
-                                    <!--Eligibility/ies-->
-
-                                    <hr class="divider">
-
-                                    <!--National Certificate-->
-                                    <div class="section">
-                                        <div class="section-label">
-                                            National Certificate
-                                            <a id="btn_add_buttonnc" class="btn-add add_buttonnc">
-                                                <i class="fa fa-plus"></i> Add
-                                            </a>
-                                        </div>
-                                        <div class="field_wrappernc">
-                                            <input type="text" id="nc" name="nc[]" placeholder="Computer System Servicing NC II">
-                                            <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
-                                        </div>
-
-                                        <div class="file-drop-area" id="national-certificate-drop-area">
-                                            <span class="fake-btn">Choose File</span>
-                                            <span class="file-msg">or drag and drop a national certificate here</span>
-                                            <input type="file" id="national_certificate_file" name="national_certificate_file" class="file-input" accept="application/pdf">
-                                        </div>
-                                        <span class="note">Please upload PDF file only. (Computer System Servicing NC II, Web Development NC III etc.)</span>
-                                    </div>
-                                    <!--National Certificate-->
-
-                                    <hr class="divider">
-
-                                    <!--National TVET Trainers Certificate-->
-                                    <div class="section">
-                                        <div class="section-label">
-                                            National TVET Trainers Certificate
-                                            <a id="btn_add_button" class="btn-add add_button">
-                                                <i class="fa fa-plus"></i> Add
-                                            </a>
-                                        </div>
-                                        <div class="field_wrapper">
-                                            <input type="text" id="nttc" name="nttc[]" placeholder="Computer System Servicing NC II">
-                                            <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
-                                        </div>
-
-                                        <div class="file-drop-area" id="nttc-drop-area">
-                                            <span class="fake-btn">Choose File</span>
-                                            <span class="file-msg">or drag and drop an NTTC file here</span>
-                                            <input type="file" id="nttc_file" name="nttc_file" class="file-input" accept="application/pdf">
-                                        </div>
-                                        <span class="note">Please upload PDF file only. (Computer System Servicing NC II, Web Development NC III etc.)</span>
-                                    </div>
-                                    <!--National TVET Trainers Certificate-->
-
-                                    <hr class="divider">
-
-                                    <!--Iam not a robot-->
-                                    <div class="section">
-                                        <div class="g-recaptcha" data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required></div>
-                                    </div>
-                                    <!--Iam not a robot-->
-
-                                    <!--Submit-->
-                                    <?php if($applicant['vac_deadline'] >= date('Y-m-d H:i:s')){ ?>
-                                        <button id="btn_forme2" name="forme2" type="submit">
-                                            <i class="fa fa-save" id="btn_forme2_icon"></i><span id="btn_forme2_label">Submit</span>
-                                        </button>
-                                    <?php }?>
-
-                                    <div id="forme2_message" class="message"></div>
-                                    <!--Submit-->
-
-                                </form><!---End of Form-->
 
                             </div><!---card-body-->
                         </div>
@@ -608,110 +618,109 @@
                 <?php include("include/privacy.php");?>  
 
                 <!-- script here -->
-                <script type="text/javascript">
-                    $(document).ready(function() {
-                        var applicant_id;
+                    <script type="text/javascript">
+                        $(document).ready(function() {
+                            var applicant_id;
 
-                        //-------FORM 2---------  
-                        $('#forme2_form').submit(function(e){
-                        e.preventDefault(); 
+                            //-------FORM 2---------  
+                            $('#forme2_form').submit(function(e){
+                            e.preventDefault(); 
 
-                            $('#btn_forme2').prop('disabled', true);
-                            $('#btn_forme2_icon').removeClass('fa-save').addClass('fa-spinner fa-spin');
-                            $('#btn_forme2_label').text('Submitting...');
+                                $('#btn_forme2').prop('disabled', true);
+                                $('#btn_forme2_icon').removeClass('fa-save').addClass('fa-spinner fa-spin');
+                                $('#btn_forme2_label').text('Submitting...');
 
-                            $.ajax({
-                                url: "<?php echo base_url().'save_forme2'?>",
-                                type: "post",
-                                data: new FormData(this),
-                                processData: false,
-                                contentType: false,
-                                cache: false,
-                                async: false,
-                                success: function(data){
-                                    var json = $.parseJSON(data);
-                                    if(json.status == 'True'){
-                                        //Show Reference No.
-                                        html2 =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> '+ json.message +'</div>';
-                                        
-                                        //message
-                                        $('#forme2_message').prepend(html2);
+                                $.ajax({
+                                    url: "<?php echo base_url().'save_forme2'?>",
+                                    type: "post",
+                                    data: new FormData(this),
+                                    processData: false,
+                                    contentType: false,
+                                    cache: false,
+                                    async: false,
+                                    success: function(data){
+                                        var json = $.parseJSON(data);
+                                        if(json.status == 'True'){
+                                            //Show Reference No.
+                                            html2 =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> '+ json.message +'</div>';
+                                            
+                                            //message
+                                            $('#forme2_message').prepend(html2);
 
-                                        //HIDE button
-                                        $("#btn_forme2").hide();
+                                            //HIDE button
+                                            $("#btn_forme2").hide();
 
-                                        //disabled inputs
-                                        $("#cese").attr("disabled", true);
-                                        $("#csp").attr("disabled", true);
-                                        $("#cssp").attr("disabled", true);
-                                        $("#ra1080").attr("disabled", true);
-                                        $("#pd907").attr("disabled", true);
-                                        $("#mc11").attr("disabled", true);
-                                        $("#others").attr("disabled", true);
-                                        $("#eligibility_file").attr("disabled", true);
-                                        $("#nc").attr("disabled", true);
-                                        $("#national_certificate_file").attr("disabled", true);
-                                        $("#nttc").attr("disabled", true);
-                                        $("#nttc_file").attr("disabled", true);
-                                        $("#btn_add_buttonnc").attr("disabled", true);
-                                        $("#btn_add_button").attr("disabled", true);
-                                    }else{
-                                        html = '<div class="alert alert-danger mt-2 message"><i class="fa fa-times" aria-hidden="true"></i> '+ json.message +'</div>';
-                                        $('#forme2_card').prepend(html);
-                                        $('#forme2_message').prepend(html);
+                                            //disabled inputs
+                                            $("#cese").attr("disabled", true);
+                                            $("#csp").attr("disabled", true);
+                                            $("#cssp").attr("disabled", true);
+                                            $("#ra1080").attr("disabled", true);
+                                            $("#pd907").attr("disabled", true);
+                                            $("#mc11").attr("disabled", true);
+                                            $("#others").attr("disabled", true);
+                                            $("#eligibility_file").attr("disabled", true);
+                                            $("#nc").attr("disabled", true);
+                                            $("#national_certificate_file").attr("disabled", true);
+                                            $("#nttc").attr("disabled", true);
+                                            $("#nttc_file").attr("disabled", true);
+                                            $("#btn_add_buttonnc").attr("disabled", true);
+                                            $("#btn_add_button").attr("disabled", true);
+                                        }else{
+                                            html = '<div class="alert alert-danger mt-2 message"><i class="fa fa-times" aria-hidden="true"></i> '+ json.message +'</div>';
+                                            $('#forme2_card').prepend(html);
+                                            $('#forme2_message').prepend(html);
 
-                                        $('#btn_forme2').prop('disabled', false);
-                                        $('#btn_forme2_icon').removeClass('fa-spinner fa-spin').addClass('fa-save');
-                                        $('#btn_forme2_label').text('Submit');
-                                    }       
-                                }
+                                            $('#btn_forme2').prop('disabled', false);
+                                            $('#btn_forme2_icon').removeClass('fa-spinner fa-spin').addClass('fa-save');
+                                            $('#btn_forme2_label').text('Submit');
+                                        }       
+                                    }
+                                });
                             });
                         });
-                    });
-                    
-                    //-------FORM 2---------  
-                    document.querySelectorAll('.file-drop-area').forEach((dropArea) => {
-                    const fileInput = dropArea.querySelector('.file-input');
-                    const fileMsg = dropArea.querySelector('.file-msg');
+                        
+                        //-------FORM 2---------  
+                        document.querySelectorAll('.file-drop-area').forEach((dropArea) => {
+                        const fileInput = dropArea.querySelector('.file-input');
+                        const fileMsg = dropArea.querySelector('.file-msg');
 
-                    // Highlight the drop area on drag events
-                    dropArea.addEventListener('dragover', (e) => {
-                        e.preventDefault();
-                        dropArea.classList.add('active');
-                    });
+                        // Highlight the drop area on drag events
+                        dropArea.addEventListener('dragover', (e) => {
+                            e.preventDefault();
+                            dropArea.classList.add('active');
+                        });
 
-                    dropArea.addEventListener('dragleave', () => {
-                        dropArea.classList.remove('active');
-                    });
+                        dropArea.addEventListener('dragleave', () => {
+                            dropArea.classList.remove('active');
+                        });
 
-                    dropArea.addEventListener('drop', (e) => {
-                        e.preventDefault();
-                        dropArea.classList.remove('active');
+                        dropArea.addEventListener('drop', (e) => {
+                            e.preventDefault();
+                            dropArea.classList.remove('active');
 
-                        // Get the dropped file
-                        const files = e.dataTransfer.files;
+                            // Get the dropped file
+                            const files = e.dataTransfer.files;
 
-                        if (files.length) {
-                        fileInput.files = files; // Assign the dropped files to the input
-                        const fileName = files[0].name;
-                        fileMsg.textContent = `File selected: ${fileName}`;
-                        }
-                    });
+                            if (files.length) {
+                            fileInput.files = files; // Assign the dropped files to the input
+                            const fileName = files[0].name;
+                            fileMsg.textContent = `File selected: ${fileName}`;
+                            }
+                        });
 
-                    // Update message when file is selected via input
-                    fileInput.addEventListener('change', () => {
-                        const fileName = fileInput.files[0]?.name || 'No file chosen';
-                        fileMsg.textContent = `File selected: ${fileName}`;
-                    });
-                    });
+                        // Update message when file is selected via input
+                        fileInput.addEventListener('change', () => {
+                            const fileName = fileInput.files[0]?.name || 'No file chosen';
+                            fileMsg.textContent = `File selected: ${fileName}`;
+                        });
+                        });
 
-                    $(window).on('load', function() {
-                        $('#sitePrivacyModal').modal('show');
-                    });
-                </script>
+                        $(window).on('load', function() {
+                            $('#sitePrivacyModal').modal('show');
+                        });
+                    </script>
                 <!-- script here -->
-                <!---End of Form 2-->
-        <!-- END PAGE CONTENT  -->
+
     </div> <!-- END PAGE WRAPPER  -->
 
     <!-- Bootstrap JS-->

@@ -162,6 +162,55 @@
 }
 
 .tesda-reminder video{border-radius:4px;}
+
+.advisory-box{
+    background:#FBEAEA;
+    border:1px solid #F0C6C6;
+    border-left:4px solid var(--error);
+    border-radius:4px;
+    padding:18px 20px;
+    margin-bottom:20px;
+}
+.advisory-title{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:'Source Serif 4',Georgia,serif;
+    font-size:22px;
+    font-weight:700;
+    color:var(--error);
+    margin-bottom:10px;
+}
+.advisory-icon{
+    color:var(--error);
+    font-size:14px;
+}
+.advisory-text{
+    font-size:13.5px;
+    line-height:1.65;
+    color:#5A2A2A;
+    margin-bottom:14px;
+}
+.advisory-text b{color:var(--error);font-weight:700;}
+
+.btn-link-custom{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:#8f2b2b;
+    border:none;
+    color:#fff !important;
+    font-size:13.5px;
+    font-weight:600;
+    padding:10px 20px;
+    border-radius:3px;
+    text-decoration:none !important;
+    transition:background .15s ease;
+}
+.btn-link-custom:hover{
+    background:#8f2b2b;
+    color:#fff;
+}
 </style>
 
 <!--Body-->
@@ -177,6 +226,24 @@
                 </div>
                 <div id="collapseOne" class="collapse show" data-parent="#accordion">
                   <div class="card-body">
+                    
+                    <div class="advisory-box">
+                        
+                        <div class="advisory-title">
+                            Advisory
+                        </div>
+                    
+                        <div class="advisory-text text-justify">
+                            Please be informed that <b>many applicants have been disqualified due to errors in accomplishing the Personal Data Sheet (PDS)</b>. To avoid disqualification, kindly review the proper guidelines for completing the form by clicking the link provided. 
+                            Please also note that the <b>revised 2026 Personal Data Sheet (PDS) should be used.</b>
+                        </div>
+                    
+                        <a href="https://drive.google.com/drive/folders/11kXxPgJGChP53sURJoSAA4gzep-_FCZq?usp=sharing" target="_blank" class="btn btn-danger btn-link-custom">
+                            View Proper PDS Guide
+                        </a>
+                    
+                    </div>
+
                     <h4>Please prepare the following file attachments in PDF format before proceeding:</h4>
 
                     <ul class="checklist">
@@ -184,14 +251,15 @@
                         <div>
                           Application letter addressed to (indicating the position, office where the vacancy exists and its Plantilla Item Number):
                           <span class="addressee">
-                            <b>Toni June A. Tamayo, CESO III</b><br>
+                            <b>Ashary A. Banto, JD., CESE</b><br>
                             Regional Director<br>
                             Carig Norte, Tuguegarao City, Cagayan
                           </span>
                         </div>
                       </li>
-                      <li>Transcript of Record, Diploma, Certificate of Grade etc. (Authenticated Copy)</li>
-                      <li>Certificate of Eligibility, Board Rating and Licensed (Unexpired and Authenticated Copy)</li>
+                      <li>Transcript of Record/ Diploma/ Certificate of Grade etc. (Authenticated Copy)</li>
+                      <li>Preferably authenticated copy of Eligibilities (CSC) or Authenticated copy of Unexpired License or Board Rating (PRC).<br>
+                          <br>Submission of FAKE eligibility shall cause the filing of perjury/administrative case by the CSC.</li>
                       <li>National TVET Trainers Certificate (if applicable)</li>
                       <li>National Certificate (if applicable)</li>
                       <li>Certificate of Employment (Indicating Duties and Responsibilities)</li>
@@ -201,7 +269,7 @@
                       <li>Relevant Training Certificates, certified by HRMO (if any)</li>
                       <li>
                         <div>
-                          Personal Data Sheet duly subscribed/administered (CS Form No. 212, revised 2017)<br>
+                          Personal Data Sheet duly subscribed/administered (CS Form No. 212, revised 2026)<br>
                           <a href="<?= base_url()?>uploads/System/Files/PDS Sample.xlsx"><i class="fa fa-download" aria-hidden="true"></i> Download Sample</a>
                         </div>
                       </li>
@@ -212,8 +280,8 @@
                         </div>
                       </li>
                       <li>Awards Related to Performance, certified by HRMO (if any)</li>
-                      <li>Expert Services in Active Participation in Professional/Technical Activities, certified by HRMO (if any)</li>
-                      <li>Present Committees/TWGs Participation, certified by HRMO (if any)</li>
+                      <li style="display:none">Expert Services in Active Participation in Professional/Technical Activities, certified by HRMO (if any)</li>
+                      <li style="display:none">Present Committees/TWGs Participation, certified by HRMO (if any)</li>
                     </ul>
 
                     <div class="caution">

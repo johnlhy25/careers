@@ -78,6 +78,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             $route['step3/relevant-training/(:any)'] = 'pages/relevant_training/$1';
             $route['step4/special-acts-form/(:any)'] = 'pages/special_acts_form/$1';
             $route['step5/pds-wes/(:any)'] = 'pages/pds_wes/$1';
+            $route['step6/references/(:any)'] = 'pages/references/$1';
+            $route['step7/awards-related-to-performance/(:any)'] = 'pages/awards/$1';
+           
             
         //Job Portal
 

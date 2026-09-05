@@ -269,10 +269,7 @@
 
 </head>
 <body class="animsition">
-<!--FB-->
-<div id="fb-root"></div>
-<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v17.0" nonce="wOL3VvKV"></script>
-<!--FB-->
+
     <div class="page-wrapper">
 
         <!-- Header Tab-->
@@ -288,180 +285,196 @@
 
                             <div id="forme4_card" class="card-body"><!---card-body-->
 
-                            <?php
-                                // Combines two parallel semicolon-separated columns into "Name (X year/s)" entries
-                                function tesda_format_experience_list($names, $years) {
-                                    if (empty($names)) return '';
+                                <!--- Your Saved Information--->
+                                    <?php
+                                        // Combines two parallel semicolon-separated columns into "Name (X year/s)" entries
+                                        function tesda_format_experience_list($names, $years) {
+                                            if (empty($names)) return '';
 
-                                    $name_parts = array_filter(array_map('trim', explode(';', $names)), function($v){ return $v !== ''; });
-                                    $year_parts = array_map('trim', explode(';', $years ?? ''));
+                                            $name_parts = array_filter(array_map('trim', explode(';', $names)), function($v){ return $v !== ''; });
+                                            $year_parts = array_map('trim', explode(';', $years ?? ''));
 
-                                    if (empty($name_parts)) return '';
+                                            if (empty($name_parts)) return '';
 
-                                    $formatted = [];
-                                    foreach ($name_parts as $i => $name) {
-                                        $year = $year_parts[$i] ?? '';
-                                        $formatted[] = ($year !== '' && $year !== 'N/A')
-                                            ? $name . ' (' . $year . ' year/s)'
-                                            : $name;
-                                    }
+                                            $formatted = [];
+                                            foreach ($name_parts as $i => $name) {
+                                                $year = $year_parts[$i] ?? '';
+                                                $formatted[] = ($year !== '' && $year !== 'N/A')
+                                                    ? $name . ' (' . $year . ' year/s)'
+                                                    : $name;
+                                            }
 
-                                    return $formatted; // returns an array so it can render as a list, not a flat string
-                                }
+                                            return $formatted; // returns an array so it can render as a list, not a flat string
+                                        }
 
-                                $relevant_training = tesda_format_experience_list(
-                                    $applicant['app_training'] ?? '',
-                                    $applicant['app_training_hours'] ?? ''
-                                );
+                                        $relevant_training = tesda_format_experience_list(
+                                            $applicant['app_training'] ?? '',
+                                            $applicant['app_training_hours'] ?? ''
+                                        );
 
 
-                                $fullname_parts = array_filter([
-                                    $applicant['app_lastname']   ?? '',
-                                    $applicant['app_firstname']  ?? '',
-                                    $applicant['app_middlename'] ?? '',
-                                    $applicant['app_suffix']     ?? '',
-                                ]);
+                                        $fullname_parts = array_filter([
+                                            $applicant['app_lastname']   ?? '',
+                                            $applicant['app_firstname']  ?? '',
+                                            $applicant['app_middlename'] ?? '',
+                                            $applicant['app_suffix']     ?? '',
+                                        ]);
 
-                            ?>
+                                    ?>
 
-                            <div class="applicant-summary">
-                                <div class="summary-header">
-                                    <i class="fa fa-folder-open" aria-hidden="true"></i>
-                                    Your Saved Information
-                                </div>
+                                    <div class="applicant-summary">
+                                        <div class="summary-header">
+                                            <i class="fa fa-folder-open" aria-hidden="true"></i>
+                                            Your Saved Information
+                                        </div>
 
-                                <?php if (!empty($fullname_parts)): ?>
-                                    <div class="summary-row">
-                                        <span class="summary-label">Full Name</span>
-                                        <span class="summary-value"><?= implode(' ', $fullname_parts) ?></span>
+                                        <?php if (!empty($fullname_parts)): ?>
+                                            <div class="summary-row">
+                                                <span class="summary-label">Full Name</span>
+                                                <span class="summary-value"><?= implode(' ', $fullname_parts) ?></span>
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <?php if (!empty($relevant_training)): ?>
+                                            <div class="summary-row">
+                                                <span class="summary-label">Relevant Experience</span>
+                                                <span class="summary-value">
+                                                    <?php foreach ($relevant_training as $entry): ?>
+                                                        <span class="experience-entry"><?= $entry ?></span>
+                                                    <?php endforeach; ?>
+                                                </span>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
-                                <?php endif; ?>
+                                <!--- Your Saved Information--->
 
-                                 <?php if (!empty($relevant_training)): ?>
-                                    <div class="summary-row">
-                                        <span class="summary-label">Relevant Experience</span>
-                                        <span class="summary-value">
-                                            <?php foreach ($relevant_training as $entry): ?>
-                                                <span class="experience-entry"><?= $entry ?></span>
-                                            <?php endforeach; ?>
-                                        </span>
-                                    </div>
-                                <?php endif; ?>
+                                <!--- Your Saved Documents--->
+                                    <?php
+                                        // Map document type => [DB column, display label]
+                                        // NOTE: confirm these column names against your actual schema — see message below
+                                        $documents = [
+                                            'training' => ['app_training_doc', 'Relevant Trainings']
+                                        ];
 
-                            </div>
+                                        $attached_documents = array_filter($documents, function($doc) use ($applicant) {
+                                            return !empty($applicant[$doc[0]]);
+                                        });
+                                    ?>
 
-                            <?php
-                            // Map document type => [DB column, display label]
-                            // NOTE: confirm these column names against your actual schema — see message below
-                            $documents = [
-                                'training'      => ['app_training_doc',      'Relevant Trainings']
-                            ];
-
-                            $attached_documents = array_filter($documents, function($doc) use ($applicant) {
-                                return !empty($applicant[$doc[0]]);
-                            });
-                            ?>
-
-                            <?php if (!empty($attached_documents)): ?>
-                            <div class="applicant-summary">
-                                <div class="summary-header">
-                                    <i class="fa fa-paperclip" aria-hidden="true"></i>
-                                    Your Saved Documents
-                                </div>
-
-                                <?php foreach ($attached_documents as $type => $doc): ?>
-                                    <div class="summary-row">
-                                        <span class="summary-label"><?= $doc[1] ?></span>
-                                        <span class="summary-value">
-                                            <a href="<?= base_url() . 'view-document/' . $type . '/' . $hash ?>" target="_blank" class="btn-view-file">
-                                                <i class="fa fa-eye" aria-hidden="true"></i> View File
-                                            </a>
-                                        </span>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                            <?php endif; ?>
-
-                            <?php if($applicant['vac_deadline'] >= date('Y-m-d H:i:s')){ ?>
-                                <div class="notice notice-warning" role="alert">
-                                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                                    <span>Merge multiple files into a single PDF if applicable. Each file or upload must not exceed 2 MB.</span>
-                                </div>
-
-                                <?php if ($this->session->flashdata('success')): ?>
-                                    <div class="notice notice-success" role="alert">
-                                        <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                                        <div>
-                                            <p><strong>Reminder:</strong> Any changes you make to this form will update the following information accordingly:</p>
-                                            <p>1. Relevant Trainings: <?= $applicant['app_training'] ?></p>
-                                            
-                                            <div class="emphasis-callout">
-                                                <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                                <span>Please upload the required documents for this form. If there are no updates to the required fields or documents, you may leave them blank.</span>
+                                    <?php if (!empty($attached_documents)): ?>
+                                        <div class="applicant-summary">
+                                            <div class="summary-header">
+                                                <i class="fa fa-paperclip" aria-hidden="true"></i>
+                                                Your Saved Documents
                                             </div>
 
+                                            <?php foreach ($attached_documents as $type => $doc): ?>
+                                                <div class="summary-row">
+                                                    <span class="summary-label"><?= $doc[1] ?></span>
+                                                    <span class="summary-value">
+                                                        <a href="<?= base_url() . 'view-document/' . $type . '/' . $hash ?>" target="_blank" class="btn-view-file">
+                                                            <i class="fa fa-eye" aria-hidden="true"></i> View File
+                                                        </a>
+                                                    </span>
+                                                </div>
+                                            <?php endforeach; ?>
                                         </div>
-                                    </div>
-                                <?php endif; ?>
+                                    <?php endif; ?>
+                                <!--- Your Saved Documents--->
 
+                            <?php if($applicant['vac_deadline'] >= date('Y-m-d H:i:s')){ ?>
+                                
+                                <!---Reminder--->
+                                    <div class="notice notice-warning" role="alert">
+                                        <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                        <span>Merge multiple files into a single PDF if applicable. Each file or upload must not exceed 2 MB.</span>
+                                    </div>
+
+                                    <?php if ($this->session->flashdata('success')): ?>
+                                        <div class="notice notice-success" role="alert">
+                                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                            <div>
+                                                <p><strong>Reminder:</strong> Any changes you make to this form will update the following information accordingly:</p>
+                                                <p>1. Relevant Trainings: <?= $applicant['app_training'] ?></p>
+                                                
+                                                <div class="emphasis-callout">
+                                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                                    <span>Please upload the required documents for this form. If there are no updates to the required fields or documents, you may leave them blank.</span>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+                                <!---Reminder--->
+
+                                <!---Form Here--->
+                                    <form action="" method="POST" id="forme4_form" role="form"><!--Form-->
+                                        <input type="hidden" id="form_app_id" name="form_app_id" value="<?= $hash ?>">
+
+                                        <!--Relevant Training-->
+                                        <div class="field field_wrapperrt">
+                                            <label for="relevant_training">Relevant Training
+                                                <a id="btn_add_buttonrt" class="btn-add add_buttonrt">
+                                                    <i class="fa fa-plus"></i> Add
+                                                </a>
+                                            </label>
+                                            <div class="row-2">
+                                                <div>
+                                                    <input type="text" id="relevant_training" name="relevant_training[]" placeholder="Programming 101">
+                                                    <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
+                                                </div>
+                                                <div class="hours-col">
+                                                    <input type="number" id="relevant_training_hours" name="relevant_training_hours[]" placeholder="1" step="0.1">
+                                                    <span class="note">Hours</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="field">
+                                            <label for="training_file">Supporting Document</label>
+                                            <div class="file-drop-area" id="training-drop-area">
+                                                <span class="fake-btn">Choose File</span>
+                                                <span class="file-msg">or drag and drop a training file here</span>
+                                                <input type="file" id="training_file" name="training_file" class="file-input" accept="application/pdf">
+                                            </div>
+                                            <span class="note">Please upload PDF file only.</span>
+                                        </div>
+                                        <!--Relevant Training-->
+
+                                        <hr class="divider">
+
+                                        <?php if($applicant['app_lock'] != 1){ ?>
+                                             <!-- I am not a robot -->
+                                            <div class="field" style="margin-bottom:22px;">
+                                                <div class="g-recaptcha" data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required></div>
+                                            </div>
+                                            <!-- I am not a robot -->
+
+                                            <!--Submit-->
+                                            <div class="submit-row">
+                                                <button id="btn_forme4" name="forme4" type="submit">
+                                                    <i class="fa fa-save" id="btn_forme4_icon"></i><span id="btn_forme4_label">Submit</span>
+                                                </button>
+                                                <div id="forme4_message" class="message"></div>
+                                            </div>
+                                            <!--Submit-->
+                                        <?php } else{?>
+                                            <div class="emphasis-callout">
+                                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                                <span>Your application has been evaluated and is now locked.</span>
+                                            </div>
+                                        <?php }?>
+                                        <div id="forme4_message" class="message"></div>
+
+                                    </form><!---End of Form-->
+                                <!---Form Here--->
+                                
                             <?php }else { ?>
                                 <div class="notice notice-danger" role="alert">
                                     <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                                     <span>The vacant position has been closed for applications.</span>
                                 </div>
                             <?php } ?>
-
-                            <form action="" method="POST" id="forme4_form" role="form"><!--Form-->
-                            <input type="hidden" id="form_app_id" name="form_app_id" value="<?= $hash ?>">
-
-                            <!--Relevant Training-->
-                            <div class="field field_wrapperrt">
-                                <label for="relevant_training">Relevant Training
-                                    <a id="btn_add_buttonrt" class="btn-add add_buttonrt">
-                                        <i class="fa fa-plus"></i> Add
-                                    </a>
-                                </label>
-                                <div class="row-2">
-                                    <div>
-                                        <input type="text" id="relevant_training" name="relevant_training[]" placeholder="Programming 101">
-                                        <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
-                                    </div>
-                                    <div class="hours-col">
-                                        <input type="number" id="relevant_training_hours" name="relevant_training_hours[]" placeholder="1" step="0.1">
-                                        <span class="note">Hours</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                           <div class="field">
-                                <label for="training_file">Supporting Document</label>
-                                <div class="file-drop-area" id="training-drop-area">
-                                    <span class="fake-btn">Choose File</span>
-                                    <span class="file-msg">or drag and drop a training file here</span>
-                                    <input type="file" id="training_file" name="training_file" class="file-input" accept="application/pdf">
-                                </div>
-                                <span class="note">Please upload PDF file only.</span>
-                            </div>
-                            <!--Relevant Training-->
-
-                            <!-- I am not a robot -->
-                            <div class="field" style="margin-bottom:22px;">
-                                <div class="g-recaptcha" data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required></div>
-                            </div>
-                            <!-- I am not a robot -->
-
-                            <hr class="divider">
-
-                            <!--Submit-->
-                            <div class="submit-row">
-                                <button id="btn_forme4" name="forme4" type="submit">
-                                    <i class="fa fa-save" id="btn_forme4_icon"></i><span id="btn_forme4_label">Submit</span>
-                                </button>
-                                <div id="forme4_message" class="message"></div>
-                            </div>
-                            <!--Submit-->
-
-                            </form><!---End of Form-->
 
                             </div><!---card-body-->
                         </div>
@@ -475,109 +488,108 @@
                 <?php include("include/privacy.php");?>
 
                 <!-- script here -->
-                <script type="text/javascript">
-                    $(document).ready(function() {
-                        var applicant_id;
+                    <script type="text/javascript">
+                        $(document).ready(function() {
+                            var applicant_id;
 
-                        //-------FORM 4---------  
-                        $('#forme4_form').submit(function(e){
-                        e.preventDefault(); 
+                            //-------FORM 4---------  
+                            $('#forme4_form').submit(function(e){
+                            e.preventDefault(); 
 
-                            $('#btn_forme4').prop('disabled', true);
-                            $('#btn_forme4_icon').removeClass('fa-save').addClass('fa-spinner fa-spin');
-                            $('#btn_forme4_label').text('Submitting...');
+                                $('#btn_forme4').prop('disabled', true);
+                                $('#btn_forme4_icon').removeClass('fa-save').addClass('fa-spinner fa-spin');
+                                $('#btn_forme4_label').text('Submitting...');
 
-                            $.ajax({
-                                url: "<?php echo base_url().'save_forme4'?>",
-                                type: "post",
-                                data: new FormData(this),
-                                processData: false,
-                                contentType: false,
-                                cache: false,
-                                async: false,
-                                success: function(data){
-                                    var json = $.parseJSON(data);
-                                    if(json.status == 'True'){
-                                        html =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> <b>Saved</b> successfully. Please continue to the next tab (RA 8371/RA 7277/RA 8972).</div>';
-                                        html2 =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> <b>Saved</b> successfully. Please continue to the next tab (RA 8371/RA 7277/RA 8972).</div>';
+                                $.ajax({
+                                    url: "<?php echo base_url().'save_forme4'?>",
+                                    type: "post",
+                                    data: new FormData(this),
+                                    processData: false,
+                                    contentType: false,
+                                    cache: false,
+                                    async: false,
+                                    success: function(data){
+                                        var json = $.parseJSON(data);
+                                        if(json.status == 'True'){
+                                            html =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> <b>Saved</b> successfully. Please continue to the next tab (RA 8371/RA 7277/RA 8972).</div>';
+                                            html2 =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> <b>Saved</b> successfully. Please continue to the next tab (RA 8371/RA 7277/RA 8972).</div>';
 
-                                        $('#forme4_message').prepend(html2);
-                                        $('#application_body_card').prepend(html);
+                                            $('#forme4_message').prepend(html2);
+                                            $('#application_body_card').prepend(html);
 
-                                        $("#ra8371_tab").removeClass("disabled");
+                                            $("#ra8371_tab").removeClass("disabled");
 
-                                        $(".message").delay(4000).slideUp(200, function() {
-                                            $(this).alert('close');
-                                        });
+                                            $(".message").delay(4000).slideUp(200, function() {
+                                                $(this).alert('close');
+                                            });
 
-                                        $("#btn_forme4").hide();
+                                            $("#btn_forme4").hide();
 
-                                        $("#training_file").attr("disabled", true);
-                                        $("#relevant_training_hours").attr("disabled", true);
-                                        $("#relevant_training").attr("disabled", true);
-                                        $("#btn_add_buttonrt").attr("disabled", true);
-                                    }else{
-                                        html = '<div class="alert alert-danger mt-2 message"> <b>'+ json.error +'</b></div>';
-                                        $('#forme4_card').prepend(html);
-                                        $('#forme4_message').prepend(html);
+                                            $("#training_file").attr("disabled", true);
+                                            $("#relevant_training_hours").attr("disabled", true);
+                                            $("#relevant_training").attr("disabled", true);
+                                            $("#btn_add_buttonrt").attr("disabled", true);
+                                        }else{
+                                            html = '<div class="alert alert-danger mt-2 message"> <b>'+ json.error +'</b></div>';
+                                            $('#forme4_card').prepend(html);
+                                            $('#forme4_message').prepend(html);
 
-                                        $('#btn_forme4').prop('disabled', false);
-                                        $('#btn_forme4_icon').removeClass('fa-spinner fa-spin').addClass('fa-save');
-                                        $('#btn_forme4_label').text('Submit');
+                                            $('#btn_forme4').prop('disabled', false);
+                                            $('#btn_forme4_icon').removeClass('fa-spinner fa-spin').addClass('fa-save');
+                                            $('#btn_forme4_label').text('Submit');
 
-                                        $(".message").delay(4000).slideUp(200, function() {
-                                            $(this).alert('close');
-                                        });
-                                    }       
-                                }
+                                            $(".message").delay(4000).slideUp(200, function() {
+                                                $(this).alert('close');
+                                            });
+                                        }       
+                                    }
+                                });
                             });
                         });
-                    });
-                    //-------FORM 4--------- 
-                    
-                    document.querySelectorAll('.file-drop-area').forEach((dropArea) => {
-                    const fileInput = dropArea.querySelector('.file-input');
-                    const fileMsg = dropArea.querySelector('.file-msg');
+                        //-------FORM 4--------- 
+                        
+                        document.querySelectorAll('.file-drop-area').forEach((dropArea) => {
+                        const fileInput = dropArea.querySelector('.file-input');
+                        const fileMsg = dropArea.querySelector('.file-msg');
 
-                    // Highlight the drop area on drag events
-                    dropArea.addEventListener('dragover', (e) => {
-                        e.preventDefault();
-                        dropArea.classList.add('active');
-                    });
+                        // Highlight the drop area on drag events
+                        dropArea.addEventListener('dragover', (e) => {
+                            e.preventDefault();
+                            dropArea.classList.add('active');
+                        });
 
-                    dropArea.addEventListener('dragleave', () => {
-                        dropArea.classList.remove('active');
-                    });
+                        dropArea.addEventListener('dragleave', () => {
+                            dropArea.classList.remove('active');
+                        });
 
-                    dropArea.addEventListener('drop', (e) => {
-                        e.preventDefault();
-                        dropArea.classList.remove('active');
+                        dropArea.addEventListener('drop', (e) => {
+                            e.preventDefault();
+                            dropArea.classList.remove('active');
 
-                        // Get the dropped file
-                        const files = e.dataTransfer.files;
+                            // Get the dropped file
+                            const files = e.dataTransfer.files;
 
-                        if (files.length) {
-                        fileInput.files = files; // Assign the dropped files to the input
-                        const fileName = files[0].name;
-                        fileMsg.textContent = `File selected: ${fileName}`;
-                        }
-                    });
+                            if (files.length) {
+                            fileInput.files = files; // Assign the dropped files to the input
+                            const fileName = files[0].name;
+                            fileMsg.textContent = `File selected: ${fileName}`;
+                            }
+                        });
 
-                    // Update message when file is selected via input
-                    fileInput.addEventListener('change', () => {
-                        const fileName = fileInput.files[0]?.name || 'No file chosen';
-                        fileMsg.textContent = `File selected: ${fileName}`;
-                    });
-                    });
+                        // Update message when file is selected via input
+                        fileInput.addEventListener('change', () => {
+                            const fileName = fileInput.files[0]?.name || 'No file chosen';
+                            fileMsg.textContent = `File selected: ${fileName}`;
+                        });
+                        });
 
-                     $(window).on('load', function() {
-                        $('#sitePrivacyModal').modal('show');
-                    });
+                        $(window).on('load', function() {
+                            $('#sitePrivacyModal').modal('show');
+                        });
 
-                </script>
+                    </script>
                 <!-- script here -->
-                <!---End of Form 4-->
-        <!-- END PAGE CONTENT  -->
+
     </div> <!-- END PAGE WRAPPER  -->
 
     <!-- Bootstrap JS-->

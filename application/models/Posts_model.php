@@ -641,16 +641,18 @@ class Posts_model extends CI_Model{
 
     public function save_forme6($pds_file, $wes_file){
 
+        $applicant_info = $this->get_applicant_info();
+        
         $year = date('Y');   // Get current year
         $month = date('m');  // Get current month 
 
         //applicant docs
         $data1 = array(
-            'app_pds'  => $year . '/' . $month . '/' . $pds_file,
-            'app_wes'  => $year . '/' . $month . '/' . $wes_file
+            'app_pds'  => $pds_file,
+            'app_wes'  => $wes_file
         );
 
-        $this->db->where('app_id', $this->input->post('forme6_app_id'));
+        $this->db->where('app_id', $applicant_info['app_id']);
         $result = $this->db->update('tbl_hr_applicant_documents', $data1); 
 
         if($result){
@@ -667,30 +669,56 @@ class Posts_model extends CI_Model{
 
     public function save_forme7(){
 
+        $applicant_info = $this->get_applicant_info();
+
         //immediate_supervisor
         $array_immediate_supervisor = $this->input->post('immediate_supervisor');
         $result_immediate_supervisor = '';
 
-        foreach($array_immediate_supervisor as $row){
-            $result_immediate_supervisor = $result_immediate_supervisor.';'.$row;
+        if (is_array($array_immediate_supervisor)) {
+            foreach ($array_immediate_supervisor as $row) {
+                if (trim($row) !== '') {
+                    $result_immediate_supervisor .= ';' . $row;
+                }
+            }
+        }
+
+        if ($result_immediate_supervisor === '') {
+            $result_immediate_supervisor = $applicant_info['app_supervisor'];
         }
 
         //peer
         $array_peer = $this->input->post('peer');
         $result_peer = '';
 
-        foreach($array_peer as $row){
-            $result_peer = $result_peer.';'.$row;
+        if (is_array($array_peer)) {
+            foreach ($array_peer as $row) {
+                if (trim($row) !== '') {
+                    $result_peer .= ';' . $row;
+                }
+            }
+        }
+
+        if ($result_peer === '') {
+            $result_peer = $applicant_info['app_peer'];
         }
 
         //client
         $array_client = $this->input->post('client');
         $result_client = '';
 
-        foreach($array_client as $row){
-            $result_client = $result_client.';'.$row;
+        if (is_array($array_client)) {
+            foreach ($array_client as $row) {
+                if (trim($row) !== '') {
+                    $result_client .= ';' . $row;
+                }
+            }
         }
-         
+
+        if ($result_client === '') {
+            $result_client = $applicant_info['app_client'];
+        }
+                
          
         $data = array(
             'app_supervisor' => $result_immediate_supervisor,
@@ -702,7 +730,7 @@ class Posts_model extends CI_Model{
         $data = $this->security->xss_clean($data);
         if($this->security->xss_clean($data)){  
             //applicant info
-            $this->db->where('app_id', $this->input->post('forme7_app_id'));
+            $this->db->where('app_id', $applicant_info['app_id']);
             $result = $this->db->update('tbl_hr_applicant', $data);  
 
             if($result){
@@ -721,6 +749,8 @@ class Posts_model extends CI_Model{
 
     public function save_forme8($arp_file){
     
+        $applicant_info = $this->get_applicant_info();
+
         $year = date('Y');   // Get current year
         $month = date('m');  // Get current month 
 
@@ -733,17 +763,18 @@ class Posts_model extends CI_Model{
 
         //clean
         $data = $this->security->xss_clean($data);
+
         if($this->security->xss_clean($data)){  
             //applicant info
-            $this->db->where('app_id', $this->input->post('forme8_app_id'));
+            $this->db->where('app_id', $applicant_info['app_id']);
             $result = $this->db->update('tbl_hr_applicant', $data);  
 
             //applicant docs
             $data1 = array(
-                'app_performance'  => $year . '/' . $month . '/' . $arp_file
+                'app_performance'  => $arp_file
             );
 
-            $this->db->where('app_id', $this->input->post('forme8_app_id'));
+            $this->db->where('app_id', $applicant_info['app_id']);
             $this->db->update('tbl_hr_applicant_documents', $data1); 
 
             if($result){

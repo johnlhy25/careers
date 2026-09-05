@@ -253,10 +253,7 @@
 
 </head>
 <body class="animsition">
-<!--FB-->
-<div id="fb-root"></div>
-<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v17.0" nonce="wOL3VvKV"></script>
-<!--FB-->
+
     <div class="page-wrapper">
 
         <!-- Header Tab-->
@@ -269,185 +266,320 @@
                             <div class="card-header">
                                 <strong>Work Experience</strong>
                             </div>
-<!---Form 3-->
+                            
                         <div id="forme3_card" class="card-body"><!---card-body-->
                         
-                            <?php
-                                // Combines two parallel semicolon-separated columns into "Name (X year/s)" entries
-                                function tesda_format_experience_list($names, $years) {
-                                    if (empty($names)) return '';
+                            <!--- Your Saved Information--->
+                                <?php
+                                    // Combines two parallel semicolon-separated columns into "Name (X year/s)" entries
+                                    function tesda_format_experience_list($names, $years) {
+                                        if (empty($names)) return '';
 
-                                    $name_parts = array_filter(array_map('trim', explode(';', $names)), function($v){ return $v !== ''; });
-                                    $year_parts = array_map('trim', explode(';', $years ?? ''));
+                                        $name_parts = array_filter(array_map('trim', explode(';', $names)), function($v){ return $v !== ''; });
+                                        $year_parts = array_map('trim', explode(';', $years ?? ''));
 
-                                    if (empty($name_parts)) return '';
+                                        if (empty($name_parts)) return '';
 
-                                    $formatted = [];
-                                    foreach ($name_parts as $i => $name) {
-                                        $year = $year_parts[$i] ?? '';
-                                        $formatted[] = ($year !== '' && $year !== 'N/A')
-                                            ? $name . ' (' . $year . ' year/s)'
-                                            : $name;
+                                        $formatted = [];
+                                        foreach ($name_parts as $i => $name) {
+                                            $year = $year_parts[$i] ?? '';
+                                            $formatted[] = ($year !== '' && $year !== 'N/A')
+                                                ? $name . ' (' . $year . ' year/s)'
+                                                : $name;
+                                        }
+
+                                        return $formatted; // returns an array so it can render as a list, not a flat string
                                     }
 
-                                    return $formatted; // returns an array so it can render as a list, not a flat string
-                                }
-
-                                $relevant_experience_list = tesda_format_experience_list(
-                                    $applicant['app_relevant_experience'] ?? '',
-                                    $applicant['app_relevant_years'] ?? ''
-                                );
+                                    $relevant_experience_list = tesda_format_experience_list(
+                                        $applicant['app_relevant_experience'] ?? '',
+                                        $applicant['app_relevant_years'] ?? ''
+                                    );
 
 
-                                $fullname_parts = array_filter([
-                                    $applicant['app_lastname']   ?? '',
-                                    $applicant['app_firstname']  ?? '',
-                                    $applicant['app_middlename'] ?? '',
-                                    $applicant['app_suffix']     ?? '',
-                                ]);
+                                    $fullname_parts = array_filter([
+                                        $applicant['app_lastname']   ?? '',
+                                        $applicant['app_firstname']  ?? '',
+                                        $applicant['app_middlename'] ?? '',
+                                        $applicant['app_suffix']     ?? '',
+                                    ]);
 
-                                
-                            ?>
+                                    
+                                ?>
 
-                            <div class="applicant-summary">
-                                <div class="summary-header">
-                                    <i class="fa fa-folder-open" aria-hidden="true"></i>
-                                    Your Saved Information
+                                <div class="applicant-summary">
+                                    <div class="summary-header">
+                                        <i class="fa fa-folder-open" aria-hidden="true"></i>
+                                        Your Saved Information
+                                    </div>
+
+                                    <?php if (!empty($fullname_parts)): ?>
+                                        <div class="summary-row">
+                                            <span class="summary-label">Full Name</span>
+                                            <span class="summary-value"><?= implode(' ', $fullname_parts) ?></span>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if (trim(!empty($applicant['app_present_position']))): ?>
+                                        <div class="summary-row">
+                                            <span class="summary-label">Present Position</span>
+                                            <span class="summary-value">
+                                                <?= $applicant['app_present_position']  ?>
+                                            </span>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if (trim(!empty($applicant['app_present_office'] ))): ?>
+                                        <div class="summary-row">
+                                            <span class="summary-label">Present Office</span>
+                                            <span class="summary-value">
+                                                <?= $applicant['app_present_office']?>
+                                            </span>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if (trim(!empty($applicant['app_years'] ))): ?>
+                                        <div class="summary-row">
+                                            <span class="summary-label">No. of Years</span>
+                                            <span class="summary-value">
+                                                <?= $applicant['app_years'] ?>
+                                            </span>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($relevant_experience_list)): ?>
+                                        <div class="summary-row">
+                                            <span class="summary-label">Relevant Experience</span>
+                                            <span class="summary-value">
+                                                <?php foreach ($relevant_experience_list as $entry): ?>
+                                                    <span class="experience-entry"><?= $entry ?></span>
+                                                <?php endforeach; ?>
+                                            </span>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($applicant['app_tesda_years'])): ?>
+                                        <div class="summary-row">
+                                            <span class="summary-label">Length of Service in TESDA</span>
+                                            <span class="summary-value">
+                                                <?= $applicant['app_tesda_years'] ?>
+                                            </span>
+                                        </div>
+                                    <?php endif; ?>
+
+                                <?php if (!empty($applicant['app_date_tesda']) && $applicant['app_date_tesda'] !== '0000-00-00'): ?>
+                                        <div class="summary-row">
+                                            <span class="summary-label">Date of Last Promotion <br>in TESDA</span>
+                                            <span class="summary-value">
+                                                <?= $applicant['app_date_tesda'] ?>
+                                            </span>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
+                            <!--- Your Saved Information--->
 
-                                <?php if (!empty($fullname_parts)): ?>
-                                    <div class="summary-row">
-                                        <span class="summary-label">Full Name</span>
-                                        <span class="summary-value"><?= implode(' ', $fullname_parts) ?></span>
-                                    </div>
-                                <?php endif; ?>
+                            <!--- Your Saved Documents--->
+                                <?php
+                                    // Map document type => [DB column, display label]
+                                    $documents = [
+                                        'coe'       => ['app_coe_doc',       'Certificate of Employment'],
+                                        'sr'        => ['app_sr',   'Service Record'],
+                                        'cpa'       => ['app_appointment',  'Copy of Previous Appointment'],
+                                        'ipcr'      => ['app_ipcr',           'Performance Rating']
+                                    ];
 
-                                <?php if (trim(!empty($applicant['app_present_position']))): ?>
-                                    <div class="summary-row">
-                                        <span class="summary-label">Present Position</span>
-                                        <span class="summary-value">
-                                            <?= $applicant['app_present_position']  ?>
-                                        </span>
-                                    </div>
-                                <?php endif; ?>
-
-                                <?php if (trim(!empty($applicant['app_present_office'] ))): ?>
-                                    <div class="summary-row">
-                                        <span class="summary-label">Present Office</span>
-                                        <span class="summary-value">
-                                            <?= $applicant['app_present_office']?>
-                                        </span>
-                                    </div>
-                                <?php endif; ?>
-
-                                <?php if (trim(!empty($applicant['app_years'] ))): ?>
-                                    <div class="summary-row">
-                                        <span class="summary-label">No. of Years</span>
-                                        <span class="summary-value">
-                                            <?= $applicant['app_years'] ?>
-                                        </span>
-                                    </div>
-                                <?php endif; ?>
-
-                                <?php if (!empty($relevant_experience_list)): ?>
-                                    <div class="summary-row">
-                                        <span class="summary-label">Relevant Experience</span>
-                                        <span class="summary-value">
-                                            <?php foreach ($relevant_experience_list as $entry): ?>
-                                                <span class="experience-entry"><?= $entry ?></span>
-                                            <?php endforeach; ?>
-                                        </span>
-                                    </div>
-                                <?php endif; ?>
-
-                                <?php if ($applicant['app_tesda_years'] !== ''): ?>
-                                    <div class="summary-row">
-                                        <span class="summary-label">Length of Service in TESDA</span>
-                                        <span class="summary-value">
-                                            <?= $applicant['app_tesda_years'] ?>
-                                        </span>
-                                    </div>
-                                <?php endif; ?>
-
-                               <?php if (!empty($applicant['app_date_tesda']) && $applicant['app_date_tesda'] !== '0000-00-00'): ?>
-                                    <div class="summary-row">
-                                        <span class="summary-label">Date of Last Promotion <br>in TESDA</span>
-                                        <span class="summary-value">
-                                            <?= $applicant['app_date_tesda'] ?>
-                                        </span>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-
-                            <?php
-                                // Map document type => [DB column, display label]
-                                $documents = [
-                                    'coe'       => ['app_coe_doc',       'Certificate of Employment'],
-                                    'sr'        => ['app_sr',   'Service Record'],
-                                    'cpa'       => ['app_appointment',  'Copy of Previous Appointment'],
-                                    'ipcr'      => ['app_ipcr',           'Performance Rating']
-                                ];
-
-                                // Only keep entries that actually have a file
-                                $attached_documents = array_filter($documents, function($doc) use ($applicant) {
-                                    return !empty($applicant[$doc[0]]);
-                                });
+                                    // Only keep entries that actually have a file
+                                    $attached_documents = array_filter($documents, function($doc) use ($applicant) {
+                                        return !empty($applicant[$doc[0]]);
+                                    });
                                 ?>
 
                                 <?php if (!empty($attached_documents)): ?>
-                                <div class="applicant-summary">
-                                    <div class="summary-header">
-                                        <i class="fa fa-paperclip" aria-hidden="true"></i>
-                                        Your Saved Documents
-                                    </div>
-
-                                    <?php foreach ($attached_documents as $type => $doc): ?>
-                                        <div class="summary-row">
-                                            <span class="summary-label"><?= $doc[1] ?></span>
-                                            <span class="summary-value">
-                                                <a href="<?= base_url() . 'view-document/' . $type . '/' . $hash ?>" target="_blank" class="btn-view-file">
-                                                    <i class="fa fa-eye" aria-hidden="true"></i> View File
-                                                </a>
-                                            </span>
+                                    <div class="applicant-summary">
+                                        <div class="summary-header">
+                                            <i class="fa fa-paperclip" aria-hidden="true"></i>
+                                            Your Saved Documents
                                         </div>
-                                    <?php endforeach; ?>
-                                </div>
+
+                                        <?php foreach ($attached_documents as $type => $doc): ?>
+                                            <div class="summary-row">
+                                                <span class="summary-label"><?= $doc[1] ?></span>
+                                                <span class="summary-value">
+                                                    <a href="<?= base_url() . 'view-document/' . $type . '/' . $hash ?>" target="_blank" class="btn-view-file">
+                                                        <i class="fa fa-eye" aria-hidden="true"></i> View File
+                                                    </a>
+                                                </span>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
                                 <?php endif; ?>
-
-                            <form action="" method="POST" id="forme3_form" role="form"><!--Form-->
-                            <input type="hidden" id="form_app_id" name="form_app_id" value="<?= $hash ?>">
-
+                            <!--- Your Saved Documents--->
+                            
                             <?php if($applicant['vac_deadline'] >= date('Y-m-d H:i:s')){ ?>
-                                <div class="notice notice-warning" role="alert">
-                                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                                    <span>Merge multiple files into a single PDF if applicable. Each file or upload must not exceed 2 MB.</span>
-                                </div>
-
-                                <?php
-                                //--------------app_relevant_experience
-                                $applicant['app_relevant_experience'] = trim($applicant['app_relevant_experience'], ';');
-                                $applicant['app_relevant_experience'] = str_replace(';', ', ', $applicant['app_relevant_experience']);
-                                //--------------app_relevant_experience
-                                ?>
-
+                            
                                 <?php if ($this->session->flashdata('success')): ?>
-                                    <div class="notice notice-success" role="alert">
-                                        <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                                        <div>
-                                            <p><strong>Reminder:</strong> Any changes you make to this form will update the following information accordingly:</p>
-                                            <p>1. Present Position: <?= $applicant['app_present_position'] ?></p>
-                                            <p>2. Present Office: <?= $applicant['app_present_office'] ?></p>
-                                            <p>3. No. of Years: <?= $applicant['app_years'] ?></p>
-                                            <p>4. Relevant Experience: <?= !empty($entry) ? $entry : '' ?></p>
-                                            <p>5. Length of Service in TESDA: <?= $applicant['app_tesda_years'] ?></p>
-                                            <p>6. Date of Last Promotion: <?= $applicant['app_date_tesda'] ?></p>
-                                            <div class="emphasis-callout">
-                                                <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                                <span>Please upload the required documents for this form. If there are no updates to the required fields or documents, you may leave them blank.</span>
+                                    
+                                <?php endif; ?>
+                                    <!---Reminder--->
+                                        <div class="notice notice-warning" role="alert">
+                                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                            <span>Merge multiple files into a single PDF if applicable. Each file or upload must not exceed 2 MB.</span>
+                                        </div>
+
+                                        <?php
+                                        //--------------app_relevant_experience
+                                        $applicant['app_relevant_experience'] = trim($applicant['app_relevant_experience'], ';');
+                                        $applicant['app_relevant_experience'] = str_replace(';', ', ', $applicant['app_relevant_experience']);
+                                        //--------------app_relevant_experience
+                                        ?>
+
+                                        <div class="notice notice-success" role="alert">
+                                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                            <div>
+                                                <p><strong>Reminder:</strong> Any changes you make to this form will update the following information accordingly:</p>
+                                                <p>1. Present Position: <?= $applicant['app_present_position'] ?></p>
+                                                <p>2. Present Office: <?= $applicant['app_present_office'] ?></p>
+                                                <p>3. No. of Years: <?= $applicant['app_years'] ?></p>
+                                                <p>4. Relevant Experience: <?= !empty($entry) ? $entry : '' ?></p>
+                                                <p>5. Length of Service in TESDA: <?= $applicant['app_tesda_years'] ?></p>
+                                                <p>6. Date of Last Promotion: <?= $applicant['app_date_tesda'] ?></p>
+                                                <div class="emphasis-callout">
+                                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                                    <span>Please upload the required documents for this form. If there are no updates to the required fields or documents, you may leave them blank.</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                <?php endif; ?>
+                                    <!---Reminder--->
+
+                                    <!---Form Here--->
+                                        <form action="" method="POST" id="forme3_form" role="form"><!--Form-->
+                                            <input type="hidden" id="form_app_id" name="form_app_id" value="<?= $hash ?>">
+                                        
+                                            <!--Present Position-->
+                                            <div class="field">
+                                                <label for="present_position">Present Position<span class="req">*</span></label>
+                                                <input type="text" id="present_position" name="present_position" placeholder="Information System Analyst III">
+                                                <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
+                                            </div>
+                                            <!--Present Position-->
+
+                                            <!--Present Office-->
+                                            <div class="field">
+                                                <label for="present_office">Present Office<span class="req">*</span></label>
+                                                <input type="text" id="present_office" name="present_office" placeholder="Technical Education And Skills Development Authority">
+                                                <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
+                                            </div>
+                                            <!--Present Office-->
+
+                                            <!--No. of years-->
+                                            <div class="field">
+                                                <label for="no_years">No. of Years<span class="req">*</span></label>
+                                                <input type="number" id="no_years" name="no_years" placeholder="5" min="0" max="50" step="0.1">
+                                                <span class="note">Put "0" if not applicable.</span>
+                                            </div>
+                                            <!--No. of years-->
+
+                                            <!--Relevant Experience-->
+                                            <div class="field field_wrapperre">
+                                                <label for="relevant_experience">Relevant Experience
+                                                    <a id="btn_add_buttonre" class="btn-add add_buttonre">
+                                                        <i class="fa fa-plus"></i> Add
+                                                    </a>
+                                                </label>
+                                                <div class="row-2">
+                                                    <div>
+                                                        <input type="text" id="relevant_experience" name="relevant_experience[]" placeholder="Information System Analyst I">
+                                                        <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
+                                                    </div>
+                                                    <div class="years-col">
+                                                        <input type="number" id="relevant_experience_years" name="relevant_experience_years[]" placeholder="1">
+                                                        <span class="note">Years</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="field">
+                                                <label for="coe_file">Certificate of Employment (indicating duties and responsibilities)</label>
+                                                <div class="file-drop-area" id="coe-drop-area">
+                                                    <span class="fake-btn">Choose File</span>
+                                                    <span class="file-msg">or drag and drop a Certificate of Employment file here</span>
+                                                    <input type="file" id="coe_file" name="coe_file" class="file-input" accept="application/pdf">
+                                                </div>
+                                                <span class="note">Please upload PDF file only. (Certificate of Employment)</span>
+                                            </div>
+
+                                            <div class="field">
+                                                <label for="sr_file">Service Record (if applicable)</label>
+                                                <div class="file-drop-area" id="sr-drop-area">
+                                                    <span class="fake-btn">Choose File</span>
+                                                    <span class="file-msg">or drag and drop a Service Record file here</span>
+                                                    <input type="file" id="sr_file" name="sr_file" class="file-input" accept="application/pdf">
+                                                </div>
+                                                <span class="note">Please upload PDF file only. (Service Record)</span>
+                                            </div>
+
+                                            <div class="field">
+                                                <label for="cpa_file">Copy of Previous Appointment (if applicable)</label>
+                                                <div class="file-drop-area" id="cpa-drop-area">
+                                                    <span class="fake-btn">Choose File</span>
+                                                    <span class="file-msg">or drag and drop a Copy of Previous Appointment file here</span>
+                                                    <input type="file" id="cpa_file" name="cpa_file" class="file-input" accept="application/pdf">
+                                                </div>
+                                                <span class="note">Please upload PDF file only. (Previous Appointment)</span>
+                                            </div>
+
+                                            <div class="field">
+                                                <label for="ipcr_file">Performance rating in the present position for the last two (2) rating periods, certified by HRMO (if applicable)</label>
+                                                <div class="file-drop-area" id="ipcr-drop-area">
+                                                    <span class="fake-btn">Choose File</span>
+                                                    <span class="file-msg">or drag and drop a Performance Rating file here</span>
+                                                    <input type="file" id="ipcr_file" name="ipcr_file" class="file-input" accept="application/pdf">
+                                                </div>
+                                                <span class="note">Please upload PDF file only. (Individual Performance Commitment and Review, etc.)</span>
+                                            </div>
+                                            <!--Relevant Position-->
+
+                                            <hr class="divider">
+
+                                            <!--Length of Service-->
+                                            <div class="field">
+                                                <label for="tesda_service">Length of Service in TESDA (if applicable)</label>
+                                                <input type="number" id="tesda_service" name="tesda_service" placeholder="2">
+                                            </div>
+                                            <!--Length of Service-->
+
+                                            <!--Date of Last Promotion (if applicable)-->
+                                            <div class="field">
+                                                <label for="date_tesda_service">Date of Last Promotion (if applicable)</label>
+                                                <input type="date" id="date_tesda_service" name="date_tesda_service">
+                                            </div>
+                                            <!--Date of Last Promotion (if applicable)-->
+
+                                            <hr class="divider">
+
+                                            <?php if($applicant['app_lock'] != 1){ ?>
+                                                <!--Iam not a robot-->
+                                                <div class="field">
+                                                    <div class="g-recaptcha" data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required></div>
+                                                </div>
+                                                <!--Iam not a robot-->
+
+                                                <!--Submit-->
+                                                    <button id="btn_forme3" name="forme3" type="submit">
+                                                        <i class="fa fa-save" id="btn_forme3_icon"></i><span id="btn_forme3_label">Submit</span>
+                                                    </button>
+                                            <?php } else{?>
+                                                <div class="emphasis-callout">
+                                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                                    <span>Your application has been evaluated and is now locked.</span>
+                                                </div>
+                                            <?php }?>
+
+                                            <div id="forme3_message"></div>
+                                            <!--Submit-->
+
+                                        </form>
+                                    <!---Form Here--->
 
                             <?php }else { ?>
                                 <div class="notice notice-danger" role="alert">
@@ -456,247 +588,123 @@
                                 </div>
                             <?php } ?>
 
-                            <!--Present Position-->
-                            <div class="field">
-                                <label for="present_position">Present Position<span class="req">*</span></label>
-                                <input type="text" id="present_position" name="present_position" placeholder="Information System Analyst III">
-                                <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
-                            </div>
-                            <!--Present Position-->
-
-                            <!--Present Office-->
-                            <div class="field">
-                                <label for="present_office">Present Office<span class="req">*</span></label>
-                                <input type="text" id="present_office" name="present_office" placeholder="Technical Education And Skills Development Authority">
-                                <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
-                            </div>
-                            <!--Present Office-->
-
-                            <!--No. of years-->
-                            <div class="field">
-                                <label for="no_years">No. of Years<span class="req">*</span></label>
-                                <input type="number" id="no_years" name="no_years" placeholder="5" min="0" max="50" step="0.1">
-                                <span class="note">Put "0" if not applicable.</span>
-                            </div>
-                            <!--No. of years-->
-
-                            <!--Relevant Experience-->
-                            <div class="field field_wrapperre">
-                                <label for="relevant_experience">Relevant Experience
-                                    <a id="btn_add_buttonre" class="btn-add add_buttonre">
-                                        <i class="fa fa-plus"></i> Add
-                                    </a>
-                                </label>
-                                <div class="row-2">
-                                    <div>
-                                        <input type="text" id="relevant_experience" name="relevant_experience[]" placeholder="Information System Analyst I">
-                                        <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
-                                    </div>
-                                    <div class="years-col">
-                                        <input type="number" id="relevant_experience_years" name="relevant_experience_years[]" placeholder="1">
-                                        <span class="note">Years</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="field">
-                                <label for="coe_file">Certificate of Employment (indicating duties and responsibilities)</label>
-                                <div class="file-drop-area" id="coe-drop-area">
-                                    <span class="fake-btn">Choose File</span>
-                                    <span class="file-msg">or drag and drop a Certificate of Employment file here</span>
-                                    <input type="file" id="coe_file" name="coe_file" class="file-input" accept="application/pdf">
-                                </div>
-                                <span class="note">Please upload PDF file only. (Certificate of Employment)</span>
-                            </div>
-
-                            <div class="field">
-                                <label for="sr_file">Service Record (if applicable)</label>
-                                <div class="file-drop-area" id="sr-drop-area">
-                                    <span class="fake-btn">Choose File</span>
-                                    <span class="file-msg">or drag and drop a Service Record file here</span>
-                                    <input type="file" id="sr_file" name="sr_file" class="file-input" accept="application/pdf">
-                                </div>
-                                <span class="note">Please upload PDF file only. (Service Record)</span>
-                            </div>
-
-                            <div class="field">
-                                <label for="cpa_file">Copy of Previous Appointment (if applicable)</label>
-                                <div class="file-drop-area" id="cpa-drop-area">
-                                    <span class="fake-btn">Choose File</span>
-                                    <span class="file-msg">or drag and drop a Copy of Previous Appointment file here</span>
-                                    <input type="file" id="cpa_file" name="cpa_file" class="file-input" accept="application/pdf">
-                                </div>
-                                <span class="note">Please upload PDF file only. (Previous Appointment)</span>
-                            </div>
-
-                            <div class="field">
-                                <label for="ipcr_file">Performance rating in the present position for the last two (2) rating periods, certified by HRMO (if applicable)</label>
-                                <div class="file-drop-area" id="ipcr-drop-area">
-                                    <span class="fake-btn">Choose File</span>
-                                    <span class="file-msg">or drag and drop a Performance Rating file here</span>
-                                    <input type="file" id="ipcr_file" name="ipcr_file" class="file-input" accept="application/pdf">
-                                </div>
-                                <span class="note">Please upload PDF file only. (Individual Performance Commitment and Review, etc.)</span>
-                            </div>
-                            <!--Relevant Position-->
-
-                            <hr class="divider">
-
-                            <!--Length of Service-->
-                            <div class="field">
-                                <label for="tesda_service">Length of Service in TESDA (if applicable)</label>
-                                <input type="number" id="tesda_service" name="tesda_service" placeholder="2">
-                            </div>
-                            <!--Length of Service-->
-
-                            <!--Date of Last Promotion (if applicable)-->
-                            <div class="field">
-                                <label for="date_tesda_service">Date of Last Promotion (if applicable)</label>
-                                <input type="date" id="date_tesda_service" name="date_tesda_service">
-                            </div>
-                            <!--Date of Last Promotion (if applicable)-->
-
-                            <hr class="divider">
-
-                            <!--Iam not a robot-->
-                            <div class="field">
-                                <div class="g-recaptcha" data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required></div>
-                            </div>
-                            <!--Iam not a robot-->
-
-                            <!--Submit-->
-                            <?php if($applicant['vac_deadline'] >= date('Y-m-d H:i:s')){ ?>
-                                <button id="btn_forme3" name="forme3" type="submit">
-                                    <i class="fa fa-save" id="btn_forme3_icon"></i><span id="btn_forme3_label">Submit</span>
-                                </button>
-                            <?php }?>
-
-                            <div id="forme3_message"></div>
-                            <!--Submit-->
-
-                            </form><!---End of Form-->
-
                         </div><!---card-body-->
-<!---Form 3-->
-
-                        </div>
                     </div>
                 </div>
-    </div>
+            </div>
 
             <!-- Footer Tab-->
-                <?php include("include/footer.php");?>
+            <?php include("include/footer.php");?>
 
-                <!-- Privacy Notice Tab-->
-                <?php include("include/privacy.php");?>
+            <!-- Privacy Notice Tab-->
+            <?php include("include/privacy.php");?>
 
-<!-- script here -->
-<script type="text/javascript">
-    $(document).ready(function() {
-        var applicant_id;
+            <!-- script here -->
+                <script type="text/javascript">
+                    $(document).ready(function() {
+                        var applicant_id;
 
-        $('#forme3_form').submit(function(e){
-        e.preventDefault(); 
+                        $('#forme3_form').submit(function(e){
+                        e.preventDefault(); 
 
-            $('#btn_forme3').prop('disabled', true);
-            $('#btn_forme3_icon').removeClass('fa-save').addClass('fa-spinner fa-spin');
-            $('#btn_forme3_label').text('Submitting...');
+                            $('#btn_forme3').prop('disabled', true);
+                            $('#btn_forme3_icon').removeClass('fa-save').addClass('fa-spinner fa-spin');
+                            $('#btn_forme3_label').text('Submitting...');
 
-            $.ajax({
-                url: "<?php echo base_url().'save_forme3'?>",
-                type: "post",
-                data: new FormData(this),
-                processData: false,
-                contentType: false,
-                cache: false,
-                async: false,
-                success: function(data){
-                    var json = $.parseJSON(data);
-                    if(json.status == 'True'){
-                        html2 =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> <b>Saved</b> successfully. Please continue to the next tab (Work Experience).</div>';
+                            $.ajax({
+                                url: "<?php echo base_url().'save_forme3'?>",
+                                type: "post",
+                                data: new FormData(this),
+                                processData: false,
+                                contentType: false,
+                                cache: false,
+                                async: false,
+                                success: function(data){
+                                    var json = $.parseJSON(data);
+                                    if(json.status == 'True'){
+                                        html2 =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> <b>Saved</b> successfully. Please continue to the next tab (Work Experience).</div>';
 
-                        //message
-                        $('#forme3_message').prepend(html2);
+                                        //message
+                                        $('#forme3_message').prepend(html2);
 
-                        //Hide
-                        $(".message").delay(4000).slideUp(200, function() {
-                            $(this).alert('close');
+                                        //Hide
+                                        $(".message").delay(4000).slideUp(200, function() {
+                                            $(this).alert('close');
+                                        });
+
+                                        //HIDE button
+                                        $("#btn_forme3").hide();
+
+                                        //disabled inputs
+                                        $("#present_position").attr("disabled", true);
+                                        $("#present_office").attr("disabled", true);
+                                        $("#no_years").attr("disabled", true);
+                                        $("#relevant_experience").attr("disabled", true);
+                                        $("#relevant_experience_years").attr("disabled", true);
+                                        $("#coe_file").attr("disabled", true);
+                                        $("#sr_file").attr("disabled", true);
+                                        $("#cpa_file").attr("disabled", true);
+                                        $("#ipcr_file").attr("disabled", true);
+                                        $("#tesda_service").attr("disabled", true);
+                                        $("#date_tesda_service").attr("disabled", true);
+                                        $("#btn_add_buttonre").attr("disabled", true);
+                                    }else{
+                                        html = '<div class="alert alert-danger mt-2 message"> <b>'+ json.error +'</b></div>';
+                                        $('#forme3_card').prepend(html);
+                                        $('#forme3_message').prepend(html);
+
+                                        $('#btn_forme3').prop('disabled', false);
+                                        $('#btn_forme3_icon').removeClass('fa-spinner fa-spin').addClass('fa-save');
+                                        $('#btn_forme3_label').text('Submit');
+
+                                        //Hide
+                                        $(".message").delay(4000).slideUp(200, function() {
+                                            $(this).alert('close');
+                                        });
+                                    }       
+                                }
+                            });
                         });
+                    });
+                    document.querySelectorAll('.file-drop-area').forEach((dropArea) => {
+                    const fileInput = dropArea.querySelector('.file-input');
+                    const fileMsg = dropArea.querySelector('.file-msg');
 
-                        //HIDE button
-                        $("#btn_forme3").hide();
+                    dropArea.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        dropArea.classList.add('active');
+                    });
 
-                        //disabled inputs
-                        $("#present_position").attr("disabled", true);
-                        $("#present_office").attr("disabled", true);
-                        $("#no_years").attr("disabled", true);
-                        $("#relevant_experience").attr("disabled", true);
-                        $("#relevant_experience_years").attr("disabled", true);
-                        $("#coe_file").attr("disabled", true);
-                        $("#sr_file").attr("disabled", true);
-                        $("#cpa_file").attr("disabled", true);
-                        $("#ipcr_file").attr("disabled", true);
-                        $("#tesda_service").attr("disabled", true);
-                        $("#date_tesda_service").attr("disabled", true);
-                        $("#btn_add_buttonre").attr("disabled", true);
-                    }else{
-                        html = '<div class="alert alert-danger mt-2 message"> <b>'+ json.error +'</b></div>';
-                        $('#forme3_card').prepend(html);
-                        $('#forme3_message').prepend(html);
+                    dropArea.addEventListener('dragleave', () => {
+                        dropArea.classList.remove('active');
+                    });
 
-                        $('#btn_forme3').prop('disabled', false);
-                        $('#btn_forme3_icon').removeClass('fa-spinner fa-spin').addClass('fa-save');
-                        $('#btn_forme3_label').text('Submit');
+                    dropArea.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        dropArea.classList.remove('active');
 
-                        //Hide
-                        $(".message").delay(4000).slideUp(200, function() {
-                            $(this).alert('close');
-                        });
-                    }       
-                }
-            });
-        });
-    });
-    document.querySelectorAll('.file-drop-area').forEach((dropArea) => {
-    const fileInput = dropArea.querySelector('.file-input');
-    const fileMsg = dropArea.querySelector('.file-msg');
+                        const files = e.dataTransfer.files;
 
-    dropArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropArea.classList.add('active');
-    });
+                        if (files.length) {
+                        fileInput.files = files;
+                        const fileName = files[0].name;
+                        fileMsg.textContent = `File selected: ${fileName}`;
+                        }
+                    });
 
-    dropArea.addEventListener('dragleave', () => {
-        dropArea.classList.remove('active');
-    });
+                    fileInput.addEventListener('change', () => {
+                        const fileName = fileInput.files[0]?.name || 'No file chosen';
+                        fileMsg.textContent = `File selected: ${fileName}`;
+                    });
+                    });
 
-    dropArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropArea.classList.remove('active');
+                    $(window).on('load', function() {
+                        $('#sitePrivacyModal').modal('show');
+                    });
+                </script>
+            <!-- script here -->
 
-        const files = e.dataTransfer.files;
-
-        if (files.length) {
-        fileInput.files = files;
-        const fileName = files[0].name;
-        fileMsg.textContent = `File selected: ${fileName}`;
-        }
-    });
-
-    fileInput.addEventListener('change', () => {
-        const fileName = fileInput.files[0]?.name || 'No file chosen';
-        fileMsg.textContent = `File selected: ${fileName}`;
-    });
-    });
-
-    $(window).on('load', function() {
-        $('#sitePrivacyModal').modal('show');
-    });
-</script>
-<!-- script here -->
-
-<!---End of Form 3-->
-
+    </div> <!-- END PAGE WRAPPER  -->
 
     <!-- Bootstrap JS-->
     <script src="<?= base_url()?>jobportal/vendor/bootstrap-4.1/popper.min.js"></script>
