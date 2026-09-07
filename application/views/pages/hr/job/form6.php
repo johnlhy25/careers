@@ -185,6 +185,51 @@
             border-bottom:1px solid var(--line);
         }
         .summary-header i{color:var(--brass-dark);}
+
+        .tesda-accordion{
+            background:#fff;
+            border-radius:4px;
+            overflow:hidden;
+            margin-left:20px;
+            margin-right:20px;
+        }
+
+        .accordion-item{border-bottom:1px solid var(--line);}
+        .accordion-item:last-child{border-bottom:none;}
+
+        .accordion-header{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding:16px 20px;
+            font-size:14.5px;
+            font-weight:600;
+            color:var(--ink);
+            cursor:pointer;
+            background:var(--paper);
+            transition:background .15s ease;
+        }
+        .accordion-header:hover{background:var(--paper);}
+
+        .accordion-icon{
+            color:var(--brass-dark);
+            font-size:13px;
+            transition:transform .2s ease;
+        }
+        .accordion-item.open .accordion-icon{transform:rotate(180deg);}
+
+        .accordion-body{
+            display:grid;
+            grid-template-rows:0fr;
+            transition:grid-template-rows .25s ease;
+        }
+        .accordion-body-inner{
+            overflow:hidden;
+            min-height:0;
+        }
+        .accordion-item.open .accordion-body{
+            grid-template-rows:1fr;
+        }
     </style>
 
 </head>
@@ -208,6 +253,14 @@
 
                                 <!--- Your Saved Information--->
                                     <?php
+
+                                        // Helper: clean a semicolon-separated string into a comma-separated one, or return empty if nothing valid
+                                        function tesda_format_list($value) {
+                                            if (empty($value)) return '';
+                                            $parts = array_filter(array_map('trim', explode(';', $value)), function($v){ return $v !== ''; });
+                                            return implode(', ', $parts);
+                                        }
+                                        
                                         $fullname_parts = array_filter([
                                             $applicant['app_lastname']   ?? '',
                                             $applicant['app_firstname']  ?? '',
@@ -266,75 +319,156 @@
                                     <?php endif; ?>           
                                 <!--- Your Saved Documents--->
 
-                                <?php if($applicant['vac_deadline'] >= date('Y-m-d H:i:s')){ ?>
-                                
-                                    <!---Reminder--->
-                                        <div class="notice notice-success" role="alert">
-                                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                <!--- Evaluation Result--->
+                                    <?php if (!empty($evaluation['app_result'])): ?>
+                                        <div class="applicant-summary">
+                                            <div class="summary-header">
+                                                <i class="fa fa-edit" aria-hidden="true"></i>
+                                                Evaluation Result
+                                            </div>
+
+                                            <?php if (!empty($evaluation['app_result'])): ?>
+                                            <div class="summary-row">
+                                                <span class="summary-label">Result</span>
+                                                <span class="summary-value">
+                                                    <strong><?= $evaluation['app_result'] ?></strong>
+                                                </span>
+                                            </div>
+                                            <?php endif; ?>
+
+                                            <?php if (!empty($evaluation['eval_chklist1'])): ?>
+                                            <div class="summary-row">
+                                                <span class="summary-label">Personal Data Sheet & Work Experience Sheet</span>
+                                                <span class="summary-value">
+                                                    <?= $evaluation['eval_chklist1'] ?>
+                                                </span>
+                                            </div>
+                                            <?php endif; ?>
+
+                                            <!--Evaluation Summary-->
+                                            <?php if (!empty($evaluation['eval_remarks'])): ?>
+                                            <div class="summary-row" style="background:var(--paper)">
+                                                <span class="summary-label"><b>REMARKS ON CSC QUALIFICATION STANDARDS</b></span>
+                                                <span class="summary-value">
+                                                    <b><?=  tesda_format_list(strtoupper($evaluation['eval_remarks'])) ?></b>
+                                                </span>
+                                            </div>
+                                            <?php endif; ?>
+  
+                                            <?php if (!empty($evaluation['eval_remarks1'])): ?>
+                                            <div class="summary-row" style="background:var(--paper)">
+                                                <span class="summary-label"><b>REMARKS ON UPLOADED DOCUMENTS</b></span>
+                                                <span class="summary-value">
+                                                    <b><?= tesda_format_list(strtoupper($evaluation['eval_remarks1'])) ?></b>
+                                                </span>
+                                            </div>
+                                            <?php endif; ?>
+                                            <!--Evaluation Summary-->
+
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($applicant['app_reevaluation']) && $applicant['app_reevaluation'] == 1): ?>
+                                        <div class="notice notice-success reeval-sent" role="alert">
+                                            <i class="fa fa-check-circle" aria-hidden="true"></i>
                                             <div>
-                                                <p><strong>Reminder:</strong> Any changes you make to this form will update the following documents accordingly:</p>
-                                                <p>1. Personal Data Sheet (PDS CS Form No. 212 revised 2026)</p>
-                                                <p>2. Work Experience Sheet (WES CS Form 212)</p>
-                                                <div class="emphasis-callout">
-                                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                                    <span>If there are no updates to the required documents, you may leave them blank.</span>
+                                                <p><strong>Request Sent.</strong> Your request for re-evaluation has been submitted successfully.</p>
+                                                <p class="reeval-sub">The HRMPSB will review your request and notify you once a decision has been made.</p>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                <!--- Evaluation Result--->
+
+                                <?php if($applicant['vac_deadline'] <= date('Y-m-d')){ ?>
+
+                                    <div class="tesda-accordion">
+                                        <div class="accordion-item">
+                                            <div class="accordion-header">
+                                                <span>Click to Continue Application</span>
+                                                <i class="fa fa-chevron-down accordion-icon" aria-hidden="true"></i>
+                                            </div>
+                                            <div class="accordion-body">
+                                                <div class="accordion-body-inner">
+                                                    <!--Content Here-->
+                                            
+                                                        <br>
+
+                                                        <!---Reminder--->
+                                                            <div class="notice notice-success" role="alert">
+                                                                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                                                <div>
+                                                                    <p><strong>Reminder:</strong> Any changes you make to this form will update the following documents accordingly:</p>
+                                                                    <p>1. Personal Data Sheet (PDS CS Form No. 212 revised 2026)</p>
+                                                                    <p>2. Work Experience Sheet (WES CS Form 212)</p>
+                                                                    <div class="emphasis-callout">
+                                                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                                                        <span>If there are no updates to the required documents, you may leave them blank.</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        <!---Reminder--->
+                                                
+                                                        <!---Form Here--->
+                                                            <form action="" method="POST" id="forme6_form" role="form"><!--Form-->
+                                                                <input type="hidden" id="form_app_id" name="form_app_id" value="<?= $hash ?>">
+
+                                                                <!---Personal Data Sheet-->
+                                                                <div class="field">
+                                                                    <label for="pds_file">Personal Data Sheet (PDS CS Form No. 212 revised 2026)</label>
+                                                                    <div class="file-drop-area" id="pds-drop-area">
+                                                                        <span class="fake-btn">Choose File</span>
+                                                                        <span class="file-msg">or drag and drop a PDS file here</span>
+                                                                        <input type="file" id="pds_file" name="pds_file" class="file-input" accept="application/pdf">
+                                                                    </div>
+                                                                    <span class="note">Please upload PDF file only.</span>
+                                                                </div>
+                                                                <!---Personal Data Sheet-->
+
+                                                                <!---Work Experience Sheet-->
+                                                                <div class="field">
+                                                                    <label for="wes_file">Work Experience Sheet (WES CS Form 212)</label>
+                                                                    <div class="file-drop-area" id="wes-drop-area">
+                                                                        <span class="fake-btn">Choose File</span>
+                                                                        <span class="file-msg">or drag and drop a WES file here</span>
+                                                                        <input type="file" id="wes_file" name="wes_file" class="file-input" accept="application/pdf">
+                                                                    </div>
+                                                                    <span class="note">Please upload PDF file only.</span>
+                                                                </div>
+                                                                <!---Work Experience Sheet-->
+
+                                                                <hr class="divider">
+
+                                                                <?php if($applicant['app_lock'] != 1){ ?>
+                                                                    <!-- I am not a robot -->
+                                                                    <div class="field" style="margin-bottom:22px;">
+                                                                        <div class="g-recaptcha" data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required></div>
+                                                                    </div>
+                                                                    <!-- I am not a robot -->
+
+                                                                    <!--Submit-->
+                                                                    <button id="btn_forme6" name="forme6" type="submit">
+                                                                        <i class="fa fa-save" id="btn_forme6_icon"></i><span id="btn_forme6_label">Submit</span>
+                                                                    </button>
+                                                                <?php } else{?>
+                                                                        <div class="emphasis-callout">
+                                                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                                                            <span>Your application has been evaluated and is now locked.</span>
+                                                                        </div>
+                                                                <?php }?>
+                                                                <div id="forme6_message" class="message"></div>
+
+                                                                <!--Submit-->
+                                                            </form><!---End of Form-->
+                                                        <!---Form Here--->
+                                                    
+                                                    <!--Content Here-->
                                                 </div>
                                             </div>
                                         </div>
-                                    <!---Reminder--->
-                               
-                                    <!---Form Here--->
-                                        <form action="" method="POST" id="forme6_form" role="form"><!--Form-->
-                                            <input type="hidden" id="form_app_id" name="form_app_id" value="<?= $hash ?>">
-
-                                            <!---Personal Data Sheet-->
-                                            <div class="field">
-                                                <label for="pds_file">Personal Data Sheet (PDS CS Form No. 212 revised 2026)</label>
-                                                <div class="file-drop-area" id="pds-drop-area">
-                                                    <span class="fake-btn">Choose File</span>
-                                                    <span class="file-msg">or drag and drop a PDS file here</span>
-                                                    <input type="file" id="pds_file" name="pds_file" class="file-input" accept="application/pdf">
-                                                </div>
-                                                <span class="note">Please upload PDF file only.</span>
-                                            </div>
-                                            <!---Personal Data Sheet-->
-
-                                            <!---Work Experience Sheet-->
-                                            <div class="field">
-                                                <label for="wes_file">Work Experience Sheet (WES CS Form 212)</label>
-                                                <div class="file-drop-area" id="wes-drop-area">
-                                                    <span class="fake-btn">Choose File</span>
-                                                    <span class="file-msg">or drag and drop a WES file here</span>
-                                                    <input type="file" id="wes_file" name="wes_file" class="file-input" accept="application/pdf">
-                                                </div>
-                                                <span class="note">Please upload PDF file only.</span>
-                                            </div>
-                                            <!---Work Experience Sheet-->
-
-                                            <hr class="divider">
-
-                                            <?php if($applicant['app_lock'] != 1){ ?>
-                                                <!-- I am not a robot -->
-                                                <div class="field" style="margin-bottom:22px;">
-                                                    <div class="g-recaptcha" data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required></div>
-                                                </div>
-                                                <!-- I am not a robot -->
-
-                                                <!--Submit-->
-                                                <button id="btn_forme6" name="forme6" type="submit">
-                                                    <i class="fa fa-save" id="btn_forme6_icon"></i><span id="btn_forme6_label">Submit</span>
-                                                </button>
-                                            <?php } else{?>
-                                                    <div class="emphasis-callout">
-                                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                                        <span>Your application has been evaluated and is now locked.</span>
-                                                    </div>
-                                            <?php }?>
-                                            <div id="forme6_message" class="message"></div>
-
-                                            <!--Submit-->
-                                        </form><!---End of Form-->
-                                    <!---Form Here--->
+                                    </div>
+                                
+                                    
                                 <?php }else { ?>
                                     <div class="notice notice-danger" role="alert">
                                         <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
@@ -375,36 +509,33 @@
                                     success: function(data){
                                         var json = $.parseJSON(data);
                                         if(json.status == 'True'){
-                                            html =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> <b>Saved</b> successfully. Please continue to the next tab (References).</div>';
-                                            html2 =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> <b>Saved</b> successfully. Please continue to the next tab (References).</div>';
-
-                                            $('#forme6_message').prepend(html2);
-                                            $('#application_body_card').prepend(html);
-
-                                            $("#reference_tab").removeClass("disabled");
-
-                                            $(".message").delay(4000).slideUp(200, function() {
-                                                $(this).alert('close');
-                                            });
+                                            html =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> '+ json.message +'</div>';
 
                                             $("#btn_forme6").hide();
 
                                             $("#pds_file").attr("disabled", true);
                                             $("#wes_file").attr("disabled", true);
 
-                                        }else{
-                                            html = '<div class="alert alert-danger mt-2 message"> <b>'+ json.error +'</b></div>';
-                                            $('#forme6_card').prepend(html);
-                                            $('#forme6_message').prepend(html);
+                                            // Refresh the page after a short delay so the success message is visible first
+                                            setTimeout(function(){
+                                                location.reload();
+                                            }, 10000);
 
+                                        }else{
+                                            html = '<div class="alert alert-danger mt-2 message"> <i class="fa fa-times" aria-hidden="true"></i> '+ json.message +'</div>';
+                                          
                                             $('#btn_forme6').prop('disabled', false);
                                             $('#btn_forme6_icon').removeClass('fa-spinner fa-spin').addClass('fa-save');
                                             $('#btn_forme6_label').text('Submit');
 
-                                            $(".message").delay(4000).slideUp(200, function() {
-                                                $(this).alert('close');
-                                            });
-                                        }       
+                                        }
+                                        
+                                         var $newMessage = $(html).prependTo('#forme6_message');
+
+                                        // Apply the auto-hide to THIS specific element, not a blanket ".message" selector
+                                        $newMessage.delay(5000).slideUp(200, function(){
+                                            $(this).remove();
+                                        });
                                     }
                                 });
                             });
@@ -444,6 +575,18 @@
 
                         $(window).on('load', function() {
                             $('#sitePrivacyModal').modal('show');
+                        });
+
+                        $('.accordion-header').click(function(){
+                            var $item = $(this).closest('.accordion-item');
+                            var isOpen = $item.hasClass('open');
+
+                            // Close all other items (remove this block if you want multiple open at once)
+                            $('.accordion-item').removeClass('open');
+
+                            if (!isOpen) {
+                                $item.addClass('open');
+                            }
                         });
                     </script>
                 <!-- script here -->

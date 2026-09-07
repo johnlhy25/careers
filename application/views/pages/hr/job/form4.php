@@ -265,6 +265,50 @@
         }
         .emphasis-callout i{margin-top:2px;flex-shrink:0;color:var(--brass);}
 
+        .tesda-accordion{
+            background:#fff;
+            border-radius:4px;
+            overflow:hidden;
+            margin-left:20px;
+            margin-right:20px;
+        }
+
+        .accordion-item{border-bottom:1px solid var(--line);}
+        .accordion-item:last-child{border-bottom:none;}
+
+        .accordion-header{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding:16px 20px;
+            font-size:14.5px;
+            font-weight:600;
+            color:var(--ink);
+            cursor:pointer;
+            background:var(--paper);
+            transition:background .15s ease;
+        }
+        .accordion-header:hover{background:var(--paper);}
+
+        .accordion-icon{
+            color:var(--brass-dark);
+            font-size:13px;
+            transition:transform .2s ease;
+        }
+        .accordion-item.open .accordion-icon{transform:rotate(180deg);}
+
+        .accordion-body{
+            display:grid;
+            grid-template-rows:0fr;
+            transition:grid-template-rows .25s ease;
+        }
+        .accordion-body-inner{
+            overflow:hidden;
+            min-height:0;
+        }
+        .accordion-item.open .accordion-body{
+            grid-template-rows:1fr;
+        }
     </style>
 
 </head>
@@ -287,6 +331,14 @@
 
                                 <!--- Your Saved Information--->
                                     <?php
+
+                                        // Helper: clean a semicolon-separated string into a comma-separated one, or return empty if nothing valid
+                                        function tesda_format_list($value) {
+                                            if (empty($value)) return '';
+                                            $parts = array_filter(array_map('trim', explode(';', $value)), function($v){ return $v !== ''; });
+                                            return implode(', ', $parts);
+                                        }
+
                                         // Combines two parallel semicolon-separated columns into "Name (X year/s)" entries
                                         function tesda_format_experience_list($names, $years) {
                                             if (empty($names)) return '';
@@ -382,92 +434,175 @@
                                     <?php endif; ?>
                                 <!--- Your Saved Documents--->
 
-                            <?php if($applicant['vac_deadline'] >= date('Y-m-d H:i:s')){ ?>
-                                
-                                <!---Reminder--->
-                                    <div class="notice notice-warning" role="alert">
-                                        <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                                        <span>Merge multiple files into a single PDF if applicable. Each file or upload must not exceed 2 MB.</span>
-                                    </div>
+                                <!--- Evaluation Result--->
+                                    <?php if (!empty($evaluation['app_result'])): ?>
+                                        <div class="applicant-summary">
+                                            <div class="summary-header">
+                                                <i class="fa fa-edit" aria-hidden="true"></i>
+                                                Evaluation Result
+                                            </div>
 
-                                    <?php if ($this->session->flashdata('success')): ?>
-                                        <div class="notice notice-success" role="alert">
-                                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                            <?php if (!empty($evaluation['app_result'])): ?>
+                                            <div class="summary-row">
+                                                <span class="summary-label">Result</span>
+                                                <span class="summary-value">
+                                                    <strong><?= $evaluation['app_result'] ?></strong>
+                                                </span>
+                                            </div>
+                                            <?php endif; ?>
+
+                                            <?php if (!empty($evaluation['eval_chklist5'])): ?>
+                                            <div class="summary-row">
+                                                <span class="summary-label">Relevant Training</span>
+                                                <span class="summary-value">
+                                                    <?= $evaluation['eval_chklist5'] ?>
+                                                </span>
+                                            </div>
+                                            <?php endif; ?>
+
+                                            <!--Evaluation Summary-->
+                                            <?php if (!empty($evaluation['eval_remarks'])): ?>
+                                            <div class="summary-row" style="background:var(--paper)">
+                                                <span class="summary-label"><b>REMARKS ON CSC QUALIFICATION STANDARDS</b></span>
+                                                <span class="summary-value">
+                                                    <b><?=  tesda_format_list(strtoupper($evaluation['eval_remarks'])) ?></b>
+                                                </span>
+                                            </div>
+                                            <?php endif; ?>
+  
+                                            <?php if (!empty($evaluation['eval_remarks1'])): ?>
+                                            <div class="summary-row" style="background:var(--paper)">
+                                                <span class="summary-label"><b>REMARKS ON UPLOADED DOCUMENTS</b></span>
+                                                <span class="summary-value">
+                                                    <b><?= tesda_format_list(strtoupper($evaluation['eval_remarks1'])) ?></b>
+                                                </span>
+                                            </div>
+                                            <?php endif; ?>
+                                            <!--Evaluation Summary-->
+
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($applicant['app_reevaluation']) && $applicant['app_reevaluation'] == 1): ?>
+                                        <div class="notice notice-success reeval-sent" role="alert">
+                                            <i class="fa fa-check-circle" aria-hidden="true"></i>
                                             <div>
-                                                <p><strong>Reminder:</strong> Any changes you make to this form will update the following information accordingly:</p>
-                                                <p>1. Relevant Trainings: <?= $applicant['app_training'] ?></p>
-                                                
-                                                <div class="emphasis-callout">
-                                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                                    <span>Please upload the required documents for this form. If there are no updates to the required fields or documents, you may leave them blank.</span>
-                                                </div>
-
+                                                <p><strong>Request Sent.</strong> Your request for re-evaluation has been submitted successfully.</p>
+                                                <p class="reeval-sub">The HRMPSB will review your request and notify you once a decision has been made.</p>
                                             </div>
                                         </div>
                                     <?php endif; ?>
-                                <!---Reminder--->
 
-                                <!---Form Here--->
-                                    <form action="" method="POST" id="forme4_form" role="form"><!--Form-->
-                                        <input type="hidden" id="form_app_id" name="form_app_id" value="<?= $hash ?>">
+                                <!--- Evaluation Result--->
+                                                    
+                                
 
-                                        <!--Relevant Training-->
-                                        <div class="field field_wrapperrt">
-                                            <label for="relevant_training">Relevant Training
-                                                <a id="btn_add_buttonrt" class="btn-add add_buttonrt">
-                                                    <i class="fa fa-plus"></i> Add
-                                                </a>
-                                            </label>
-                                            <div class="row-2">
-                                                <div>
-                                                    <input type="text" id="relevant_training" name="relevant_training[]" placeholder="Programming 101">
-                                                    <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
-                                                </div>
-                                                <div class="hours-col">
-                                                    <input type="number" id="relevant_training_hours" name="relevant_training_hours[]" placeholder="1" step="0.1">
-                                                    <span class="note">Hours</span>
-                                                </div>
+                            <?php if($applicant['vac_deadline'] <= date('Y-m-d')){ ?>
+
+                                <div class="tesda-accordion">
+                                    <div class="accordion-item">
+                                        <div class="accordion-header">
+                                            <span>Click to Continue Application</span>
+                                            <i class="fa fa-chevron-down accordion-icon" aria-hidden="true"></i>
+                                        </div>
+                                        <div class="accordion-body">
+                                            <div class="accordion-body-inner">
+                                                <!--Content here-->
+                                               
+                                                    <br>
+
+                                                    <!---Reminder--->
+                                                    <div class="notice notice-warning" role="alert">
+                                                        <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                                        <span>Merge multiple files into a single PDF if applicable. Each file or upload must not exceed 2 MB.</span>
+                                                    </div>
+
+                                                    <?php if ($this->session->flashdata('success')): ?>
+                                                        <div class="notice notice-success" role="alert">
+                                                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                                            <div>
+                                                                <p><strong>Reminder:</strong> Any changes you make to this form will update the following information accordingly:</p>
+                                                                <p>1. Relevant Trainings: <?= $applicant['app_training'] ?></p>
+                                                                
+                                                                <div class="emphasis-callout">
+                                                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                                                    <span>Please upload the required documents for this form. If there are no updates to the required fields or documents, you may leave them blank.</span>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                <!---Reminder--->
+
+                                                <!---Form Here--->
+                                                    <form action="" method="POST" id="forme4_form" role="form"><!--Form-->
+                                                        <input type="hidden" id="form_app_id" name="form_app_id" value="<?= $hash ?>">
+
+                                                        <!--Relevant Training-->
+                                                        <div class="field field_wrapperrt">
+                                                            <label for="relevant_training">Relevant Training
+                                                                <a id="btn_add_buttonrt" class="btn-add add_buttonrt">
+                                                                    <i class="fa fa-plus"></i> Add
+                                                                </a>
+                                                            </label>
+                                                            <div class="row-2">
+                                                                <div>
+                                                                    <input type="text" id="relevant_training" name="relevant_training[]" placeholder="Programming 101">
+                                                                    <span class="note">Write in full/Do not abbreviate. Put "N/A" if not applicable.</span>
+                                                                </div>
+                                                                <div class="hours-col">
+                                                                    <input type="number" id="relevant_training_hours" name="relevant_training_hours[]" placeholder="1" step="0.1">
+                                                                    <span class="note">Hours</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="field">
+                                                            <label for="training_file">Supporting Document</label>
+                                                            <div class="file-drop-area" id="training-drop-area">
+                                                                <span class="fake-btn">Choose File</span>
+                                                                <span class="file-msg">or drag and drop a training file here</span>
+                                                                <input type="file" id="training_file" name="training_file" class="file-input" accept="application/pdf">
+                                                            </div>
+                                                            <span class="note">Please upload PDF file only.</span>
+                                                        </div>
+                                                        <!--Relevant Training-->
+
+                                                        <hr class="divider">
+
+                                                        <?php if($applicant['app_lock'] != 1){ ?>
+                                                            <!-- I am not a robot -->
+                                                            <div class="field" style="margin-bottom:22px;">
+                                                                <div class="g-recaptcha" data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required></div>
+                                                            </div>
+                                                            <!-- I am not a robot -->
+
+                                                            <!--Submit-->
+                                                            <div class="submit-row">
+                                                                <button id="btn_forme4" name="forme4" type="submit">
+                                                                    <i class="fa fa-save" id="btn_forme4_icon"></i><span id="btn_forme4_label">Submit</span>
+                                                                </button>
+                                                                <div id="forme4_message" class="message"></div>
+                                                            </div>
+                                                            <!--Submit-->
+                                                        <?php } else{?>
+                                                            <div class="emphasis-callout">
+                                                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                                                <span>Your application has been evaluated and is now locked.</span>
+                                                            </div>
+                                                        <?php }?>
+                                                        <div id="forme4_message" class="message"></div>
+
+                                                    </form><!---End of Form-->
+                                                <!---Form Here--->
+                                                
+                                                <!--Content here-->
                                             </div>
                                         </div>
-
-                                        <div class="field">
-                                            <label for="training_file">Supporting Document</label>
-                                            <div class="file-drop-area" id="training-drop-area">
-                                                <span class="fake-btn">Choose File</span>
-                                                <span class="file-msg">or drag and drop a training file here</span>
-                                                <input type="file" id="training_file" name="training_file" class="file-input" accept="application/pdf">
-                                            </div>
-                                            <span class="note">Please upload PDF file only.</span>
-                                        </div>
-                                        <!--Relevant Training-->
-
-                                        <hr class="divider">
-
-                                        <?php if($applicant['app_lock'] != 1){ ?>
-                                             <!-- I am not a robot -->
-                                            <div class="field" style="margin-bottom:22px;">
-                                                <div class="g-recaptcha" data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required></div>
-                                            </div>
-                                            <!-- I am not a robot -->
-
-                                            <!--Submit-->
-                                            <div class="submit-row">
-                                                <button id="btn_forme4" name="forme4" type="submit">
-                                                    <i class="fa fa-save" id="btn_forme4_icon"></i><span id="btn_forme4_label">Submit</span>
-                                                </button>
-                                                <div id="forme4_message" class="message"></div>
-                                            </div>
-                                            <!--Submit-->
-                                        <?php } else{?>
-                                            <div class="emphasis-callout">
-                                                <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                                <span>Your application has been evaluated and is now locked.</span>
-                                            </div>
-                                        <?php }?>
-                                        <div id="forme4_message" class="message"></div>
-
-                                    </form><!---End of Form-->
-                                <!---Form Here--->
+                                    </div>
+                                </div>
+                                
+                                
                                 
                             <?php }else { ?>
                                 <div class="notice notice-danger" role="alert">
@@ -511,37 +646,36 @@
                                     success: function(data){
                                         var json = $.parseJSON(data);
                                         if(json.status == 'True'){
-                                            html =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> <b>Saved</b> successfully. Please continue to the next tab (RA 8371/RA 7277/RA 8972).</div>';
-                                            html2 =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> <b>Saved</b> successfully. Please continue to the next tab (RA 8371/RA 7277/RA 8972).</div>';
-
-                                            $('#forme4_message').prepend(html2);
-                                            $('#application_body_card').prepend(html);
-
-                                            $("#ra8371_tab").removeClass("disabled");
-
-                                            $(".message").delay(4000).slideUp(200, function() {
-                                                $(this).alert('close');
-                                            });
-
+                                            html =  '<div class="alert alert-success mt-2 message"><p><i class="fa fa-check-circle" aria-hidden="true"></i> '+ json.message +'</p></div>';
+                                          
                                             $("#btn_forme4").hide();
 
                                             $("#training_file").attr("disabled", true);
                                             $("#relevant_training_hours").attr("disabled", true);
                                             $("#relevant_training").attr("disabled", true);
                                             $("#btn_add_buttonrt").attr("disabled", true);
+
+                                            // Refresh the page after a short delay so the success message is visible first
+                                            setTimeout(function(){
+                                                location.reload();
+                                            }, 10000);
+                                            
                                         }else{
-                                            html = '<div class="alert alert-danger mt-2 message"> <b>'+ json.error +'</b></div>';
-                                            $('#forme4_card').prepend(html);
-                                            $('#forme4_message').prepend(html);
+                                            html = '<div class="alert alert-danger mt-2 message"> <p><i class="fa fa-times" aria-hidden="true"></i> '+ json.message +'</p></div>';
 
                                             $('#btn_forme4').prop('disabled', false);
                                             $('#btn_forme4_icon').removeClass('fa-spinner fa-spin').addClass('fa-save');
                                             $('#btn_forme4_label').text('Submit');
 
-                                            $(".message").delay(4000).slideUp(200, function() {
-                                                $(this).alert('close');
-                                            });
-                                        }       
+                                        }  
+                                        
+                                        var $newMessage = $(html).prependTo('#forme4_message');
+
+                                        // Apply the auto-hide to THIS specific element, not a blanket ".message" selector
+                                        $newMessage.delay(5000).slideUp(200, function(){
+                                            $(this).remove();
+                                        });
+                                        
                                     }
                                 });
                             });
@@ -586,6 +720,19 @@
                         $(window).on('load', function() {
                             $('#sitePrivacyModal').modal('show');
                         });
+
+                        $('.accordion-header').click(function(){
+                            var $item = $(this).closest('.accordion-item');
+                            var isOpen = $item.hasClass('open');
+
+                            // Close all other items (remove this block if you want multiple open at once)
+                            $('.accordion-item').removeClass('open');
+
+                            if (!isOpen) {
+                                $item.addClass('open');
+                            }
+                        });
+
 
                     </script>
                 <!-- script here -->

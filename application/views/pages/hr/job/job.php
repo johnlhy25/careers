@@ -250,20 +250,8 @@
 <!--FB-->
     <div class="page-wrapper">
         <!-- HEADER DESKTOP-->
-        <header class="header-desktop4">
-            <div class="container">
-                <div class="header4-wrap">
-                    <div class="header__logo">
-                        <a href="#">
-                            <img src="<?= base_url()?>jobportal/images/icon/logo-blue.png" alt="Logo" />
-                        </a>
-                    </div>
-                    <div class="header__tool">
-
-                    </div>
-                </div>
-            </div>
-        </header>
+        <!-- Header Tab-->
+        <?php include("include/sticky.php");?> 
         <!-- END HEADER DESKTOP -->
 
         <!-- WELCOME-->

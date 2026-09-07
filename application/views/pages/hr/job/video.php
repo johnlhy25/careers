@@ -310,7 +310,7 @@
                 </div>
               </div>
 
-              <div class="card">
+              <div class="card" style="display:none">
                 <div class="card-header">
                   <a class="collapsed card-link" data-toggle="collapse" href="#collapseTwo">
                     <i class="fa fa-play" aria-hidden="true"></i>

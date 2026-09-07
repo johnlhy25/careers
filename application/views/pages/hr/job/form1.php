@@ -463,15 +463,15 @@ table.dataTable thead th.sorting_desc:after{
 
             <hr class="divider">
 
-            <div class="g-recaptcha" data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required></div>
+            <div class="g-recaptcha" data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required>
 
-            <div class="submit-row">
-                <button id="btn_forme1" name="forme1" type="submit">
-                    <i class="fa fa-save" id="btn_forme1_icon"></i>
-                    <span id="btn_forme1_label">Submit</span>
-                </button>
-                <div id="forme1_message" class="message"></div>
             </div>
+
+            <button id="btn_forme1" name="forme1" type="submit" style="width:100%;margin-top:10px">
+                <i class="fa fa-save" id="btn_forme1_icon"></i>
+                <span id="btn_forme1_label">Submit</span>
+            </button>
+            <div id="forme1_message" class="message"></div>
 
             </form><!---End of Form-->
         </div><!---card-body-->

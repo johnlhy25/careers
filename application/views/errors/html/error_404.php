@@ -1,312 +1,205 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
+<!DOCTYPE html>
 <html lang="en">
-	<head>
-	    <meta charset="UTF-8">
-	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	    <title>404 Page not found</title>
-		<link rel="shortcut icon" href="<?= config_item('base_url');?>/assets/img/Fav.png">
-		<meta http-equiv="Refresh" content="5; url=<?= config_item('base_url');?>">
-	</head>
-	<style>	
-* {
-	    margin: 0;
-	    padding: 0;
-	    box-sizing: border-box;
-	}
-	
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 Page Not Found</title>
+    <link rel="shortcut icon" href="<?= rtrim(config_item('base_url'), '/') ?>/assets/img/Fav.png">
+    <meta http-equiv="Refresh" content="8; url=<?= config_item('base_url') ?>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@700&display=swap" rel="stylesheet">
 
-	:root {
-	    --white:    #eeca24;
-	    --red:      #293c83;
-	    --dark-red: #171445;
-	    
-	    font-family: 'Yanone Kaffeesatz', sans-serif;
-	    font-size: calc( 14px + (25 - 14) * ((100vw - 400px) / ( 1200 - 400)));
-	}
-	
+    <style>
+        :root{
+            --ink:#1C2B39;
+            --paper:#FAF8F4;
+            --brass:#A8762E;
+            --brass-dark:#8C6224;
+            --brass-light:#D4A85C;
+            --slate:#5B6B7A;
+            --line:#D9D3C7;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        html,body{height:100%;}
+        body{
+            font-family:'Inter',-apple-system,sans-serif;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(168,118,46,.15), transparent 45%),
+                radial-gradient(circle at 80% 75%, rgba(168,118,46,.10), transparent 50%),
+                var(--ink);
+            background-size:200% 200%;
+            animation:drift 14s ease-in-out infinite;
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            overflow:hidden;
+            position:relative;
+        }
+        @keyframes drift{
+            0%,100%{background-position:0% 0%, 100% 100%;}
+            50%{background-position:15% 10%, 85% 90%;}
+        }
 
-	body {
-	    background: var(--red);
-	}
-	
+        /* Floating glow rings */
+        .glow-ring{
+            position:absolute;
+            border-radius:50%;
+            border:1px solid rgba(168,118,46,.22);
+            opacity:0;
+            animation:ring-in 1.4s ease forwards, float 6s ease-in-out infinite;
+        }
+        .glow-ring.r1{width:300px;height:300px;animation-delay:.1s, 1.5s;}
+        .glow-ring.r2{width:480px;height:480px;animation-delay:.25s, 1.8s;}
+        .glow-ring.r3{width:660px;height:660px;animation-delay:.4s, 2.1s;}
+        @keyframes ring-in{
+            from{opacity:0;transform:scale(.8);}
+            to{opacity:1;transform:scale(1);}
+        }
+        @keyframes float{
+            0%,100%{transform:translateY(0) scale(1);}
+            50%{transform:translateY(-14px) scale(1.02);}
+        }
 
-	.page-wrapper {
-	    position: relative;
-	    height: 90vh;
-	    width: 90vw;
-	    margin: 5vh 0 0 5vw;
-	    overflow: hidden;
-	    background: var(--red);
-	    box-shadow: 0 2rem 3rem var(--dark-red);
-	}
-	
+        /* Faint particles drifting up */
+        .particle{
+            position:absolute;
+            bottom:-20px;
+            width:4px;height:4px;
+            background:var(--brass-light);
+            border-radius:50%;
+            opacity:0;
+            animation:rise 7s linear infinite;
+        }
+        @keyframes rise{
+            0%{transform:translateY(0) translateX(0);opacity:0;}
+            10%{opacity:.7;}
+            90%{opacity:.4;}
+            100%{transform:translateY(-100vh) translateX(30px);opacity:0;}
+        }
 
-	@-webkit-keyframes circle-animation {
-	    0%   { -webkit-transform: translateX(-50%) translateY(-50%) scale(0); transform: translateX(-50%) translateY(-50%) scale(0); }
-	    10%  { -webkit-transform: translateX(-50%) translateY(-50%) scale(1); transform: translateX(-50%) translateY(-50%) scale(1); }
-	    100% { -webkit-transform: translateX(-50%) translateY(-50%) scale(1); transform: translateX(-50%) translateY(-50%) scale(1); }
-	}
-	
+        .card-404{
+            position:relative;
+            z-index:2;
+            background:var(--paper);
+            border:1px solid var(--line);
+            border-radius:8px;
+            padding:52px 44px 44px;
+            text-align:center;
+            max-width:440px;
+            width:90%;
+            box-shadow:0 25px 70px rgba(0,0,0,.4);
+            opacity:0;
+            transform:translateY(24px);
+            animation:card-in .7s cubic-bezier(.16,1,.3,1) .3s forwards;
+        }
+        @keyframes card-in{
+            to{opacity:1;transform:translateY(0);}
+        }
 
-	@keyframes circle-animation {
-	    0%   { -webkit-transform: translateX(-50%) translateY(-50%) scale(0); transform: translateX(-50%) translateY(-50%) scale(0); }
-	    10%  { -webkit-transform: translateX(-50%) translateY(-50%) scale(1); transform: translateX(-50%) translateY(-50%) scale(1); }
-	    100% { -webkit-transform: translateX(-50%) translateY(-50%) scale(1); transform: translateX(-50%) translateY(-50%) scale(1); }
-	}
-	
+        .logo-beat{
+            width:64px;
+            height:64px;
+            margin:0 auto 20px;
+            opacity:0;
+            animation:logo-in .6s ease .6s forwards, beat 1.8s ease-in-out 1.3s infinite;
+        }
+        @keyframes logo-in{
+            from{opacity:0;transform:scale(.6) rotate(-8deg);}
+            to{opacity:1;transform:scale(1) rotate(0);}
+        }
+        @keyframes beat{
+            0%,100%{transform:scale(1);}
+            50%{transform:scale(1.07);}
+        }
 
-	.circles-layer {
-	    position: absolute;
-	    top: 0;
-	    left: 0;
-	    height: 100%;
-	    width: 100%;
-	}
-	
+        .code-404{
+            font-family:'Source Serif 4',Georgia,serif;
+            font-size:72px;
+            font-weight:700;
+            line-height:1;
+            margin-bottom:10px;
+            display:flex;
+            justify-content:center;
+            gap:2px;
+        }
+        .code-404 .digit{
+            display:inline-block;
+            color:var(--ink);
+            opacity:0;
+            transform:translateY(20px) rotate(-6deg);
+            animation:digit-in .55s cubic-bezier(.34,1.56,.64,1) forwards;
+        }
+        .code-404 .digit.brass{color:var(--brass);}
+        .code-404 .digit:nth-child(1){animation-delay:.75s;}
+        .code-404 .digit:nth-child(2){animation-delay:.87s;}
+        .code-404 .digit:nth-child(3){animation-delay:.99s;}
+        @keyframes digit-in{
+            to{opacity:1;transform:translateY(0) rotate(0);}
+        }
 
-	.circles-layer > .circle {
-	        position: absolute;
-	        top: 50%;
-	        left: 50%;
-	        height: 300vw;
-	        width: 300vw;
-	        -webkit-transform: translateX(-50%) translateY(-50%);
-	                transform: translateX(-50%) translateY(-50%);
-	        border-radius: 50%;
-	        -webkit-animation: circle-animation 10s linear infinite;
-	                animation: circle-animation 10s linear infinite;
-	        will-change: transform;
-	    }
-	
+        .divider-line{
+            width:0;
+            height:2px;
+            background:var(--brass);
+            margin:0 auto 18px;
+            animation:line-in .5s ease 1.3s forwards;
+        }
+        @keyframes line-in{
+            to{width:48px;}
+        }
 
-	.circles-layer > .circle.-white {
-	            border: 30vw solid var(--white);
-	        }
-	
+        .title-404, .sub-404, .btn-home, .redirect-note{
+            opacity:0;
+            transform:translateY(10px);
+            animation:fade-up .5s ease forwards;
+        }
+        .title-404{font-size:17px;font-weight:600;color:var(--ink);margin-bottom:8px;animation-delay:1.4s;}
+        .sub-404{font-size:13.5px;color:var(--slate);line-height:1.6;margin-bottom:26px;animation-delay:1.5s;}
+        .btn-home{
+            display:inline-flex;align-items:center;gap:8px;
+            background:var(--brass);color:#fff;font-size:14px;font-weight:600;
+            padding:11px 28px;border-radius:3px;text-decoration:none;
+            transition:background .15s ease, transform .15s ease;
+            animation-delay:1.6s;
+        }
+        .btn-home:hover{background:var(--brass-dark);color:#fff;transform:translateY(-2px);}
+        .redirect-note{margin-top:18px;font-size:12px;color:var(--slate);animation-delay:1.7s;}
+        @keyframes fade-up{
+            to{opacity:1;transform:translateY(0);}
+        }
+    </style>
+</head>
+<body>
 
-	.circles-layer > .circle.-red {
-	            border: 25vw solid var(--dark-red);
-	        }
-	
+    <div class="glow-ring r1"></div>
+    <div class="glow-ring r2"></div>
+    <div class="glow-ring r3"></div>
 
-	.circles-layer > .circle:nth-of-type(2) {
-	            -webkit-animation-delay: 100ms;
-	                    animation-delay: 100ms;
-	        }
-	
+    <div class="particle" style="left:15%; animation-delay:0s;"></div>
+    <div class="particle" style="left:35%; animation-delay:1.5s;"></div>
+    <div class="particle" style="left:55%; animation-delay:3s;"></div>
+    <div class="particle" style="left:70%; animation-delay:.8s;"></div>
+    <div class="particle" style="left:85%; animation-delay:2.2s;"></div>
 
-	.circles-layer > .circle:nth-of-type(3) {
-	            -webkit-animation-delay: 150ms;
-	                    animation-delay: 150ms;
-	        }
-	
+    <div class="card-404">
+        <img src="<?= rtrim(config_item('base_url'), '/') ?>/assets/img/Fav.webp" class="logo-beat" alt="Logo">
 
-	.circles-layer > .circle:nth-of-type(4) {
-	            -webkit-animation-delay: 200ms;
-	                    animation-delay: 200ms;
-	        }
-	
+        <div class="code-404">
+            <span class="digit">4</span><span class="digit brass">0</span><span class="digit">4</span>
+        </div>
+        <div class="divider-line"></div>
 
-	@-webkit-keyframes number-animation {
-	    0%   { -webkit-transform: scale(0); transform: scale(0);   opacity: 0; }
-	    30%  { -webkit-transform: scale(0); transform: scale(0);   opacity: 0; }
-	    32%  { -webkit-transform: scale(.95); transform: scale(.95); opacity: 1; }
-	    35%  { -webkit-transform: scale(1); transform: scale(1);   opacity: 1; }
-	    37%  { -webkit-transform: scale(1); transform: scale(1);   opacity: 1; }
-	    40%  { -webkit-transform: scale(0); transform: scale(0);   opacity: 0; }
-	    50%  { -webkit-transform: scale(0); transform: scale(0);   opacity: 0; }
-	    52%  { -webkit-transform: scale(.45); transform: scale(.45); opacity: 1; }
-	    55%  { -webkit-transform: scale(.5); transform: scale(.5);  opacity: 1; }
-	    57%  { -webkit-transform: scale(.5); transform: scale(.5);  opacity: 1; }
-	    60%  { -webkit-transform: scale(0); transform: scale(0);   opacity: 0; }
-	    70%  { -webkit-transform: scale(0); transform: scale(0);   opacity: 0; }
-	    72%  { -webkit-transform: scale(.75); transform: scale(.75); opacity: 1; }
-	    75%  { -webkit-transform: scale(.8); transform: scale(.8);  opacity: 1; }
-	    77%  { -webkit-transform: scale(.8); transform: scale(.8);  opacity: 1; } 
-	    80%  { -webkit-transform: scale(0); transform: scale(0);   opacity: 0; }
-	    100% { -webkit-transform: scale(0); transform: scale(0);   opacity: 0; }
-	}
-	
+        <div class="title-404">Page Not Found</div>
+        <p class="sub-404">The page you're looking for doesn't exist or may have been moved.</p>
 
-	@keyframes number-animation {
-	    0%   { -webkit-transform: scale(0); transform: scale(0);   opacity: 0; }
-	    30%  { -webkit-transform: scale(0); transform: scale(0);   opacity: 0; }
-	    32%  { -webkit-transform: scale(.95); transform: scale(.95); opacity: 1; }
-	    35%  { -webkit-transform: scale(1); transform: scale(1);   opacity: 1; }
-	    37%  { -webkit-transform: scale(1); transform: scale(1);   opacity: 1; }
-	    40%  { -webkit-transform: scale(0); transform: scale(0);   opacity: 0; }
-	    50%  { -webkit-transform: scale(0); transform: scale(0);   opacity: 0; }
-	    52%  { -webkit-transform: scale(.45); transform: scale(.45); opacity: 1; }
-	    55%  { -webkit-transform: scale(.5); transform: scale(.5);  opacity: 1; }
-	    57%  { -webkit-transform: scale(.5); transform: scale(.5);  opacity: 1; }
-	    60%  { -webkit-transform: scale(0); transform: scale(0);   opacity: 0; }
-	    70%  { -webkit-transform: scale(0); transform: scale(0);   opacity: 0; }
-	    72%  { -webkit-transform: scale(.75); transform: scale(.75); opacity: 1; }
-	    75%  { -webkit-transform: scale(.8); transform: scale(.8);  opacity: 1; }
-	    77%  { -webkit-transform: scale(.8); transform: scale(.8);  opacity: 1; } 
-	    80%  { -webkit-transform: scale(0); transform: scale(0);   opacity: 0; }
-	    100% { -webkit-transform: scale(0); transform: scale(0);   opacity: 0; }
-	}
-	
+        <a class="btn-home" href="<?= config_item('base_url') ?>">Back to Home</a>
 
-	.numbers-layer {
-	    position: absolute;
-	    top: -1rem;
-	    left: -1rem;
-	    height: 100%;
-	    width: 100%;
-	}
-	
+        <p class="redirect-note">You'll be redirected automatically in a few seconds.</p>
+    </div>
 
-	.numbers-layer > .number {
-	        position: absolute;
-	        font-size: 10rem;
-	        color: var(--white);
-	        -webkit-transform: scale(0);
-	                transform: scale(0);
-	        opacity: 0;
-	        font-weight: 200;
-	        -webkit-animation: number-animation 10s linear infinite;
-	                animation: number-animation 10s linear infinite;
-	        will-change: transform, opacity;
-	    }
-	
-
-	.numbers-layer > .number.-with-shadow {
-	            text-shadow: 1rem 1rem var(--dark-red);
-	        }
-	
-
-	.numbers-layer > .number:nth-of-type(1)  { top: 5%;  left: 5%;  -webkit-animation-delay:  0;  animation-delay:  0;    }
-	
-
-	.numbers-layer > .number:nth-of-type(2)  { top: 15%; left: 55%; -webkit-animation-delay: 40ms; animation-delay: 40ms; 
-	        font-size: 15rem; }
-	
-
-	.numbers-layer > .number:nth-of-type(3)  { top: 25%; left: 15%; -webkit-animation-delay: 80ms; animation-delay: 80ms; }
-	
-
-	.numbers-layer > .number:nth-of-type(4)  { top: 75%; left: 20%; -webkit-animation-delay: 120ms; animation-delay: 120ms; }
-	
-
-	.numbers-layer > .number:nth-of-type(5)  { top: 25%; left: 75%; -webkit-animation-delay: 160ms; animation-delay: 160ms; 
-	        font-size: 6rem; }
-	
-
-	.numbers-layer > .number:nth-of-type(6)  { top: 65%; left: 45%; -webkit-animation-delay: 200ms; animation-delay: 200ms; }
-	
-
-	.numbers-layer > .number:nth-of-type(7)  { top: 45%; left: 85%; -webkit-animation-delay: 240ms; animation-delay: 240ms; }
-	
-
-	.numbers-layer > .number:nth-of-type(8)  { top: 10%; left: 85%; -webkit-animation-delay: 280ms; animation-delay: 280ms; }
-	
-
-	.numbers-layer > .number:nth-of-type(9)  { top: 40%; left: 35%; -webkit-animation-delay: 320ms; animation-delay: 320ms; 
-	        font-size: 15rem; }
-	
-
-	.numbers-layer > .number:nth-of-type(10) { top: 70%; left: 65%; -webkit-animation-delay: 360ms; animation-delay: 360ms; }
-	
-
-	.numbers-layer > .number:nth-of-type(11) { top: 10%; left: 30%; -webkit-animation-delay: 400ms; animation-delay: 400ms; 
-	        font-size: 6rem; }
-	
-
-	.numbers-layer > .number:nth-of-type(12) { top: 45%; left: 10%; -webkit-animation-delay: 440ms; animation-delay: 440ms; }
-	
-
-	.oops-message {
-	    position: absolute;
-	    width: 20rem;
-	    left: 50%;
-	    bottom: 2rem;
-	    margin-left: -10rem;
-	    font-weight: 400;
-	    text-align: center;
-	    color: var(--white);
-	}
-	
-
-	.oops-message > .button {
-	        display: inline-block;
-	        margin-top: .5rem;
-	        background: var(--white);
-	        color: var(--red);
-	        padding: 0 2rem;
-	        line-height: 2rem;
-	        text-decoration: none;
-	        border-radius: 1rem;
-	        -webkit-transition: all 120ms ease-in;
-	        transition: all 120ms ease-in;
-	    }
-	
-
-	.oops-message > .button:hover,
-	        .oops-message > .button:focus {
-	            background: var(--dark-red);
-	            color: var(--white);
-	        }
-</style>
-	<body>
-		<style>
-			.page-wrapper {
-				display: flex;
-				justify-content: center;
-				align-items: center;   
-			}
-			.page-wrapper img
-			{
-			max-width:100%;
-			max-height:100%;
-			}
-
-			.logos {
-				animation: beat .25s infinite alternate;
-				transform-origin: center;
-			}
-
-			/* Heart beat animation */
-			@keyframes beat{
-				to { transform: scale(1.1); }
-			}
-		</style>
-	    <div class="page-wrapper">
-			<img src="<?= config_item('base_url');?>/assets/img/Fav.webp" class="logos" alt="MYPA Logo" height="250px" width="250px">
-	        <div class="circles-layer">
-	            <div class="circle -white"></div>
-	            <div class="circle -red"></div>
-	            <div class="circle -white"></div>
-	            <div class="circle -red"></div>
-	        </div>
-	        <div class="numbers-layer">
-	            <div class="number">4</div>
-	            <div class="number">4</div>
-	            <div class="number">4</div>
-	            <div class="number">4</div>
-	            <div class="number">4</div>
-	            <div class="number">4</div>
-	            <div class="number">4</div>
-	            <div class="number">4</div>
-	            <div class="number -with-shadow">0</div>
-	            <div class="number -with-shadow">0</div>
-	            <div class="number -with-shadow">0</div>
-	            <div class="number -with-shadow">0</div>
-	        </div>
-	        <div class="oops-message">
-	            <div class="test"><h4>Page not found</strong></h2></div>
-	            <div>
-	                <span class="test"></span>
-	            </div>
-				
-	            <a class="button" href="<?= config_item('base_url');?>">Back to Home</a>
-	        </div>
-	    </div>
-	
-
-	</body>
+</body>
 </html>
-

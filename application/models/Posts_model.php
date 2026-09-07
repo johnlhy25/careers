@@ -56,6 +56,28 @@ class Posts_model extends CI_Model{
         return $query->row_array();
     }
 
+    public function get_applicant_evaluation($param){
+        $this->db->select('
+            *
+        ');
+        $this->db->from('tbl_hr_applicant');
+        $this->db->join('tbl_hr_position', 'tbl_hr_position.pos_id = tbl_hr_applicant.app_vac_id');
+        $this->db->join('tbl_hr_applicant_evaluation', 'tbl_hr_applicant_evaluation.app_id = tbl_hr_applicant.app_id', 'left');
+        $this->db->where('tbl_hr_applicant.app_id', $param);
+        $query = $this->db->get();
+        return $query->row_array();
+    }
+
+    public function request_reevaluation($param){
+
+        $data = array(
+                'app_reevaluation'  => 1
+        );
+        $this->db->where('app_id', $param);
+        $result = $this->db->update('tbl_hr_applicant', $data);  
+        return $result;   
+    }
+
     public function get_applicant_info(){
         $this->db->select('*');
         $this->db->from('tbl_hr_applicant');
@@ -137,6 +159,7 @@ class Posts_model extends CI_Model{
                 'app_course'  => $this->input->post('course'),
                 'app_hash'  => $hash,
                 'app_hash1'  => $hash1,
+                'app_reference_posting' => json_encode($this->input->post('reference')),
                 'app_timestamp'  => date('Y-m-d H:i:s')
             );
 
@@ -754,11 +777,39 @@ class Posts_model extends CI_Model{
         $year = date('Y');   // Get current year
         $month = date('m');  // Get current month 
 
+        // International
+        $international_arp = $this->input->post('international_arp');
+
+        if (trim($international_arp) === '') {
+            $international_arp = $applicant_info['app_performance_international'];
+        }
+
+        // National
+        $national_arp = $this->input->post('national_arp');
+
+        if (trim($national_arp) === '') {
+            $national_arp = $applicant_info['app_performance_national'];
+        }
+
+        // Regional
+        $regional_arp = $this->input->post('regional_arp');
+
+        if (trim($regional_arp) === '') {
+            $regional_arp = $applicant_info['app_performance_regional'];
+        }
+
+        // Provincial
+        $provincial_arp = $this->input->post('provincial_arp');
+
+        if (trim($provincial_arp) === '') {
+            $provincial_arp = $applicant_info['app_performance_provincial'];
+        }
+
         $data = array(
-            'app_performance_international' => $this->input->post('international_arp'),
-            'app_performance_national' => $this->input->post('national_arp'),
-            'app_performance_regional' => $this->input->post('regional_arp'),
-            'app_performance_provincial' => $this->input->post('provincial_arp')
+            'app_performance_international' => $international_arp,
+            'app_performance_national' => $national_arp,
+            'app_performance_regional' => $regional_arp,
+            'app_performance_provincial' => $provincial_arp
         );
 
         //clean
@@ -771,7 +822,10 @@ class Posts_model extends CI_Model{
 
             //applicant docs
             $data1 = array(
-                'app_performance'  => $arp_file
+                'app_performance' => !empty($arp_file)
+                    ? $arp_file
+                    : null
+
             );
 
             $this->db->where('app_id', $applicant_info['app_id']);

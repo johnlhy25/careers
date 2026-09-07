@@ -52,7 +52,7 @@ class Pages extends CI_Controller
             'sr'           => 'app_sr',
             'cpa'          => 'app_appointment',
             'ipcr'         => 'app_ipcr',
-            'intent'       => 'app_intent_file',
+            'intent'       => 'app_intent',
             'training'     => 'app_training_doc',
             'pds'          => 'app_pds',
             'wes'          => 'app_wes',
@@ -102,6 +102,9 @@ class Pages extends CI_Controller
         //get applicant info
         $applicant_info = $this->Posts_model->get_applicant_info1($param);
 
+         //get evaluation
+        $applicant_evaluation = $this->Posts_model->get_applicant_evaluation($applicant_info['app_id']);
+
         if (empty($applicant_info)) {
             // No rows found
             show_404();
@@ -111,8 +114,11 @@ class Pages extends CI_Controller
             
             //print_r($applicant_info);
 
+            //print_r($applicant_evaluation);
+
             $data['hash'] = $param;
             $data['applicant'] = $applicant_info;
+            $data['evaluation'] = $applicant_evaluation;
             //print_r($data);
             if(!file_exists(APPPATH.'views/pages/hr/job/' .$page.'.php')){
                 show_404();
@@ -130,6 +136,9 @@ class Pages extends CI_Controller
         //get applicant info
         $applicant_info = $this->Posts_model->get_applicant_info1($param);
 
+        //get evaluation
+        $applicant_evaluation = $this->Posts_model->get_applicant_evaluation($applicant_info['app_id']);
+
         if (empty($applicant_info)) {
             // No rows found
             show_404();
@@ -137,10 +146,11 @@ class Pages extends CI_Controller
             // Rows found
             $this->session->set_flashdata('success','success');
             
-            //print_r($applicant_info);
+            //print_r($applicant_evaluation);
 
             $data['hash'] = $param;
             $data['applicant'] = $applicant_info;
+            $data['evaluation'] = $applicant_evaluation;
             //print_r($data);
             if(!file_exists(APPPATH.'views/pages/hr/job/' .$page.'.php')){
                 show_404();
@@ -158,6 +168,9 @@ class Pages extends CI_Controller
         //get applicant info
         $applicant_info = $this->Posts_model->get_applicant_info1($param);
 
+        //get evaluation
+        $applicant_evaluation = $this->Posts_model->get_applicant_evaluation($applicant_info['app_id']);
+
         if (empty($applicant_info)) {
             // No rows found
             show_404();
@@ -169,6 +182,7 @@ class Pages extends CI_Controller
 
             $data['hash'] = $param;
             $data['applicant'] = $applicant_info;
+            $data['evaluation'] = $applicant_evaluation;
             //print_r($data);
             if(!file_exists(APPPATH.'views/pages/hr/job/' .$page.'.php')){
                 show_404();
@@ -186,6 +200,9 @@ class Pages extends CI_Controller
         //get applicant info
         $applicant_info = $this->Posts_model->get_applicant_info1($param);
 
+        //get evaluation
+        $applicant_evaluation = $this->Posts_model->get_applicant_evaluation($applicant_info['app_id']);
+
         if (empty($applicant_info)) {
             // No rows found
             show_404();
@@ -197,6 +214,7 @@ class Pages extends CI_Controller
 
             $data['hash'] = $param;
             $data['applicant'] = $applicant_info;
+            $data['evaluation'] = $applicant_evaluation;
             //print_r($data);
             if(!file_exists(APPPATH.'views/pages/hr/job/' .$page.'.php')){
                 show_404();
@@ -214,6 +232,9 @@ class Pages extends CI_Controller
         //get applicant info
         $applicant_info = $this->Posts_model->get_applicant_info1($param);
 
+        //get evaluation
+        $applicant_evaluation = $this->Posts_model->get_applicant_evaluation($applicant_info['app_id']);
+
         if (empty($applicant_info)) {
             // No rows found
             show_404();
@@ -225,6 +246,7 @@ class Pages extends CI_Controller
 
             $data['hash'] = $param;
             $data['applicant'] = $applicant_info;
+            $data['evaluation'] = $applicant_evaluation;
             //print_r($data);
             if(!file_exists(APPPATH.'views/pages/hr/job/' .$page.'.php')){
                 show_404();
@@ -242,6 +264,9 @@ class Pages extends CI_Controller
         //get applicant info
         $applicant_info = $this->Posts_model->get_applicant_info1($param);
 
+        //get evaluation
+        $applicant_evaluation = $this->Posts_model->get_applicant_evaluation($applicant_info['app_id']);
+
         if (empty($applicant_info)) {
             // No rows found
             show_404();
@@ -253,6 +278,7 @@ class Pages extends CI_Controller
 
             $data['hash'] = $param;
             $data['applicant'] = $applicant_info;
+            $data['evaluation'] = $applicant_evaluation;
             //print_r($data);
             if(!file_exists(APPPATH.'views/pages/hr/job/' .$page.'.php')){
                 show_404();
@@ -269,6 +295,9 @@ class Pages extends CI_Controller
         //get applicant info
         $applicant_info = $this->Posts_model->get_applicant_info1($param);
 
+        //get evaluation
+        $applicant_evaluation = $this->Posts_model->get_applicant_evaluation($applicant_info['app_id']);
+
         if (empty($applicant_info)) {
             // No rows found
             show_404();
@@ -280,6 +309,7 @@ class Pages extends CI_Controller
 
             $data['hash'] = $param;
             $data['applicant'] = $applicant_info;
+            $data['evaluation'] = $applicant_evaluation;
             //print_r($data);
             if(!file_exists(APPPATH.'views/pages/hr/job/' .$page.'.php')){
                 show_404();
@@ -451,6 +481,17 @@ class Pages extends CI_Controller
 
             $applicant = $this->Posts_model->get_applicant_info1($this->input->post('form_app_id'));
 
+            //get evaluation
+            $applicant_evaluation = $this->Posts_model->get_applicant_evaluation($applicant['app_id']);
+
+            //check if != Qualified
+            if (is_null($applicant_evaluation['eval_result']) || $applicant_evaluation['eval_result'] === ''){
+            }else{
+                if ($applicant_evaluation['eval_result'] != 'Qualified'){
+                    $this->Posts_model->request_reevaluation($applicant['app_id']);
+                }
+            }
+
             //check education file // for upload
             if(!empty($_FILES['education_file']['name'])){
                 $resultx = $this->educational_file();
@@ -532,7 +573,7 @@ class Pages extends CI_Controller
             if($status['status'] == 'True'){
                 $result = array(
                     'status' => 'True',
-                    'message' => 'Your Educational Background and Eligibility Information has been successfully saved. Please return to your email and proceed to <b>Step 2: Work Experience. </b>'
+                    'message' => 'Your Educational Background and Eligibility Information have been successfully saved. Please check your email and proceed to <b>Step 2: Work Experience</b>. This page will automatically reload in <b>5 seconds</b> to allow you to view your saved information and document(s).'
                 );
                 echo json_encode($result);
                 exit;
@@ -890,7 +931,18 @@ class Pages extends CI_Controller
 
             $applicant = $this->Posts_model->get_applicant_info1($this->input->post('form_app_id'));
          
-             //Check Certificate of Employment
+            //get evaluation
+            $applicant_evaluation = $this->Posts_model->get_applicant_evaluation($applicant['app_id']);
+
+            //check if != Qualified
+            if (is_null($applicant_evaluation['eval_result']) || $applicant_evaluation['eval_result'] === ''){
+            }else{
+                if ($applicant_evaluation['eval_result'] != 'Qualified'){
+                    $this->Posts_model->request_reevaluation($applicant['app_id']);
+                }
+            }
+
+            //Check Certificate of Employment
             if(!empty($_FILES['coe_file']['name'])){
                 $resultx = $this->coe_file();
                 if($resultx['status'] == 'True'){
@@ -963,7 +1015,7 @@ class Pages extends CI_Controller
             if($status['status'] == 'True'){
                 $result = array(
                     'status' => 'True',
-                    'message' => 'Your Work Experience Information has been successfully saved. Please return to your email and proceed to <b>Step 3: Relevant Training. </b>'
+                    'message' => 'Your Work Experience Information has been successfully saved. Please check your email and proceed to <b><b>Step 3: Relevant Training</b>. This page will automatically reload in <b>5 seconds</b> to allow you to view your saved information and document(s).'
                 );
 
             }else{
@@ -1318,6 +1370,17 @@ class Pages extends CI_Controller
 
             $applicant = $this->Posts_model->get_applicant_info1($this->input->post('form_app_id'));
 
+            //get evaluation
+            $applicant_evaluation = $this->Posts_model->get_applicant_evaluation($applicant['app_id']);
+
+            //check if != Qualified
+            if (is_null($applicant_evaluation['eval_result']) || $applicant_evaluation['eval_result'] === ''){
+            }else{
+                if ($applicant_evaluation['eval_result'] != 'Qualified'){
+                    $this->Posts_model->request_reevaluation($applicant['app_id']);
+                }
+            }
+
             //Check Certificate of Employment
             if(!empty($_FILES['training_file']['name'])){
                 $resultx = $this->training_file();
@@ -1326,7 +1389,7 @@ class Pages extends CI_Controller
                 }else{
                     $result = array(
                         'status' => 'False',
-                        'error' => $resultx['error']
+                        'message' => $resultx['error']
                     );
                     echo json_encode($result);
                     exit;
@@ -1340,12 +1403,13 @@ class Pages extends CI_Controller
             if($status['status'] == 'True'){
                 $result = array(
                     'status' => 'True',
+                    'message' => 'Your Relevant Trainings Information has been successfully saved. Please check your email and proceed to <b>Step 4: Special Acts Form</b>. This page will automatically reload in <b>5 seconds</b> to allow you to view your saved information and document(s).'
                 );
 
             }else{
                 $result = array(
                     'status' => 'False',
-                    'error' => 'Server Error'
+                    'message' => 'Server Error'
                 );
             }
             echo json_encode($result);
@@ -1361,7 +1425,7 @@ class Pages extends CI_Controller
         $year = date('Y');   // Get current year
         $month = date('m');  // Get current month
 
-         //Get applicant info
+        //Get applicant info
         $applicant_info = $this->Posts_model->get_applicant_info();
 
         // Get user data (example: from form input or database)
@@ -1451,17 +1515,31 @@ class Pages extends CI_Controller
 
         }else{
 
-            $status = $this->Posts_model->save_forme5();
+            $applicant = $this->Posts_model->get_applicant_info1($this->input->post('form_app_id'));
 
+            //get evaluation
+            $applicant_evaluation = $this->Posts_model->get_applicant_evaluation($applicant['app_id']);
+
+            //check if != Qualified
+            if (is_null($applicant_evaluation['eval_result']) || $applicant_evaluation['eval_result'] === ''){
+            }else{
+                if ($applicant_evaluation['eval_result'] != 'Qualified'){
+                    $this->Posts_model->request_reevaluation($applicant['app_id']);
+                }
+            }
+
+            $status = $this->Posts_model->save_forme5();
+            
             if($status['status'] == 'True'){
                 $result = array(
                     'status' => 'True',
+                    'message' => 'Your Information has been successfully saved. Please check your email and proceed to <b>Step 5: Personal Data and Work Experience Sheets.</b>. This page will automatically reload in <b>5 seconds</b> to allow you to view your saved information and document(s).'
                 );
 
             }else{
                 $result = array(
                     'status' => 'False',
-                    'error' => 'Server Error. Please try again.'
+                    'message' => 'Server Error. Please try again.'
                 );
             }
             echo json_encode($result);
@@ -1490,6 +1568,17 @@ class Pages extends CI_Controller
             $month = date('m');  // Get current month
 
             $applicant = $this->Posts_model->get_applicant_info1($this->input->post('form_app_id'));
+
+            //get evaluation
+            $applicant_evaluation = $this->Posts_model->get_applicant_evaluation($applicant['app_id']);
+
+            //check if != Qualified
+            if (is_null($applicant_evaluation['eval_result']) || $applicant_evaluation['eval_result'] === ''){
+            }else{
+                if ($applicant_evaluation['eval_result'] != 'Qualified'){
+                    $this->Posts_model->request_reevaluation($applicant['app_id']);
+                }
+            }
             
             //Check PDS
             if(!empty($_FILES['pds_file']['name'])){
@@ -1499,7 +1588,7 @@ class Pages extends CI_Controller
                 }else{
                     $result = array(
                         'status' => 'False',
-                        'error' => $resultx['error']
+                        'message' => $resultx['error']
                     );
                     echo json_encode($result);
                     exit;
@@ -1518,7 +1607,7 @@ class Pages extends CI_Controller
                 }else{
                     $result = array(
                         'status' => 'False',
-                        'error' => $resultx['error']
+                        'message' => $resultx['error']
                     );
                     echo json_encode($result);
                     exit;
@@ -1533,13 +1622,14 @@ class Pages extends CI_Controller
 
             if($status['status'] == 'True'){
                 $result = array(
-                    'status' => 'True'
+                    'status' => 'True',
+                    'message' => 'Your Information has been successfully saved. Please check your email and proceed to <b>Step 6: References.</b>. This page will automatically reload in <b>5 seconds</b> to allow you to view your saved information and document(s).'
                 );
 
             }else{
                 $result = array(
                     'status' => 'False',
-                    'error' => 'Server Error. Please try again.'
+                    'message' => 'Server Error. Please try again.'
                 );
             }
             echo json_encode($result);
@@ -1688,17 +1778,31 @@ class Pages extends CI_Controller
 
         }else{
 
+            $applicant = $this->Posts_model->get_applicant_info1($this->input->post('form_app_id'));
+
+            //get evaluation
+            $applicant_evaluation = $this->Posts_model->get_applicant_evaluation($applicant['app_id']);
+
+            //check if != Qualified
+            if (is_null($applicant_evaluation['eval_result']) || $applicant_evaluation['eval_result'] === ''){
+            }else{
+                if ($applicant_evaluation['eval_result'] != 'Qualified'){
+                    $this->Posts_model->request_reevaluation($applicant['app_id']);
+                }
+            }
+
             $status = $this->Posts_model->save_forme7();
 
             if($status['status'] == 'True'){
                 $result = array(
                     'status' => 'True',
+                    'message' => 'Your Information has been successfully saved. Please check your email and proceed to <b>Step 8: Awards Related to Performance.</b>. This page will automatically reload in <b>5 seconds</b> to allow you to view your saved information and document(s).'
                 );
 
             }else{
                 $result = array(
                     'status' => 'False',
-                    'error' => 'Server Error'
+                    'message' => 'Server Error.'
                 );
             }
             echo json_encode($result);
@@ -1728,6 +1832,17 @@ class Pages extends CI_Controller
 
             $applicant = $this->Posts_model->get_applicant_info1($this->input->post('form_app_id'));
 
+            //get evaluation
+            $applicant_evaluation = $this->Posts_model->get_applicant_evaluation($applicant['app_id']);
+
+            //check if != Qualified
+            if (is_null($applicant_evaluation['eval_result']) || $applicant_evaluation['eval_result'] === ''){
+            }else{
+                if ($applicant_evaluation['eval_result'] != 'Qualified'){
+                    $this->Posts_model->request_reevaluation($applicant['app_id']);
+                }
+            }
+
             //Check ARP File
             if(!empty($_FILES['arp_file']['name'])){
                 $resultx = $this->arp_file();
@@ -1736,13 +1851,13 @@ class Pages extends CI_Controller
                 }else{
                     $result = array(
                         'status' => 'False',
-                        'error' => $resultx['error']
+                        'message' => $resultx['error']
                     );
                     echo json_encode($result);
                     exit;
                 }
             }else{
-                $arp_file = null;
+                $arp_file = $applicant['app_training_doc'];
             }
         
             $status = $this->Posts_model->save_forme8($arp_file);
@@ -1750,12 +1865,23 @@ class Pages extends CI_Controller
             if($status['status'] == 'True'){
                 $result = array(
                     'status' => 'True',
+                    'message' => '
+                                <div class="completion-msg">
+                                    <div class="completion-msg-title"><i class="fa fa-check-circle" aria-hidden="true"></i> Congratulations!</div>
+                                    <ul class="completion-msg-list">
+                                        <li>You have successfully completed and submitted all requirements for your application.</li>
+                                        <li>Your application will now be forwarded to the Human Resource Merit and Promotion Selection Board (HRMPSB) for evaluation.</li>
+                                        <li>You will be notified of the results through the email address you provided, and you may also check your application status anytime using your reference number.</li>
+                                    </ul>
+                                    <div class="completion-msg-footer">Thank you for your interest in joining TESDA.</div>
+                                </div>
+'
                 );
 
             }else{
                 $result = array(
                     'status' => 'False',
-                    'error' => 'Server Error'
+                    'message' => 'Server Error'
                 );
             }
             echo json_encode($result);
@@ -1823,7 +1949,7 @@ class Pages extends CI_Controller
             return $result;
         }
     }
-
+// --- Form 8 Awards
     public function save_forme9(){
 
         //Check Expert File
@@ -2168,7 +2294,6 @@ class Pages extends CI_Controller
          
          // Email body content
          $mailContent = "
-                        
                         <!DOCTYPE html>
                         <html lang='en'>
                         <head>
@@ -2186,7 +2311,7 @@ class Pages extends CI_Controller
                                             <tr>
                                                 <td style='background-color:#1C2B39;padding:28px 32px;text-align:center;'>
                                                     <img src='[INSERT_LOGO_URL]' alt='TESDA' style='max-width:130px;margin-bottom:14px;'><br>
-                                                    <span style='font-family:Georgia,\"Times New Roman\",serif;color:#ffffff;font-size:20px;font-weight:bold;'>Complete Your Application</span>
+                                                    <span style='font-family:Georgia,\"Times New Roman\",serif;color:#ffffff;font-size:20px;font-weight:bold;'>Your Application Has Been Received</span>
                                                 </td>
                                             </tr>
 
@@ -2194,9 +2319,9 @@ class Pages extends CI_Controller
                                             <tr>
                                                 <td style='padding:32px;'>
                                                     <p style='font-size:14.5px;line-height:1.6;margin:0 0 14px;'>Dear Applicant,</p>
-                                                    <p style='font-size:14.5px;line-height:1.6;margin:0 0 14px;'>Your application reference number is: <strong style='color:#A8762E;'>".$reference."</strong>.</p>
-                                                    <p style='font-size:14.5px;line-height:1.6;margin:0 0 8px;'>Please follow the instructions below to complete your application for the position of <strong>".$result['pos_desc']."</strong>.</p>
-                                                    <p style='font-size:13px;line-height:1.5;color:#5B6B7A;margin:0 0 26px;'>To avoid disqualification, please ensure to upload authenticated documents.</p>
+                                                    <p style='font-size:14.5px;line-height:1.6;margin:0 0 14px;'>Thank you for applying to the position of <strong>".$result['pos_desc']."</strong>. We've received your Personal Information and Intent Letter, and your application is now on file under the reference number <strong style='color:#A8762E;'>".$reference."</strong>. Keep this number — you'll need it to check your application status later.</p>
+                                                    <p style='font-size:14.5px;line-height:1.6;margin:0 0 8px;'>To complete your application, please fill out and submit the remaining requirements below. Each one opens its own secure form using the link provided.</p>
+                                                    <p style='font-size:13px;line-height:1.5;color:#5B6B7A;margin:0 0 26px;'>Please upload clear, authenticated copies of your documents in PDF format. Applications with incomplete, illegible, or unauthenticated documents may be disqualified during evaluation, so we recommend double-checking each upload before moving to the next step.</p>
 
                                                     <!-- Step 1 -->
                                                     <table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='background-color:#FAF8F4;border:1px solid #D9D3C7;border-radius:6px;margin-bottom:12px;'>
@@ -2206,7 +2331,7 @@ class Pages extends CI_Controller
                                                                     <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>1</td>
                                                                     <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Education and Eligibility</td>
                                                                 </tr></table>
-                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Upload and complete the <a href='".base_url().'step1/education-eligibility/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Education and Eligibility Form</a>.</p>
+                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Tell us about your educational background and civil service eligibility, and upload the supporting certificates. Start with the <a href='".base_url().'step1/education-eligibility/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Education and Eligibility Form</a>.</p>
                                                             </td>
                                                         </tr>
                                                     </table>
@@ -2219,7 +2344,7 @@ class Pages extends CI_Controller
                                                                     <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>2</td>
                                                                     <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Work Experience</td>
                                                                 </tr></table>
-                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Upload and complete the <a href='".base_url().'step2/work-experience/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Work Experience Form</a>.</p>
+                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Provide details of your relevant work history and upload proof of employment (e.g. Certificate of Employment, Service Record). Continue with the <a href='".base_url().'step2/work-experience/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Work Experience Form</a>.</p>
                                                             </td>
                                                         </tr>
                                                     </table>
@@ -2232,7 +2357,7 @@ class Pages extends CI_Controller
                                                                     <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>3</td>
                                                                     <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Relevant Training</td>
                                                                 </tr></table>
-                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Upload and complete the <a href='".base_url().'step3/relevant-training/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Relevant Training Form</a>.</p>
+                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>List any trainings relevant to the position and upload your certificates of completion. Continue with the <a href='".base_url().'step3/relevant-training/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Relevant Training Form</a>.</p>
                                                             </td>
                                                         </tr>
                                                     </table>
@@ -2243,9 +2368,9 @@ class Pages extends CI_Controller
                                                             <td style='padding:16px 18px;'>
                                                                 <table role='presentation' cellpadding='0' cellspacing='0'><tr>
                                                                     <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>4</td>
-                                                                    <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Special Acts Form</td>
+                                                                    <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Special Acts Declaration</td>
                                                                 </tr></table>
-                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 6px;'>Fill out the form as required through this <a href='".base_url().'step4/special-acts-form/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Link</a></p>
+                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 6px;'>Let us know if any of the following apply to you, so we can process your application in accordance with the relevant law. Complete the <a href='".base_url().'step4/special-acts-form/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Special Acts Form</a>:</p>
                                                                 <ul style='font-size:13.5px;line-height:1.6;margin:6px 0 0;padding-left:20px;color:#333333;'>
                                                                     <li>Indigenous People's Act (RA 8371)</li>
                                                                     <li>Magna Carta for Disabled Persons (RA 7277)</li>
@@ -2261,9 +2386,9 @@ class Pages extends CI_Controller
                                                             <td style='padding:16px 18px;'>
                                                                 <table role='presentation' cellpadding='0' cellspacing='0'><tr>
                                                                     <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>5</td>
-                                                                    <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Personal Data and Work Experience Sheets</td>
+                                                                    <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Personal Data Sheet &amp; Work Experience Sheet</td>
                                                                 </tr></table>
-                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Upload your <a href='".base_url().'step5/pds-wes/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Personal Data Sheet and Work Experience Sheet</a>.</p>
+                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Upload your accomplished Civil Service Commission forms — the Personal Data Sheet (CS Form No. 212, revised 2017) and the Work Experience Sheet. Use the <a href='".base_url().'step5/pds-wes/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>PDS &amp; WES Upload Form</a>. Please make sure you're using the current, correctly filled-out version, as this is one of the most common reasons for disqualification.</p>
                                                             </td>
                                                         </tr>
                                                     </table>
@@ -2274,9 +2399,9 @@ class Pages extends CI_Controller
                                                             <td style='padding:16px 18px;'>
                                                                 <table role='presentation' cellpadding='0' cellspacing='0'><tr>
                                                                     <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>6</td>
-                                                                    <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>References</td>
+                                                                    <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Character References</td>
                                                                 </tr></table>
-                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Complete the <a href='".base_url().'step6/references/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>References Form</a>.</p>
+                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Provide the name, email address, and contact number of an immediate supervisor, a peer, and a client who can vouch for your work. Complete the <a href='".base_url().'step6/references/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>References Form</a>. Please inform your references beforehand and obtain their consent before submitting their details.</p>
                                                             </td>
                                                         </tr>
                                                     </table>
@@ -2289,38 +2414,15 @@ class Pages extends CI_Controller
                                                                     <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>7</td>
                                                                     <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Awards Related to Performance</td>
                                                                 </tr></table>
-                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Upload and complete the <a href='".base_url().'step7/awards-related-to-performance/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Awards Related to Performance Form</a>.</p>
+                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>If you've received any performance-related awards or recognitions — international, national, regional, or provincial/institutional — list them and upload supporting evidence. This step is optional if none apply. Complete the <a href='".base_url().'step7/awards-related-to-performance/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Awards Form</a>.</p>
                                                             </td>
                                                         </tr>
                                                     </table>
 
-                                                    <!-- Step 8 -->
-                                                    <table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='background-color:#FAF8F4;border:1px solid #D9D3C7;border-radius:6px;margin-bottom:12px;'>
-                                                        <tr>
-                                                            <td style='padding:16px 18px;'>
-                                                                <table role='presentation' cellpadding='0' cellspacing='0'><tr>
-                                                                    <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>8</td>
-                                                                    <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Expert Services</td>
-                                                                </tr></table>
-                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Upload and complete the form for <a href='".base_url().'step8/expert-services/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Expert Services in Active Participation in Professional/Technical Activities</a>.</p>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
+                                                    
 
-                                                    <!-- Step 9 -->
-                                                    <table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='background-color:#FAF8F4;border:1px solid #D9D3C7;border-radius:6px;margin-bottom:26px;'>
-                                                        <tr>
-                                                            <td style='padding:16px 18px;'>
-                                                                <table role='presentation' cellpadding='0' cellspacing='0'><tr>
-                                                                    <td style='width:26px;height:26px;background-color:#A8762E;border-radius:50%;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;vertical-align:middle;' align='center'>9</td>
-                                                                    <td style='padding-left:12px;font-size:14.5px;font-weight:bold;color:#1C2B39;'>Committees/TWGs Participation</td>
-                                                                </tr></table>
-                                                                <p style='font-size:14px;line-height:1.6;margin:10px 0 0;'>Upload and complete the form for <a href='".base_url().'step9/committees/'.$hash1."' target='_blank' style='color:#A8762E;font-weight:bold;text-decoration:none;'>Participation in Committees/Technical Working Groups (TWGs)</a>.</p>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-
-                                                    <p style='font-size:14.5px;line-height:1.6;margin:0 0 4px;'>Best regards,</p>
+                                                    <p style='font-size:14.5px;line-height:1.6;margin:0 0 4px;'>Once all forms are submitted, your application will be forwarded to the Human Resource Merit and Promotion Selection Board (HRMPSB) for evaluation. We'll notify you by email, and you can check your status anytime using your reference number.</p>
+                                                    <p style='font-size:14.5px;line-height:1.6;margin:20px 0 4px;'>Best regards,</p>
                                                     <p style='font-size:14.5px;line-height:1.6;margin:0 0 24px;'><strong>TESDA Region II (Cagayan Valley)</strong></p>
 
                                                     <!-- Contact -->
@@ -2328,8 +2430,8 @@ class Pages extends CI_Controller
                                                         <tr>
                                                             <td>
                                                                 <p style='font-size:14px;font-weight:bold;color:#1C2B39;margin:0 0 6px;'>Need Assistance?</p>
-                                                                <p style='font-size:13.5px;line-height:1.6;color:#5B6B7A;margin:0 0 8px;'>If you encounter any issues or have questions, please contact our Technical Support Team:</p>
-                                                                <p style='font-size:13.5px;line-height:1.6;margin:0 0 4px;'>Email: <a href='mailto:region2.ictu@tesda.gov.ph' style='color:#A8762E;text-decoration:none;'>region2_ictu@tesda.gov.ph</a></p>
+                                                                <p style='font-size:13.5px;line-height:1.6;color:#5B6B7A;margin:0 0 8px;'>If you run into any issues completing these forms, or have questions about your application, our Technical Support Team is happy to help:</p>
+                                                                <p style='font-size:13.5px;line-height:1.6;margin:0 0 4px;'>Email: <a href='mailto:region2.ictu@tesda.gov.ph' style='color:#A8762E;text-decoration:none;'>region2.ictu@tesda.gov.ph</a></p>
                                                                 <p style='font-size:13.5px;line-height:1.6;margin:0;'>Phone: (078) 846-1618</p>
                                                             </td>
                                                         </tr>
@@ -2360,7 +2462,7 @@ class Pages extends CI_Controller
             
             $result = array(
                 'status' => 'False',
-                'message' => 'Mailer Error: Unable to send the email notification. Please contact the System Administrator at admin@example.com for assistance.'
+                'message' => 'Mailer Error: Unable to send the email notification. Please contact the System Administrator at region2.ictu@tesda.gov.ph for assistance.'
             );
             return $result;
             exit;

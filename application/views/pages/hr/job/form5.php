@@ -204,6 +204,51 @@
             border-bottom:1px solid var(--line);
         }
         .summary-header i{color:var(--brass-dark);}
+
+        .tesda-accordion{
+            background:#fff;
+            border-radius:4px;
+            overflow:hidden;
+            margin-left:20px;
+            margin-right:20px;
+        }
+
+        .accordion-item{border-bottom:1px solid var(--line);}
+        .accordion-item:last-child{border-bottom:none;}
+
+        .accordion-header{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding:16px 20px;
+            font-size:14.5px;
+            font-weight:600;
+            color:var(--ink);
+            cursor:pointer;
+            background:var(--paper);
+            transition:background .15s ease;
+        }
+        .accordion-header:hover{background:var(--paper);}
+
+        .accordion-icon{
+            color:var(--brass-dark);
+            font-size:13px;
+            transition:transform .2s ease;
+        }
+        .accordion-item.open .accordion-icon{transform:rotate(180deg);}
+
+        .accordion-body{
+            display:grid;
+            grid-template-rows:0fr;
+            transition:grid-template-rows .25s ease;
+        }
+        .accordion-body-inner{
+            overflow:hidden;
+            min-height:0;
+        }
+        .accordion-item.open .accordion-body{
+            grid-template-rows:1fr;
+        }
     </style>
 
 </head>
@@ -281,93 +326,166 @@
                                     </div>
                                 <!--- Your Saved Information--->
 
-                                <?php if($applicant['vac_deadline'] >= date('Y-m-d H:i:s')){ ?>
-                                    <!---Reminder--->
-                                        <div class="notice notice-success" role="alert">
-                                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                <!--- Evaluation Result--->
+                                    <?php if (!empty($evaluation['app_result'])): ?>
+                                        <div class="applicant-summary">
+                                            <div class="summary-header">
+                                                <i class="fa fa-edit" aria-hidden="true"></i>
+                                                Evaluation Result
+                                            </div>
+
+                                            <?php if (!empty($evaluation['app_result'])): ?>
+                                            <div class="summary-row">
+                                                <span class="summary-label">Result</span>
+                                                <span class="summary-value">
+                                                    <strong><?= $evaluation['app_result'] ?></strong>
+                                                </span>
+                                            </div>
+                                            <?php endif; ?>
+
+                                            <!--Evaluation Summary-->
+                                            <?php if (!empty($evaluation['eval_remarks'])): ?>
+                                            <div class="summary-row" style="background:var(--paper)">
+                                                <span class="summary-label"><b>REMARKS ON CSC QUALIFICATION STANDARDS</b></span>
+                                                <span class="summary-value">
+                                                    <b><?=  tesda_format_list(strtoupper($evaluation['eval_remarks'])) ?></b>
+                                                </span>
+                                            </div>
+                                            <?php endif; ?>
+  
+                                            <?php if (!empty($evaluation['eval_remarks1'])): ?>
+                                            <div class="summary-row" style="background:var(--paper)">
+                                                <span class="summary-label"><b>REMARKS ON UPLOADED DOCUMENTS</b></span>
+                                                <span class="summary-value">
+                                                    <b><?= tesda_format_list(strtoupper($evaluation['eval_remarks1'])) ?></b>
+                                                </span>
+                                            </div>
+                                            <?php endif; ?>
+                                            <!--Evaluation Summary-->
+
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($applicant['app_reevaluation']) && $applicant['app_reevaluation'] == 1): ?>
+                                        <div class="notice notice-success reeval-sent" role="alert">
+                                            <i class="fa fa-check-circle" aria-hidden="true"></i>
                                             <div>
-                                                <p><strong>Reminder:</strong> Any changes you make to this form will update the following information accordingly:</p>
-                                                <p>1. A member of any indigenous?: <?= $app_ra8371 ?></p>
-                                                <p>2. A person with disability?: <?= $app_ra7277 ?></p>
-                                                <p>2. A solo parent?: <?= $app_ra8972 ?></p>
-                                                <div class="emphasis-callout">
-                                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                                    <span>If there are no updates to the required fields, you may leave them blank.</span>
+                                                <p><strong>Request Sent.</strong> Your request for re-evaluation has been submitted successfully.</p>
+                                                <p class="reeval-sub">The HRMPSB will review your request and notify you once a decision has been made.</p>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+                                <!--- Evaluation Result--->
+
+                                
+
+                                <?php if($applicant['vac_deadline'] <= date('Y-m-d')){ ?>
+
+                                    <div class="tesda-accordion">
+                                        <div class="accordion-item">
+                                            <div class="accordion-header">
+                                                <span>Click to Continue Application</span>
+                                                <i class="fa fa-chevron-down accordion-icon" aria-hidden="true"></i>
+                                            </div>
+                                            <div class="accordion-body">
+                                                <div class="accordion-body-inner">
+
+                                                    <br>
+                                                    
+                                                    <!--Content Here-->
+                                                        <!---Reminder--->
+                                                            <div class="notice notice-success" role="alert">
+                                                                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                                                <div>
+                                                                    <p><strong>Reminder:</strong> Any changes you make to this form will update the following information accordingly:</p>
+                                                                    <p>1. A member of any indigenous?: <?= $app_ra8371 ?></p>
+                                                                    <p>2. A person with disability?: <?= $app_ra7277 ?></p>
+                                                                    <p>2. A solo parent?: <?= $app_ra8972 ?></p>
+                                                                    <div class="emphasis-callout">
+                                                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                                                        <span>If there are no updates to the required fields, you may leave them blank.</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        <!---Reminder--->  
+                                                    
+                                                        <!---Form Here--->
+                                                            <form action="" method="POST" id="forme5_form" role="form"><!--Form-->
+                                                                <input type="hidden" id="form_app_id" name="form_app_id" value="<?= $hash ?>">
+
+                                                                <!---RA8371-->
+                                                                <div class="act-question">
+                                                                    <label>Are you a member of any indigenous group? <b>(if yes, please specify in the others)</b></label>
+                                                                    <div class="yesno-toggle">
+                                                                        <input type="radio" id="ra8371_yes" name="ra8371[]" value="Yes"><label class="yn-label" for="ra8371_yes">Yes</label>
+                                                                        <input type="radio" id="ra8371_no" name="ra8371[]" value="No"><label class="yn-label" for="ra8371_no">No</label>
+                                                                    </div>
+                                                                    <div class="others-reveal" id="ra8371_reveal">
+                                                                        <input type="text" id="ra8371_others" name="ra8371[]" placeholder="Please specify" disabled>
+                                                                    </div>
+                                                                </div>
+                                                                <!---RA8371-->
+
+                                                                <!---RA7277-->
+                                                                <div class="act-question">
+                                                                    <label>Are you a person with disability? <b>(if yes, please specify ID number in others)</b></label>
+                                                                    <div class="yesno-toggle">
+                                                                        <input type="radio" id="ra727_yes" name="ra727[]" value="Yes"><label class="yn-label" for="ra727_yes">Yes</label>
+                                                                        <input type="radio" id="ra727_no" name="ra727[]" value="No"><label class="yn-label" for="ra727_no">No</label>
+                                                                    </div>
+                                                                    <div class="others-reveal" id="ra727_reveal">
+                                                                        <input type="text" id="ra727_others" name="ra727[]" placeholder="Please specify ID number" disabled>
+                                                                    </div>
+                                                                </div>
+                                                                <!---RA7277-->
+
+                                                                <!---RA8972-->
+                                                                <div class="act-question">
+                                                                    <label>Are you a solo parent? <b>(if yes, please specify ID number in others)</b></label>
+                                                                    <div class="yesno-toggle">
+                                                                        <input type="radio" id="ra8972_yes" name="ra8972[]" value="Yes"><label class="yn-label" for="ra8972_yes">Yes</label>
+                                                                        <input type="radio" id="ra8972_no" name="ra8972[]" value="No"><label class="yn-label" for="ra8972_no">No</label>
+                                                                    </div>
+                                                                    <div class="others-reveal" id="ra8972_reveal">
+                                                                        <input type="text" id="ra8972_others" name="ra8972[]" placeholder="Please specify ID number" disabled>
+                                                                    </div>
+                                                                </div>
+                                                                <!---RA8972-->
+
+                                                                <hr class="divider">
+
+                                                                <?php if($applicant['app_lock'] != 1){ ?>
+
+                                                                    <!-- I am not a robot -->
+                                                                    <div class="field" style="margin-bottom:22px;">
+                                                                        <div class="g-recaptcha" data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required></div>
+                                                                    </div>
+                                                                    <!-- I am not a robot -->
+
+                                                                    <button id="btn_forme5" name="forme5" type="submit">
+                                                                        <i class="fa fa-save" id="btn_forme5_icon"></i><span id="btn_forme5_label">Submit</span>
+                                                                    </button>
+                                                                <?php } else{?>
+
+                                                                    <div class="emphasis-callout">
+                                                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                                                        <span>Your application has been evaluated and is now locked.</span>
+                                                                    </div>
+                                                                    
+                                                                <?php }?>    
+                                                                <div id="forme5_message" class="message"></div>    
+                                                            
+                                                                <!--Submit-->
+
+                                                            </form><!---End of Form-->
+                                                        <!---Form Here--->
+
+                                                    <!--Content Here-->
                                                 </div>
                                             </div>
                                         </div>
-                                    <!---Reminder--->  
-                                
-                                    <!---Form Here--->
-                                        <form action="" method="POST" id="forme5_form" role="form"><!--Form-->
-                                            <input type="hidden" id="form_app_id" name="form_app_id" value="<?= $hash ?>">
+                                    </div>
 
-                                            <!---RA8371-->
-                                            <div class="act-question">
-                                                <label>Are you a member of any indigenous group? <b>(if yes, please specify in the others)</b></label>
-                                                <div class="yesno-toggle">
-                                                    <input type="radio" id="ra8371_yes" name="ra8371[]" value="Yes"><label class="yn-label" for="ra8371_yes">Yes</label>
-                                                    <input type="radio" id="ra8371_no" name="ra8371[]" value="No"><label class="yn-label" for="ra8371_no">No</label>
-                                                </div>
-                                                <div class="others-reveal" id="ra8371_reveal">
-                                                    <input type="text" id="ra8371_others" name="ra8371[]" placeholder="Please specify" disabled>
-                                                </div>
-                                            </div>
-                                            <!---RA8371-->
-
-                                            <!---RA7277-->
-                                            <div class="act-question">
-                                                <label>Are you a person with disability? <b>(if yes, please specify ID number in others)</b></label>
-                                                <div class="yesno-toggle">
-                                                    <input type="radio" id="ra727_yes" name="ra727[]" value="Yes"><label class="yn-label" for="ra727_yes">Yes</label>
-                                                    <input type="radio" id="ra727_no" name="ra727[]" value="No"><label class="yn-label" for="ra727_no">No</label>
-                                                </div>
-                                                <div class="others-reveal" id="ra727_reveal">
-                                                    <input type="text" id="ra727_others" name="ra727[]" placeholder="Please specify ID number" disabled>
-                                                </div>
-                                            </div>
-                                            <!---RA7277-->
-
-                                            <!---RA8972-->
-                                            <div class="act-question">
-                                                <label>Are you a solo parent? <b>(if yes, please specify ID number in others)</b></label>
-                                                <div class="yesno-toggle">
-                                                    <input type="radio" id="ra8972_yes" name="ra8972[]" value="Yes"><label class="yn-label" for="ra8972_yes">Yes</label>
-                                                    <input type="radio" id="ra8972_no" name="ra8972[]" value="No"><label class="yn-label" for="ra8972_no">No</label>
-                                                </div>
-                                                <div class="others-reveal" id="ra8972_reveal">
-                                                    <input type="text" id="ra8972_others" name="ra8972[]" placeholder="Please specify ID number" disabled>
-                                                </div>
-                                            </div>
-                                            <!---RA8972-->
-
-                                            <hr class="divider">
-
-                                            <?php if($applicant['app_lock'] != 1){ ?>
-
-                                                <!-- I am not a robot -->
-                                                <div class="field" style="margin-bottom:22px;">
-                                                    <div class="g-recaptcha" data-sitekey="6Lfsr1AcAAAAAJrOf8WvM5nM1W6m5YaSSzTOH1fZ" required></div>
-                                                </div>
-                                                <!-- I am not a robot -->
-
-                                                <button id="btn_forme5" name="forme5" type="submit">
-                                                    <i class="fa fa-save" id="btn_forme5_icon"></i><span id="btn_forme5_label">Submit</span>
-                                                </button>
-                                            <?php } else{?>
-
-                                                <div class="emphasis-callout">
-                                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                                    <span>Your application has been evaluated and is now locked.</span>
-                                                </div>
-                                                
-                                            <?php }?>    
-                                            <div id="forme5_message" class="message"></div>    
-                                           
-                                            <!--Submit-->
-
-                                        </form><!---End of Form-->
-                                    <!---Form Here--->
                                 <?php }else { ?>
                                     <div class="notice notice-danger" role="alert">
                                         <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
@@ -409,18 +527,8 @@
                                         success: function(data){
                                             var json = $.parseJSON(data);
                                             if(json.status == 'True'){
-                                                html =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> <b>Saved</b> successfully. Please continue to the next tab (Personal Data Sheet).</div>';
-                                                html2 =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> <b>Saved</b> successfully. Please continue to the next tab (Personal Data Sheet).</div>';
-
-                                                $('#forme5_message').prepend(html2);
-                                                $('#application_body_card').prepend(html);
-
-                                                $("#pdswes_tab").removeClass("disabled");
-
-                                                $(".message").delay(4000).slideUp(200, function() {
-                                                    $(this).alert('close');
-                                                });
-
+                                                html =  '<div class="alert alert-success mt-2 message"><i class="fa fa-check-circle" aria-hidden="true"></i> '+ json.message+'</div>';
+                                            
                                                 $("#btn_forme5").hide();
 
                                                 $("#ra8371_yes").attr("disabled", true);
@@ -435,19 +543,26 @@
                                                 $("#ra8972_no").attr("disabled", true);
                                                 $("#ra8972_others").attr("disabled", true);
 
-                                            }else{
-                                                html = '<div class="alert alert-danger mt-2 message"> <b>'+ json.error +'</b></div>';
-                                                $('#forme5_card').prepend(html);
-                                                $('#forme5_message').prepend(html);
+                                                // Refresh the page after a short delay so the success message is visible first
+                                                setTimeout(function(){
+                                                    location.reload();
+                                                }, 10000);
 
+                                            }else{
+                                                html = '<div class="alert alert-danger mt-2 message"> <i class="fa fa-times" aria-hidden="true"></i> '+ json.message +'</div>';
+             
                                                 $('#btn_forme5').prop('disabled', false);
                                                 $('#btn_forme5_icon').removeClass('fa-spinner fa-spin').addClass('fa-save');
                                                 $('#btn_forme5_label').text('Submit');
 
-                                                $(".message").delay(4000).slideUp(200, function() {
-                                                    $(this).alert('close');
-                                                });
-                                            }       
+                                            } 
+                                            
+                                            var $newMessage = $(html).prependTo('#forme5_message');
+
+                                            // Apply the auto-hide to THIS specific element, not a blanket ".message" selector
+                                            $newMessage.delay(5000).slideUp(200, function(){
+                                                $(this).remove();
+                                            });
                                         }
                                     });
                                 });
@@ -515,6 +630,19 @@
                             $(window).on('load', function() {
                                 $('#sitePrivacyModal').modal('show');
                             });
+
+                            $('.accordion-header').click(function(){
+                                var $item = $(this).closest('.accordion-item');
+                                var isOpen = $item.hasClass('open');
+
+                                // Close all other items (remove this block if you want multiple open at once)
+                                $('.accordion-item').removeClass('open');
+
+                                if (!isOpen) {
+                                    $item.addClass('open');
+                                }
+                            });
+
                     </script>
                 <!-- script here -->
 

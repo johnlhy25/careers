@@ -6,31 +6,29 @@
                         <a href="#">
                             <img src="<?= base_url()?>jobportal/images/icon/logo-blue.png" alt="Logo" />
                         </a>
-                        <div class="header__logo-text">
-                            <span class="site-title">TESDA DOS</span>
-                            <span class="site-subtitle">Job Portal</span>
-                        </div>
                     </div>
                     <div class="header__tool">
-                        <a href="mailto:region2_ictu@tesda.gov.ph" class="header-info-item">
-                            <i class="fa fa-envelope" aria-hidden="true"></i>
-                            <span>region2_ictu@tesda.gov.ph</span>
+                        <a href="#" class="header-info-item" data-toggle="modal" data-target="#faqModal">
+                            <i class="fa fa-question" aria-hidden="true"></i>
+                            <span>Frequently Asked Questions</span>
                         </a>
                         <a href="tel:+6378846-1618" class="header-info-item">
                             <i class="fa fa-phone" aria-hidden="true"></i>
                             <span>(078) 846-1618</span>
                         </a>
                         <span class="header-info-item header-info-hours">
-                            <i class="fa fa-clock-o" aria-hidden="true"></i>
-                            <span>Mon–Fri, 8:00 AM–5:00 PM</span>
+                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                            <span>region2@tesda.gov.ph</span>
                         </span>
                     </div>
                 </div>
             </div>
         </header>
-        <!-- END HEADER DESKTOP -->
+<!-- END HEADER DESKTOP -->
 
-        <style>
+<!--FAQs-->
+    <?php include("faq.php");?>
+    <style>
         .header-desktop4{
         background:#fff;
         border-bottom:1px solid var(--line);
@@ -98,4 +96,45 @@
         @media(max-width:768px){
             .header__tool{display:none;}
         }
-        </style>
+    </style>
+
+    <script>
+    $(document).ready(function(){
+        $('#faqModal').on('click', '.faq-acc-header', function(){
+            var $item = $(this).closest('.faq-acc-item');
+            var isOpen = $item.hasClass('open');
+            $item.closest('.faq-acc').find('.faq-acc-item').removeClass('open');
+            if (!isOpen) $item.addClass('open');
+        });
+
+        $('#faqModal').on('keyup', '#faqSearchInput', function(){
+            var term = $(this).val().toLowerCase().trim();
+            var anyVisible = false;
+
+            $('#faqModal .faq-acc-item').each(function(){
+                var questionText = $(this).find('.faq-acc-header span').text().toLowerCase();
+                var answerText = $(this).find('.faq-acc-body-inner').text().toLowerCase();
+                var matches = term === '' || questionText.indexOf(term) > -1 || answerText.indexOf(term) > -1;
+
+                $(this).toggleClass('no-match', !matches);
+                if (matches) anyVisible = true;
+            });
+
+            $('#faqModal .faq-acc').each(function(){
+                var hasVisible = $(this).find('.faq-acc-item:not(.no-match)').length > 0;
+                $(this).toggle(hasVisible);
+                $(this).prev('.faq-category').toggle(hasVisible);
+            });
+
+            $('#faqNoResults').toggle(!anyVisible && term !== '');
+        });
+
+        $('#faqModal').on('hidden.bs.modal', function(){
+            $('#faqSearchInput').val('');
+            $('#faqModal .faq-acc-item').removeClass('no-match open');
+            $('#faqModal .faq-acc, #faqModal .faq-category').show();
+            $('#faqNoResults').hide();
+        });
+    });
+    </script>
+<!--FAQs-->
