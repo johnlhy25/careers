@@ -434,9 +434,7 @@
                                                     <?= $nttc_display ?>
                                                 </span>
                                             </div>
-                                        <?php endif; ?>
-
-                                        
+                                        <?php endif; ?> 
                                     </div>
                                 <!--- Your Saved Information--->
                                 
@@ -471,6 +469,9 @@
                                                         <a href="<?= base_url() . 'view-document/' . $type . '/' . $hash ?>" target="_blank" class="btn-view-file">
                                                             <i class="fa fa-eye" aria-hidden="true"></i> View File
                                                         </a>
+                                                        <button class="btn-view-file btn-accordion">
+                                                            <i class="fa fa-edit" aria-hidden="true"></i> Edit File
+                                                        </button>
                                                     </span>
                                                 </div>
                                             <?php endforeach; ?>
@@ -488,9 +489,10 @@
 
                                             <?php if (!empty($evaluation['app_result'])): ?>
                                             <div class="summary-row">
-                                                <span class="summary-label">Result</span>
+                                                <span class="summary-label">Initial Result</span>
                                                 <span class="summary-value">
                                                     <strong><?= $evaluation['app_result'] ?></strong>
+                                                    <small>Subject to final review and deliberation by the HRMPSB.</small>
                                                 </span>
                                             </div>
                                             <?php endif; ?>
@@ -897,6 +899,7 @@
                                 $item.addClass('open');
                             }
                         });
+ 
                     </script>
                 <!-- script here -->
 

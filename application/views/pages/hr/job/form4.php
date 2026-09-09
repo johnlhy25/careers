@@ -444,9 +444,10 @@
 
                                             <?php if (!empty($evaluation['app_result'])): ?>
                                             <div class="summary-row">
-                                                <span class="summary-label">Result</span>
+                                                <span class="summary-label">Initial Result</span>
                                                 <span class="summary-value">
                                                     <strong><?= $evaluation['app_result'] ?></strong>
+                                                    <small>Subject to final review and deliberation by the HRMPSB.</small>
                                                 </span>
                                             </div>
                                             <?php endif; ?>
@@ -497,7 +498,7 @@
                                                     
                                 
 
-                            <?php if($applicant['vac_deadline'] <= date('Y-m-d')){ ?>
+                            <?php if($applicant['vac_deadline'] >= date('Y-m-d')){ ?>
 
                                 <div class="tesda-accordion">
                                     <div class="accordion-item">

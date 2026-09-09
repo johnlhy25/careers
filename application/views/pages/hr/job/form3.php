@@ -485,9 +485,10 @@
 
                                             <?php if (!empty($evaluation['app_result'])): ?>
                                             <div class="summary-row">
-                                                <span class="summary-label">Result</span>
+                                                <span class="summary-label">Initial Result</span>
                                                 <span class="summary-value">
                                                     <strong><?= $evaluation['app_result'] ?></strong>
+                                                    <small>Subject to final review and deliberation by the HRMPSB.</small>
                                                 </span>
                                             </div>
                                             <?php endif; ?>
@@ -503,7 +504,7 @@
 
                                              <?php if (!empty($evaluation['eval_chklist8'])): ?>
                                             <div class="summary-row">
-                                                <span class="summary-label">Copy of Previous Appointment</span>
+                                                <span class="summary-label">Copy of Appointment</span>
                                                 <span class="summary-value">
                                                     <?= $evaluation['eval_chklist8'] ?>
                                                 </span>
@@ -553,7 +554,7 @@
                                     <?php endif; ?>
                                 <!--- Evaluation Result--->
                             
-                            <?php if($applicant['vac_deadline'] <= date('Y-m-d')){ ?>
+                            <?php if($applicant['vac_deadline'] >= date('Y-m-d')){ ?>
 
                                 <div class="tesda-accordion">
                                     <div class="accordion-item">
@@ -669,7 +670,7 @@
                                                                 </div>
 
                                                                 <div class="field">
-                                                                    <label for="cpa_file">Copy of Previous Appointment (if applicable)</label>
+                                                                    <label for="cpa_file">Copy of Appointment (if applicable)</label>
                                                                     <div class="file-drop-area" id="cpa-drop-area">
                                                                         <span class="fake-btn">Choose File</span>
                                                                         <span class="file-msg">or drag and drop a Copy of Previous Appointment file here</span>

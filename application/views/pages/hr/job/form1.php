@@ -344,7 +344,7 @@ table.dataTable thead th.sorting_desc:after{
 
             <!--Letter of Intent-->
             <div class="intent-block">
-                <label for="intent_file">Intent Letter</label>
+                <label for="intent_file">Application Letter</label>
                 <p class="hint">Indicate the position, the office where the vacancy exists, and its Item Number. PDF only.</p>
                 <div class="file-picker">
                     <span class="btn-choose">Choose file</span>

@@ -204,16 +204,7 @@
 
         /* "Application status" letter box */
         .status-box-letter{padding:24px 26px 22px;}
-        .status-box-letter #paragraph4{
-        font-family:'Source Serif 4',Georgia,serif;
-        text-align:center;
-        color:var(--brass-dark);
-        background:#FBF3E7;
-        border:1px solid #EAD8B8;
-        border-radius:4px;
-        padding:12px;
-        margin:6px 0 20px;
-        }
+        
         .status-box-letter .letter{
         background:#fff;
         border:1px solid var(--line);
@@ -294,7 +285,10 @@
                             <div class="status-box-inner">
                                 <i class="fa fa-search status-icon-inline" aria-hidden="true"></i>
                                 <div class="status-alert-text">
-                                   <span id="paragraph4">Still in process, please wait.</span>
+                                   <span id="paragraph4"><p><strong>Your application is still being processed.</strong> Your application will be evaluated within three (3) working days from the date of submission.</p>
+                                    <br><p>Please be informed that <strong>TESDA is currently implementing a compressed workweek arrangement, with regular working days from Monday to Thursday. </strong> 
+                                    Friday, Saturday, and Sunday are non-working days, along with declared holidays. As such, these days are not included in the counting of working days for application processing.</p>
+                                    <br><p>Thank you for your patience and understanding.</p></span>
                                 </div>
                             </div>
                             

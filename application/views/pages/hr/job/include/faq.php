@@ -211,7 +211,7 @@
 
             <div class="faq-contact">
                 <p>Still have questions? We're happy to help.</p>
-                <a href="mailto:region2_ictu@tesda.gov.ph"><i class="fa fa-envelope" aria-hidden="true"></i> region2_ictu@tesda.gov.ph</a>
+                <a href="mailto:region2_ictu@tesda.gov.ph"><i class="fa fa-envelope" aria-hidden="true"></i> region2.ictu@tesda.gov.ph</a>
                 &nbsp;·&nbsp;
                 <a href="tel:+6378846-1618"><i class="fa fa-phone" aria-hidden="true"></i> (078) 846-1618</a>
             </div>
