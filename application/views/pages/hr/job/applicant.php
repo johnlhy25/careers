@@ -96,6 +96,30 @@
   margin-bottom:0;
 }
 
+.tesda-modal-wrap .email-advisory{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  background:#FBF3E7;
+  border:1px solid #EAD8B8;
+  border-radius:3px;
+  padding:14px 16px;
+  margin:0 0 14px;
+}
+.tesda-modal-wrap .email-advisory i{
+  color:var(--brass-dark);
+  font-size:15px;
+  margin-top:2px;
+  flex-shrink:0;
+}
+.tesda-modal-wrap .email-advisory p{
+  font-size:13.5px;
+  line-height:1.6;
+  color:#5A4425;
+  margin:0;
+}
+.tesda-modal-wrap .email-advisory strong{color:var(--brass-dark);}
+
 .tesda-modal-wrap .file-note{
   background:#fff;
   border:1px solid var(--line);
@@ -131,6 +155,11 @@
                     <li><span class="num">3.</span> Financial and Administrative Services Division</li>
                     <li><span class="num">4.</span> The Appointing Authority</li>
                 </ul>
+
+                <div class="email-advisory">
+                    <i class="fa fa-envelope" aria-hidden="true"></i>
+                    <p><strong>Important:</strong> Please make sure the email address you provide is active and able to receive messages. The next steps of your application — including your reference number and links to the remaining forms — will be sent to that address. We are not responsible for applications left incomplete due to an inactive, mistyped, or unreachable email address.</p>
+                </div>
 
                 <p>Furthermore, you are responsible for informing and obtaining consent and permission from references before providing their personal information to us.</p>
                 <p class="sign-off">We appreciate your interest in applying with us! Regards, and keep safe.</p>
